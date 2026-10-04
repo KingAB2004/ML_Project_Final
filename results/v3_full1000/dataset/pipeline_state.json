@@ -1,0 +1,74 @@
+{
+  "test_all.py": {
+    "stage": "check",
+    "ok": true,
+    "seconds": 11.6,
+    "finished": "2026-10-03T06:36:28.526115+00:00"
+  },
+  "fetch_data.py --ed": {
+    "stage": "corpus",
+    "ok": true,
+    "seconds": 0.1,
+    "finished": "2026-10-03T06:36:28.630047+00:00"
+  },
+  "seeds.py --backend ollama": {
+    "stage": "corpus",
+    "ok": true,
+    "seconds": 684.7,
+    "finished": "2026-10-03T09:15:09.697739+00:00"
+  },
+  "profiles.py --split --backend ollama": {
+    "stage": "corpus",
+    "ok": true,
+    "seconds": 4203.8,
+    "finished": "2026-10-03T10:25:14.590363+00:00"
+  },
+  "-c import pathlib as p; d=p.Path('data/profiles'); p.Path('data/profiles/profiles_trainval.jsonl').write_text(''.join((d / f'profiles_{s}.jsonl').read_text() for s in ('train', 'val')))": {
+    "stage": "corpus",
+    "ok": true,
+    "seconds": 1.3,
+    "finished": "2026-10-03T10:25:16.125264+00:00"
+  },
+  "dialogue.py --profiles data/profiles/profiles_trainval.jsonl --backend ollama": {
+    "stage": "corpus",
+    "ok": true,
+    "seconds": 5150.8,
+    "finished": "2026-10-03T11:51:07.048878+00:00"
+  },
+  "sessions.py --profiles data/profiles/profiles_trainval.jsonl --backend ollama": {
+    "stage": "corpus",
+    "ok": true,
+    "seconds": 17867.2,
+    "finished": "2026-10-03T16:48:55.116957+00:00"
+  },
+  "sessions.py --check": {
+    "stage": "corpus",
+    "ok": true,
+    "seconds": 3.7,
+    "finished": "2026-10-03T16:48:58.931533+00:00"
+  },
+  "filter.py --backend ollama": {
+    "stage": "corpus",
+    "ok": true,
+    "seconds": 2911.6,
+    "finished": "2026-10-03T17:37:30.771500+00:00"
+  },
+  "annotate.py --backend ollama": {
+    "stage": "corpus",
+    "ok": true,
+    "seconds": 32893.9,
+    "finished": "2026-10-04T02:45:44.755536+00:00"
+  },
+  "build_sft.py --arm with_thoughts": {
+    "stage": "sft",
+    "ok": true,
+    "seconds": 0.7,
+    "finished": "2026-10-04T02:45:45.637284+00:00"
+  },
+  "build_sft.py --arm wo_thoughts": {
+    "stage": "sft",
+    "ok": true,
+    "seconds": 0.6,
+    "finished": "2026-10-04T02:45:46.281907+00:00"
+  }
+}

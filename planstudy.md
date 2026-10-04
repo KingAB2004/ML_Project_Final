@@ -311,6 +311,8 @@ reproduces the adapter's loss to 0.02 % (bf16 noise).
 | Training curves | `runs/scale_qwen2.5_<size>/` and `runs/full_1000/` | `train_summary_<arm>.json`, `adapter_<arm>/checkpoint-*/trainer_state.json` |
 | Test rollouts | `runs/scaling_eval/qwen2.5_<size>/` | `dialogues/`, `scores/sft_<arm>/`, `arm_summary_*.json` |
 Each `report.md` is a ready table with its figures embedded; `summary.json` holds every number for plotting.
+`scripts/collect_results.sh` copies all of this (minus model weights) into `results/v3_full1000/`, which git
+tracks and whose `README.md` explains every number; `results/README.md` indexes v1, v2 and v3.
 
 ---
 

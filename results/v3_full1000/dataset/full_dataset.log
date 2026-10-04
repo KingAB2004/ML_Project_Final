@@ -1,0 +1,75 @@
+queued Sat Oct  3 02:13:59 AM IST 2026; waiting for the v3 run (phaseC50.sh, run_v3.sh) to exit
+v3 finished Sat Oct  3 12:06:15 PM IST 2026; starting the 1000-profile dataset
+=== pipeline start: scale=full backend=ollama arms=8 steps=12
+RUN  [check] test_all.py
+       
+       ========================================================================
+       82 passed, 0 failed, 0 skipped
+OK   [check] 11.6s
+RUN  [corpus] fetch_data.py --ed
+       provenance written to data/raw/PROVENANCE.md
+       
+       done. Next: python src/seeds.py --limit 100
+OK   [corpus] 0.1s
+RUN  [corpus] seeds.py --backend ollama
+paused by hand Sat Oct  3 12:16:54 PM IST 2026 for the phase C rerun; resumes after it
+queued Sat Oct  3 12:17:14 PM IST 2026; waiting for the v3 run (phaseC50.sh, run_v3.sh) to exit
+v3 finished Sat Oct  3 02:33:43 PM IST 2026; starting the 1000-profile dataset
+=== pipeline start: scale=full backend=ollama arms=8 steps=12
+SKIP [check] test_all.py
+SKIP [corpus] fetch_data.py --ed
+RUN  [corpus] seeds.py --backend ollama
+       seeds: 1000 released of 2000 screened (85.5% passed) -> /home/cse/COCCON_FULL/data/seeds/seeds.jsonl
+OK   [corpus] 684.7s
+RUN  [corpus] profiles.py --split --backend ollama
+         val: 100 -> /home/cse/COCCON_FULL/data/profiles/profiles_val.jsonl
+         test: 100 -> /home/cse/COCCON_FULL/data/profiles/profiles_test.jsonl
+         calibration: 80 -> /home/cse/COCCON_FULL/data/profiles/profiles_calibration.jsonl
+OK   [corpus] 4203.8s
+RUN  [corpus] -c import pathlib as p; d=p.Path('data/profiles'); p.Path('data/profiles/profiles_trainval.jsonl').write_text(''.join((d / f'profiles_{s}.jsonl').read_text() for s in ('train', 'val')))
+OK   [corpus] 1.3s
+RUN  [corpus] dialogue.py --profiles data/profiles/profiles_trainval.jsonl --backend ollama
+       sessions written 820 (skipped 0 already present) -> /home/cse/COCCON_FULL/data/corpus/sessions.jsonl
+OK   [corpus] 5150.8s
+RUN  [corpus] sessions.py --profiles data/profiles/profiles_trainval.jsonl --backend ollama
+       follow-up sessions written 1673 across 820 profiles
+OK   [corpus] 17867.2s
+RUN  [corpus] sessions.py --check
+       temporal integrity: ok
+OK   [corpus] 3.7s
+RUN  [corpus] filter.py --backend ollama
+       filter: kept 2369/2493, rejected 66, quarantined 0, tails dropped 58
+OK   [corpus] 2911.6s
+RUN  [corpus] annotate.py --backend ollama
+       annotated 21429 turns in 2369 sessions; 21354 unique strategy phrases in 19078 clusters, top-3 share 1%
+OK   [corpus] 32893.9s
+RUN  [sft] build_sft.py --arm with_thoughts
+       with_thoughts: train=18821, val=2608, test=0, calibration=0
+OK   [sft] 0.7s
+RUN  [sft] build_sft.py --arm wo_thoughts
+       wo_thoughts: train=18821, val=2608, test=0, calibration=0
+OK   [sft] 0.6s
+
+stage timings (seconds)
+  check        11.6  (1 steps)
+  corpus    63717.1  (9 steps)
+  sft           1.3  (2 steps)
+
+results: /home/cse/COCCON_FULL/reports/results.md
+run dir: runs/full_1000
+dataset run exited with 0 at Sun Oct  4 08:15:48 AM IST 2026
+    21429 data/corpus/annotations.jsonl
+     2369 data/corpus/sessions_annotated.jsonl
+     2369 data/corpus/sessions_filtered.jsonl
+     2493 data/corpus/sessions.jsonl
+       66 data/corpus/sessions_rejected.jsonl
+        0 data/sft/with_thoughts_calibration.jsonl
+        0 data/sft/with_thoughts_test.jsonl
+    18821 data/sft/with_thoughts_train.jsonl
+     2608 data/sft/with_thoughts_val.jsonl
+        0 data/sft/wo_thoughts_calibration.jsonl
+        0 data/sft/wo_thoughts_test.jsonl
+    18821 data/sft/wo_thoughts_train.jsonl
+     2608 data/sft/wo_thoughts_val.jsonl
+    71584 total
+profile-jargon check (v3 had 54): 9

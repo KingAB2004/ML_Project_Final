@@ -171,6 +171,24 @@ def plots(sizes, train, tests, fits, gains, dest) -> list[str]:
     plt.close(fig)
     made.append("scaling_loss.png")
 
+    runs = [(s, a) for s in sizes for a in SFT_ARMS if train.get((s, a))]
+    if runs:
+        fig, axes = plt.subplots(1, len(runs), figsize=(3.2 * len(runs), 3.0), squeeze=False, sharey=True)
+        for ax, (s, a) in zip(axes[0], runs):
+            tr = train[(s, a)]["train_loss"]
+            k = 10                                       # moving average over 10 logging steps (100 optimizer steps)
+            sm = [sum(l for _, l in tr[i - k + 1:i + 1]) / k for i in range(k - 1, len(tr))]
+            ax.plot([e for e, _ in tr[k - 1:]], sm, lw=1, label="train")
+            ax.plot(*zip(*train[(s, a)]["eval_loss_by_epoch"]), "o-", label="validation")
+            ax.set_title(f"{s} {a}", fontsize=8)
+            ax.set_xlabel("epoch")
+        axes[0][0].set_ylabel("loss")
+        axes[0][0].legend(fontsize=7)
+        fig.tight_layout()
+        fig.savefig(dest / "training_curves.png", dpi=150)
+        plt.close(fig)
+        made.append("training_curves.png")
+
     metrics = [m for m in TEST_METRICS if any((tests.get((s, a)) or {}).get(m) for s in sizes for a in SFT_ARMS)]
     if metrics:
         fig, axes = plt.subplots(1, len(metrics), figsize=(3.6 * len(metrics), 3.2), squeeze=False)

@@ -1,0 +1,71 @@
+{
+  "seeds": 1000,
+  "profiles": 1000,
+  "profile_splits": {
+    "train": 720,
+    "val": 100,
+    "test": 100,
+    "calibration": 80
+  },
+  "resistance": {
+    "medium": 500,
+    "low": 250,
+    "high": 250
+  },
+  "problem_types": {
+    "appearance anxiety": 150,
+    "job crisis": 149,
+    "other": 149,
+    "breakup with partner": 147,
+    "academic pressure": 131,
+    "conflict with parents": 114,
+    "procrastination": 53,
+    "ongoing depression": 38,
+    "school bullying": 27,
+    "sleep problems": 20,
+    "alcohol abuse": 16,
+    "problems with friends": 5,
+    "issues with children": 1
+  },
+  "sessions_generated": 2493,
+  "sessions_rejected": 66,
+  "sessions_kept": 2369,
+  "profiles_with_dialogues": 801,
+  "sessions_per_profile": {
+    "1": 21,
+    "2": 250,
+    "3": 272,
+    "4": 258
+  },
+  "sessions_by_index": {
+    "1": 801,
+    "2": 780,
+    "3": 530,
+    "4": 258
+  },
+  "turns_per_session": {
+    "mean": 20.091177712114817,
+    "min": 16,
+    "max": 24,
+    "total": 47596
+  },
+  "words_in_dialogues": 1154243,
+  "gap_days": {
+    "n": 1568,
+    "median": 7.610775334999436,
+    "min": 1.0052602757412457,
+    "max": 55.977576144927895
+  },
+  "annotations": 21429,
+  "unique_strategy_phrases": 21354,
+  "sft_examples": {
+    "with_thoughts_calibration": 0,
+    "with_thoughts_test": 0,
+    "with_thoughts_train": 18821,
+    "with_thoughts_val": 2608,
+    "wo_thoughts_calibration": 0,
+    "wo_thoughts_test": 0,
+    "wo_thoughts_train": 18821,
+    "wo_thoughts_val": 2608
+  }
+}
