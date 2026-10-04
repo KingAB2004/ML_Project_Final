@@ -657,6 +657,17 @@ def _() -> None:
     assert sim.systems[0] == dialogue.simulator_system(fake_profile(), reactive=True)
 
 
+
+@check("evaluate.memory_arms_are_multi_session_corrective_and_advance_the_profile")
+def _() -> None:
+    corrective = dialogue.simulator_system(fake_profile(), corrective=True)
+    plain = dialogue.simulator_system(fake_profile())
+    assert corrective.startswith(plain) and "that's not really it" in corrective.lower()
+    for arm in ("mem_none", "mem_summary", "mem_dense", "mem_event", "mem_needstate"):
+        spec = evaluate_mod.resolve_arm(arm)
+        assert spec["multi_session"] and spec["advance_profile"] and spec["simulator"] == "corrective", arm
+        assert spec["architecture"] == "decomposed" and spec["supporter"] == "base" and not spec["gate"], arm
+
 @check("build_sft.uses_the_profile_split_on_disk_so_test_profiles_never_train")
 def _() -> None:
     pdir = TMP / "split_profiles"
@@ -1282,7 +1293,7 @@ def _() -> None:
     assert spec["architecture"] == "decomposed" and spec["gate"] == "conformal"
     assert spec["memory"] == "needstate", "defaults must fill switches the arm does not name"
     assert spec["eval_set_spec"]["in_distribution"] is True
-    ood = evaluate_mod.resolve_arm("mem_needstate_memeval")
+    ood = evaluate_mod.resolve_arm("corpus_ours_extes_profiles")
     assert ood["eval_set_spec"]["in_distribution"] is False
     try:
         evaluate_mod.resolve_arm("no_such_arm")

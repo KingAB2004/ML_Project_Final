@@ -16,7 +16,16 @@
       denials worded without a cue, so read it as a lower bound and compare arms with it, not as an exact
       rate. A judge-based version is the planned GPU step.
 
-  python extra/memory_eval.py --run results/v2/runs/v3_50
+3. With --judge (light GPU: one judge call per follow-up session, one per profile; Ollama):
+   transition recall  for every follow-up session of an arm run with advance_profile, does the memory the
+                      system hands the next session (session["memory_brief_after"]) reflect what changed for
+                      the seeker (resolved / intensified / displaced, sessions.py)? Recalled = judge >= 5/7.
+   abstention         on each profile's last session: did the supporter confidently state ONE underlying need
+                      (judge >= 5/7)? On the deliberately ambiguous profiles (two plausible needs) that is
+                      the error; the rate on clear profiles is the comparison.
+
+  python extra/memory_eval.py --run results/v2/runs/v3_50            # CPU parts
+  python extra/memory_eval.py --run runs/full_1000 --judge           # + the two judge parts
 Writes runs/<id>/extra/memory_eval/: summary.json, report.md, denials.jsonl, success_by_gap.png.
 """
 from __future__ import annotations
@@ -26,8 +35,10 @@ import json
 import re
 import statistics
 
-from _shared import cluster_bootstrap, fmt, load_arm_dialogues, markdown_table, out_dir, pyplot, read_jsonl, \
-    run_path, write_json, write_jsonl
+from _shared import cluster_bootstrap, fill, fmt, load_arm_dialogues, markdown_table, out_dir, pyplot, rate_items, \
+    read_extra_prompt, read_jsonl, run_path, write_json, write_jsonl
+from common import render_transcript
+from llm import pmap
 from grounding import ASSERTION_CUES, HEDGES, INFERENCE_MARKERS, _overlaps
 
 BUCKETS = ("session 1", "<= 7 d", "7-21 d", "> 21 d")
@@ -129,11 +140,72 @@ def recorded_reproposals(run_dir, arm: str, sessions: list[dict]) -> dict:
         "disconfirmed": len(disconfirmed), "reproposals_after_disconfirmation": hits}
 
 
+def judged_share(rows: list[dict], key: str, reps: int, tag: str) -> dict | None:
+    """Share of rows with row[key] true, CI by bootstrap over profiles."""
+    rows = [r for r in rows if r.get(key) is not None]
+    if not rows:
+        return None
+    by: dict[str, list[int]] = {}
+    for r in rows:
+        by.setdefault(r["profile_id"], []).append(int(r[key]))
+    return {"n": len(rows), "share": statistics.fmean(v for vs in by.values() for v in vs),
+            "ci": cluster_bootstrap(list(by.values()), lambda g: statistics.fmean(v for vs in g for v in vs),
+                                    reps, tag)}
+
+
+def transition_recall(llm, sessions: list[dict], reps: int, tag: str) -> dict | None:
+    template = read_extra_prompt("memory_transition.md")
+    by_key = {(s["profile_id"], s["session_index"]): s for s in sessions}
+    jobs = []
+    for s in sessions:
+        adv = (s.get("profile_snapshot") or {}).get("advancement") or {}
+        prev = by_key.get((s["profile_id"], s["session_index"] - 1))
+        if s["session_index"] > 1 and adv.get("applied") and prev and "memory_brief_after" in s:
+            jobs.append({"profile_id": s["profile_id"], "session_index": s["session_index"],
+                         "transition": adv["applied"], "prompt": fill(
+                             template, transition=adv["applied"], notes=adv.get("notes") or "-",
+                             before=(prev.get("profile_snapshot") or {}).get("terminal_need", ""),
+                             after=s["profile_snapshot"].get("terminal_need", ""), memory=s["memory_brief_after"])})
+    if not jobs:
+        return None
+
+    def one(j):
+        items = rate_items(llm, j.pop("prompt"), 1)
+        j["rating"] = items[1] if items else None
+        j["recalled"] = None if items is None else items[1] >= 5
+        return j
+
+    rows = list(pmap(one, jobs, llm))
+    out = {"all": judged_share(rows, "recalled", reps, f"{tag}:all")}
+    for t in sorted({r["transition"] for r in rows}):
+        out[t] = judged_share([r for r in rows if r["transition"] == t], "recalled", reps, f"{tag}:{t}")
+    return out
+
+
+def abstention(llm, sessions: list[dict], reps: int, tag: str) -> dict | None:
+    template = read_extra_prompt("abstention.md")
+    last: dict[str, dict] = {}
+    for s in sessions:
+        if s["session_index"] >= last.get(s["profile_id"], {}).get("session_index", 0):
+            last[s["profile_id"]] = s
+
+    def one(s):
+        items = rate_items(llm, fill(template, diag=render_transcript(s["turns"])), 1)
+        return {"profile_id": s["profile_id"], "ambiguous": bool((s.get("profile_snapshot") or {}).get("ambiguous")),
+                "confident": None if items is None else items[1] >= 5}
+
+    rows = list(pmap(one, list(last.values()), llm))
+    return {"ambiguous_profiles": judged_share([r for r in rows if r["ambiguous"]], "confident", reps, f"{tag}:amb"),
+            "clear_profiles": judged_share([r for r in rows if not r["ambiguous"]], "confident", reps, f"{tag}:clr")}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="CPU memory metrics: success by gap, re-proposal of denials.")
     ap.add_argument("--run", required=True)
     ap.add_argument("--arms", nargs="*", default=None)
     ap.add_argument("--reps", type=int, default=2000)
+    ap.add_argument("--judge", action="store_true", help="also transition recall and abstention (judge, GPU)")
+    ap.add_argument("--backend", default=None)
     args = ap.parse_args()
 
     run_dir = run_path(args.run)
@@ -155,6 +227,19 @@ def main() -> None:
                                                   if r["session_index"] > e["session_index"]),
             "recorded": recorded_reproposals(run_dir, arm, sessions),
         }
+
+    if args.judge:
+        from judge import assert_judge_separate
+        from llm import LLM
+        assert_judge_separate("judge")
+        llm = LLM("judge", backend=args.backend, call_log=run_dir / "calls.jsonl")
+        try:
+            for arm, sessions in dialogues.items():
+                results[arm]["transition_recall"] = transition_recall(llm, sessions, args.reps, f"tr:{arm}")
+                results[arm]["abstention"] = (abstention(llm, sessions, args.reps, f"ab:{arm}")
+                                              if results[arm]["multi_session"] else None)
+        finally:
+            llm.release()
 
     dest = out_dir(run_dir, "memory_eval")
     write_json(dest / "summary.json", {"buckets": BUCKETS, "denial_cues": DENIAL_CUES, "arms": results})
@@ -186,6 +271,21 @@ def main() -> None:
              "lower bound, for comparing arms. Recorded: nodes the need-state memory marked disconfirmed.", "",
              markdown_table(rep_rows, list(rep_rows[0])), "",
              "Every detected denial, with its claim and any re-proposals, is in `denials.jsonl`."]
+    if args.judge:
+        sh = lambda d: f"{fmt(d['share'])} [{fmt(d['ci'][0])}, {fmt(d['ci'][1])}] (n={d['n']})" if d else "-"
+        jrows = [{"arm": arm, "memory": r["memory"] or "-",
+                  "transition recall": sh((r.get("transition_recall") or {}).get("all")),
+                  **{f"recall: {t}": sh((r.get("transition_recall") or {}).get(t))
+                     for t in ("resolved", "intensified", "displaced")},
+                  "confident naming, ambiguous profiles": sh((r.get("abstention") or {}).get("ambiguous_profiles")),
+                  "confident naming, clear profiles": sh((r.get("abstention") or {}).get("clear_profiles"))}
+                 for arm, r in results.items() if r.get("transition_recall") or r.get("abstention")]
+        if jrows:
+            lines += ["", "## 3. Transition recall and abstention (judge)", "",
+                      "Transition recall: share of follow-up sessions whose post-session memory reflects what changed "
+                      "for the seeker (judge >= 5/7). Confident naming: share of profiles whose last session states "
+                      "one need as THE explanation (judge >= 5/7); on ambiguous profiles lower is better.", "",
+                      markdown_table(jrows, list(jrows[0]))]
     plt = pyplot()
     multi = {a: r for a, r in results.items() if r["multi_session"] and r["success_by_gap"]}
     if plt is not None and multi:

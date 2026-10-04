@@ -25,7 +25,7 @@ from conformal import Calibration
 from dialogue import seeker_prompt, simulator_system
 from llm import LLM, pmap
 from memory import NeedStateMemory
-from sessions import gap_phrase, sample_gap_days, sample_session_count
+from sessions import advance_profile, gap_phrase, pick_transition, sample_gap_days, sample_session_count
 
 
 def resolve_arm(name: str) -> dict:
@@ -61,7 +61,8 @@ def load_profiles(spec: dict, limit: int | None) -> list[dict]:
 
 
 def run_session(pipeline, sim_view, profile: dict, session_id: str, session_index: int, gap_days: float,
-                n_supporter_turns: int, session_context: str = "", reactive: bool = False) -> dict:
+                n_supporter_turns: int, session_context: str = "", reactive: bool = False,
+                corrective: bool = False) -> dict:
     """One dialogue. The supporter side is the arm under test; the seeker side is the simulator the arm
     names (proactive, or the help-seeking reactive one for reactive_baseline)."""
     turns: list[dict] = []
@@ -72,7 +73,7 @@ def run_session(pipeline, sim_view, profile: dict, session_id: str, session_inde
               if session_index > 1 else openers[rng.randrange(len(openers))])
     turns.append({"turn_index": 0, "role": "supporter", "text": opener, "phase": "listening",
                   "ladder_rung": "L0", "meta": {"source": "opener_pool"}})
-    sim_system = simulator_system(profile, session_context, reactive=reactive)
+    sim_system = simulator_system(profile, session_context, reactive=reactive, corrective=corrective)
     stage_boundary = max(2, int(n_supporter_turns * 0.6))
 
     for i in range(n_supporter_turns):
@@ -114,6 +115,8 @@ def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
     run_dir = run_dir or new_run_dir(arm_name)
     out_path = run_dir / "dialogues" / f"{arm_name}.jsonl"
     done = existing_ids(out_path, "session_id")
+    # resuming an advancing arm: later sessions continue from the profile the last written one used
+    done_sessions = ({r["session_id"]: r for r in read_jsonl(out_path)} if spec.get("advance_profile") else {})
 
     calibration = None
     if spec.get("gate") == "conformal":
@@ -156,8 +159,10 @@ def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
                 pipeline = AgentPipeline(agent_views["generator"], views=agent_views, **kwargs)
             else:
                 pipeline = MonolithicListener(llm, **kwargs)
-            n_sessions = sample_session_count(pid) if spec.get("memory") != "none" else 1
+            multi = spec.get("memory") != "none" or spec.get("multi_session")
+            n_sessions = sample_session_count(pid) if multi else 1
             lo, hi = cfg("corpus.turns_per_session", default=[8, 12])
+            current, prev = profile, None
             for index in range(1, n_sessions + 1):
                 sid = f"{pid}-{arm_name}-s{index}"
                 gap = 0.0 if index == 1 else sample_gap_days(sid)
@@ -167,12 +172,22 @@ def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
                     if hasattr(memory, "advance_clock"):
                         memory.advance_clock(gap)
                 if sid in done:
+                    prev = done_sessions.get(sid, prev)
+                    current = (prev or {}).get("profile_snapshot", current)
                     continue
                 n_turns = rng_for(sid, "turns").randint(int(lo), int(hi))
                 context = ("" if index == 1 else
                            f"This is a follow-up conversation, about {gap:.0f} days later.")
-                session = run_session(pipeline, sim_view, profile, sid, index, gap, n_turns, context,
-                                      reactive=spec.get("simulator") == "reactive")
+                if index > 1 and spec.get("advance_profile") and prev is not None:
+                    # Move the seeker on as the corpus does (sessions.py): resolved / intensified / displaced.
+                    # The applied transition is the ground truth memory_eval scores the memory against.
+                    current = advance_profile(sim_view, current, prev, gap, pick_transition(pid, index))
+                    context += (f" What has changed: "
+                                f"{current['advancement'].get('notes') or 'some things shifted'}")
+                session = run_session(pipeline, sim_view, current, sid, index, gap, n_turns, context,
+                                      reactive=spec.get("simulator") == "reactive",
+                                      corrective=spec.get("simulator") == "corrective")
+                prev = session
                 session["arm"] = arm_name
                 session["arm_spec"] = spec
                 session["in_distribution"] = bool(spec["eval_set_spec"].get("in_distribution", False))
@@ -183,6 +198,9 @@ def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
                     memory.update_from_session(session)
                 if isinstance(memory, NeedStateMemory):
                     memory.save(run_dir / "memory" / f"{pid}_{arm_name}.jsonl")
+                # What every kind of memory would hand the next session: the same view for all memory arms, so
+                # extra/memory_eval.py can score transition recall across them.
+                session["memory_brief_after"] = memory.render_brief()
             return new
 
         for new in pmap(roll_out, profiles, llm):

@@ -29,13 +29,19 @@ arms:
   gate_alpha_020:       {gate: conformal, gate_alpha: 0.20}
 
   # --- Deliverable 4: memory arms -------------------------------------------
-  mem_none:             {memory: none}
-  mem_summary:          {memory: summary}
-  mem_dense:            {memory: dense}
-  mem_event:            {memory: event}
-  mem_needstate:        {memory: needstate}
-  mem_needstate_extes:  {memory: needstate, eval_set: extes}
-  mem_needstate_memeval: {memory: needstate, eval_set: es_memeval}
+  # Only the memory differs. Decomposed agents (the monolithic listener has no Analyzer, so it never writes a
+  # belief), gate off (no calibration confound), base model, 2-4 linked sessions for every arm (mem_none too:
+  # it is the session-isolated baseline, not a single session). On our profiles the seeker moves on between
+  # sessions as in the corpus (advance_profile) and openly rejects a wrong reading (simulator: corrective),
+  # so transition recall and re-proposal of denied inferences can be measured (extra/memory_eval.py).
+  mem_none:             {supporter: base, architecture: decomposed, gate: off, memory: none,      multi_session: true, advance_profile: true, simulator: corrective}
+  mem_summary:          {supporter: base, architecture: decomposed, gate: off, memory: summary,   multi_session: true, advance_profile: true, simulator: corrective}
+  mem_dense:            {supporter: base, architecture: decomposed, gate: off, memory: dense,     multi_session: true, advance_profile: true, simulator: corrective}
+  mem_event:            {supporter: base, architecture: decomposed, gate: off, memory: event,     multi_session: true, advance_profile: true, simulator: corrective}
+  mem_needstate:        {supporter: base, architecture: decomposed, gate: off, memory: needstate, multi_session: true, advance_profile: true, simulator: corrective}
+  # ES-MemEval is a question-answering benchmark over real past sessions, not seekers to simulate: it runs
+  # through extra/memeval_qa.py (every memory type above). ExTES profiles carry no hidden need, so they serve
+  # the cross-corpus arms below, not memory.
 
   # --- Training-corpus comparison: one base model, one adapter per corpus, same profiles -----
   # This is the shape of the baseline paper's Tables 3 and 4: the row label is the TRAINING dataset.

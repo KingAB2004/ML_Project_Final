@@ -60,7 +60,11 @@ def seeker_prompt(turns: Sequence[dict]) -> str:
             f"English - never repeat or rephrase the supporter.")
 
 
-def simulator_system(profile: dict, session_context: str = "", reactive: bool = False) -> str:
+def simulator_system(profile: dict, session_context: str = "", reactive: bool = False,
+                     corrective: bool = False) -> str:
+    """corrective: the evaluation-only seeker that explicitly rejects a wrong reading of its needs
+    (prompts/user_corrective.md), so that disconfirmation - and re-proposal - can be measured. The corpus
+    seeker resists by deflecting and almost never says "that's not it" (v2: 0 denials of 101 inferences)."""
     if reactive:
         return fill(read_prompt("user_reactive.md"), emotion=profile.get("emotion", ""),
                     feeling=profile.get("feeling", ""), memory=memory_lines(profile))
@@ -76,7 +80,7 @@ def simulator_system(profile: dict, session_context: str = "", reactive: bool = 
         disclosure_triggers=", ".join(as_list(hidden.get("disclosure_triggers"))),
         disclosure_blockers=", ".join(as_list(hidden.get("disclosure_blockers"))),
         session_context=session_context,
-    )
+    ) + (read_prompt("user_corrective.md") if corrective else "")
 
 
 def rung_schedule(turn_number: int, total_turns: int) -> str:
