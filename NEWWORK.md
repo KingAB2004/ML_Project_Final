@@ -144,13 +144,15 @@ The SOP appendix asks that every configuration change forced by hardware or time
 | Component | Planned | Actual | Reason |
 |---|---|---|---|
 | Conformal gate tolerance tau | 0.5 | **0.2** | At 0.5 no calibration turn was a violation (judge IP max 0.357 on 300 turns), so the gate was inert |
-| Counterfactual PRI rollouts | 5 | 2 in the 50-profile run (5 in the 1000-profile config) | Time on the 3060 |
+| Counterfactual PRI rollouts | 5 | 2 (50-profile run and every 1000-profile evaluation) | Time on the 3060: the 1000-profile baselines alone would take ~12 h more at 5 |
 | Judge samples per item | 3 | 1 at temperature 0 | Greedy answers repeat; extra samples tripled judge time |
 | Fine-tuning epochs | 2-3 | 2 (50-profile run), 3 (1000-profile run) | Epoch 3 overfits on 0.5B (validation loss rises); the best checkpoint is kept, so no harm beyond time |
 | Micro-batch x accumulation | 1 x 16 | 2 x 8 for the RTX 5090 run (effective batch 16 unchanged; the 5090 copy shipped with 4 x 4) | Memory headroom on a 24 GB laptop card |
 | Evaluation batch | Trainer default (8) | equal to the micro-batch | Out of memory at the end-of-epoch evaluation on 12 GB (BUGS.md B50) |
 | Scaling study sizes | (not in SOP) | 0.5B, 3B, 7B; 1.5B dropped | Laptop GPU time |
 | Memory arms | full system (gated) | decomposed, ungated | See 2.3 |
+| Alpha sweep | alpha 0.05, 0.10, 0.20 | 0.05 and 0.20 run; 0.10 is cell D (identical arm) | Saves ~4 h of duplicate GPU time |
+| Memory and alpha-sweep arms | counterfactual PRI | judge scores only (Success, IP, observed PRI) | Their questions do not need the replay; ~1 day of GPU time saved |
 | ES-MemEval | simulated profiles | question answering over its real sessions | See 1.10 |
 | ExTES | second evaluation profile set | cross-corpus arms only; no Success Rate | ExTES has no annotated hidden need |
 | Concurrency of the four agents | concurrent preferred | sequential | One model resident on a 12 GB card (as the SOP allows) |
@@ -159,12 +161,9 @@ The SOP appendix asks that every configuration change forced by hardware or time
 
 ## 5. Still open against the SOP
 - **Judge-human agreement** on a stratified sample (SOP III-C, "reported alongside every PRI number"): the
-  forms exist (`human_eval/`), the human ratings have not been done.
-- **Alpha sweep and the critic's recovery-versus-cost curve** (Expected Outcome 3): arms `gate_alpha_005/010/020`
-  are defined but not run.
-- **Out-of-distribution gate violation rate** on ExTES profiles (SOP III-B): arms defined, ExTES downloaded,
-  not run.
-- **Memory comparison** (Expected Outcome 4): arms and metrics ready (sections 1.9, 1.10, 2), not run yet.
-- **Full-size 2 x 2, baselines, and the fine-tuned supporters on the test profiles** (Expected Outcomes 1-2):
-  running on the RTX 5090 (`full_run.sh`).
+  forms exist (`human_eval/`), the human ratings have not been done. Needs a person, not a GPU.
+- **Queued on the lab RTX 3060** (`scripts/sop_queue.sh`, after the 7B training, the 7B analyses and the scaling
+  evaluation): full-size baselines + 2 x 2 (Outcomes 1-2), memory arms + memory metrics and ES-MemEval
+  (Outcome 4), alpha sweep (Outcome 3), the gated system on ExTES profiles (SOP III-B). About 3.5 days.
 - **Public release** of the pipeline and corpus: the GitHub repository is private for now.
+- The RTX 5090 run was dropped; every remaining experiment runs on the lab 3060.

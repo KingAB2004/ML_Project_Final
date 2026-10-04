@@ -20,6 +20,9 @@ arms:
   cellB_mono_gated:     {architecture: monolithic, gate: conformal}
   cellC_dec_ungated:    {architecture: decomposed, gate: off}
   cellD_dec_gated:      {architecture: decomposed, gate: conformal}
+  # The full gated system on ExTES profiles: outside the calibration distribution, so its violation rate is a
+  # measured quantity, never a guarantee (SOP III-B). ExTES has no hidden need: no Success Rate here.
+  cellD_extes:          {architecture: decomposed, gate: conformal, memory: none, eval_set: extes}
   # Gate calibration runs cell C on the CALIBRATION profiles, never on the test profiles it is scored on.
   calib_dec_ungated:    {architecture: decomposed, gate: off, eval_set: calibration}
 
