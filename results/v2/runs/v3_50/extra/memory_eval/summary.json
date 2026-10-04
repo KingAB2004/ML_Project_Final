@@ -1,0 +1,339 @@
+{
+  "buckets": [
+    "session 1",
+    "<= 7 d",
+    "7-21 d",
+    "> 21 d"
+  ],
+  "denial_cues": [
+    "that's not it",
+    "that's not what",
+    "that's not really",
+    "that's not the",
+    "it's not that",
+    "it isn't that",
+    "not really",
+    "not exactly",
+    "i don't think that's",
+    "i don't think so",
+    "i wouldn't say",
+    "you're wrong",
+    "that isn't",
+    "no, it's",
+    "no, i",
+    "no it's",
+    "nah"
+  ],
+  "arms": {
+    "base_instruct": {
+      "sessions": 40,
+      "profiles": 40,
+      "memory": "none",
+      "multi_session": false,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 40,
+          "n_profiles": 40,
+          "success": 0.3833333333333333,
+          "ci": [
+            0.3583333333333333,
+            0.4083333333333333
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 412,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 0,
+        "by_status": {},
+        "disconfirmed": 0,
+        "reproposals_after_disconfirmation": 0
+      }
+    },
+    "cellA_mono_ungated": {
+      "sessions": 121,
+      "profiles": 40,
+      "memory": "needstate",
+      "multi_session": true,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 40,
+          "n_profiles": 40,
+          "success": 0.3958333333333333,
+          "ci": [
+            0.36666666666666664,
+            0.4291666666666666
+          ]
+        },
+        "<= 7 d": {
+          "n_sessions": 39,
+          "n_profiles": 28,
+          "success": 0.3675213675213675,
+          "ci": [
+            0.34848484848484845,
+            0.3888888888888889
+          ]
+        },
+        "7-21 d": {
+          "n_sessions": 27,
+          "n_profiles": 20,
+          "success": 0.37654320987654316,
+          "ci": [
+            0.35256410256410253,
+            0.4047619047619047
+          ]
+        },
+        "> 21 d": {
+          "n_sessions": 15,
+          "n_profiles": 12,
+          "success": 0.36666666666666664,
+          "ci": [
+            0.3333333333333333,
+            0.4
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 1199,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 0,
+        "by_status": {},
+        "disconfirmed": 0,
+        "reproposals_after_disconfirmation": 0
+      }
+    },
+    "cellB_mono_gated": {
+      "sessions": 121,
+      "profiles": 40,
+      "memory": "needstate",
+      "multi_session": true,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 40,
+          "n_profiles": 40,
+          "success": 0.37916666666666665,
+          "ci": [
+            0.35416666666666663,
+            0.4041666666666667
+          ]
+        },
+        "<= 7 d": {
+          "n_sessions": 36,
+          "n_profiles": 25,
+          "success": 0.34259259259259256,
+          "ci": [
+            0.3333333333333333,
+            0.35585585585585583
+          ]
+        },
+        "7-21 d": {
+          "n_sessions": 27,
+          "n_profiles": 21,
+          "success": 0.35185185185185186,
+          "ci": [
+            0.3333333333333333,
+            0.3722222222222222
+          ]
+        },
+        "> 21 d": {
+          "n_sessions": 18,
+          "n_profiles": 14,
+          "success": 0.35185185185185186,
+          "ci": [
+            0.3333333333333333,
+            0.3777777777777777
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 1197,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 0,
+        "by_status": {},
+        "disconfirmed": 0,
+        "reproposals_after_disconfirmation": 0
+      }
+    },
+    "cellC_dec_ungated": {
+      "sessions": 121,
+      "profiles": 40,
+      "memory": "needstate",
+      "multi_session": true,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 40,
+          "n_profiles": 40,
+          "success": 0.37916666666666665,
+          "ci": [
+            0.35416666666666663,
+            0.4083333333333333
+          ]
+        },
+        "<= 7 d": {
+          "n_sessions": 37,
+          "n_profiles": 26,
+          "success": 0.3783783783783784,
+          "ci": [
+            0.35238095238095235,
+            0.4086021505376344
+          ]
+        },
+        "7-21 d": {
+          "n_sessions": 25,
+          "n_profiles": 21,
+          "success": 0.3933333333333333,
+          "ci": [
+            0.35185185185185186,
+            0.44666666666666666
+          ]
+        },
+        "> 21 d": {
+          "n_sessions": 19,
+          "n_profiles": 16,
+          "success": 0.35964912280701755,
+          "ci": [
+            0.3333333333333333,
+            0.4083333333333333
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 1206,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 239,
+        "by_status": {
+          "confirmed": 127,
+          "hypothesis": 112
+        },
+        "disconfirmed": 0,
+        "reproposals_after_disconfirmation": 0
+      }
+    },
+    "cellD_dec_gated": {
+      "sessions": 121,
+      "profiles": 40,
+      "memory": "needstate",
+      "multi_session": true,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 40,
+          "n_profiles": 40,
+          "success": 0.3708333333333333,
+          "ci": [
+            0.3458333333333333,
+            0.4
+          ]
+        },
+        "<= 7 d": {
+          "n_sessions": 40,
+          "n_profiles": 28,
+          "success": 0.3416666666666667,
+          "ci": [
+            0.3333333333333333,
+            0.35416666666666663
+          ]
+        },
+        "7-21 d": {
+          "n_sessions": 19,
+          "n_profiles": 15,
+          "success": 0.3771929824561403,
+          "ci": [
+            0.34210526315789475,
+            0.425
+          ]
+        },
+        "> 21 d": {
+          "n_sessions": 22,
+          "n_profiles": 21,
+          "success": 0.36363636363636365,
+          "ci": [
+            0.3333333333333333,
+            0.39855072463768115
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 1234,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 242,
+        "by_status": {
+          "confirmed": 123,
+          "hypothesis": 119
+        },
+        "disconfirmed": 0,
+        "reproposals_after_disconfirmation": 0
+      }
+    },
+    "reactive_baseline": {
+      "sessions": 40,
+      "profiles": 40,
+      "memory": "none",
+      "multi_session": false,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 40,
+          "n_profiles": 40,
+          "success": 0.3875,
+          "ci": [
+            0.36666666666666664,
+            0.4125
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 409,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 0,
+        "by_status": {},
+        "disconfirmed": 0,
+        "reproposals_after_disconfirmation": 0
+      }
+    },
+    "sft_with_thoughts": {
+      "sessions": 40,
+      "profiles": 40,
+      "memory": "none",
+      "multi_session": false,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 40,
+          "n_profiles": 40,
+          "success": 0.39166666666666666,
+          "ci": [
+            0.3625,
+            0.4208333333333333
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 394,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 0,
+        "by_status": {},
+        "disconfirmed": 0,
+        "reproposals_after_disconfirmation": 0
+      }
+    }
+  }
+}

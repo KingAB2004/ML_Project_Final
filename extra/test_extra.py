@@ -25,6 +25,7 @@ import label_seeker                              # noqa: E402
 import lora_geometry as lg                       # noqa: E402
 import markov                                    # noqa: E402
 import memory_calibration as memcal              # noqa: E402
+import memory_eval as memeval                    # noqa: E402
 import need_sets                                 # noqa: E402
 import psychometrics as psy                      # noqa: E402
 import pvi                                       # noqa: E402
@@ -388,6 +389,28 @@ def _():
     assert abs(s["reply_nll_with"] - 1.0) < 1e-9
     lo, hi = s["v_information_ci"]
     assert lo <= 0.5 <= hi
+
+
+@check("memory_eval.gap_buckets_and_denial_reproposal")
+def _():
+    assert memeval.bucket({"session_index": 1}) == "session 1"
+    assert [memeval.bucket({"session_index": 2, "gap_days_from_prev": g}) for g in (3, 7, 7.5, 21, 30)] == \
+        ["<= 7 d", "<= 7 d", "7-21 d", "7-21 d", "> 21 d"]
+    assert memeval.is_denial("Oh, that's not it at all.") and memeval.is_denial("No, it's more about my dad.")
+    assert not memeval.is_denial("It's not really my fault though.")       # cue not at the start
+    claim = "Maybe you need to feel that your work is valued by your team."
+    assert memeval.inference_sentence("I hear you. " + claim) == claim
+    assert memeval.inference_sentence("That sounds like a long week.") is None
+    sup = lambda i, text: {"turn_index": i, "role": "supporter", "text": text}
+    usr = lambda i, text: {"turn_index": i, "role": "user", "text": text}
+    s1 = {"profile_id": "p1", "session_index": 1, "session_id": "p1-a-s1", "turns": [
+        sup(0, "Hello."), usr(1, "Work is a lot."), sup(2, claim), usr(3, "No, it's not that."),
+        sup(4, "Okay, tell me more?"), usr(5, "Just tired.")]}
+    s2 = {"profile_id": "p1", "session_index": 2, "session_id": "p1-a-s2", "turns": [
+        sup(0, "Hi again."), usr(1, "Same."), sup(2, "Could it be you need your team to see your work is valued?")]}
+    ev = memeval.denials_and_reproposals([s1, s2])
+    assert len(ev) == 1 and ev[0]["claim"] == claim
+    assert [(r["session_index"], r["turn_index"]) for r in ev[0]["reproposals"]] == [(2, 2)]
 
 
 def main(argv: list[str]) -> int:

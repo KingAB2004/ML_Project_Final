@@ -113,6 +113,14 @@ The first attempt crashed at the end of epoch 1 (out of memory in the validation
 
 ---
 
+### Memory metrics (CPU, added 4 Oct)
+
+`runs/v3_50/extra/memory_eval/` (README there): Success by time gap shows no measurable effect of the gap, and
+the judge's Success scale barely resolves differences (most sessions rated 3 of 7). Re-proposal of denied
+inferences is 0 for every arm because the simulated seekers never explicitly deny an inference (11 of 6,051
+seeker turns open with a denial, all about questions or advice), so the memory never records a
+disconfirmation. Cells A and B build no memory at all (monolithic listener, no Analyzer).
+
 ## 5. Files
 
 | Path | What it is |
