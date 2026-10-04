@@ -1,0 +1,348 @@
+{
+  "alpha": 0.1,
+  "tau": 0.5,
+  "delta": 0.1,
+  "n_calibration": 300,
+  "lambda_hat": 1.0,
+  "lambda_grid": [
+    0.0,
+    0.025,
+    0.05,
+    0.075,
+    0.1,
+    0.125,
+    0.15,
+    0.175,
+    0.2,
+    0.225,
+    0.25,
+    0.275,
+    0.3,
+    0.325,
+    0.35,
+    0.375,
+    0.4,
+    0.425,
+    0.45,
+    0.475,
+    0.5,
+    0.525,
+    0.55,
+    0.575,
+    0.6,
+    0.625,
+    0.65,
+    0.675,
+    0.7,
+    0.725,
+    0.75,
+    0.775,
+    0.8,
+    0.825,
+    0.85,
+    0.875,
+    0.9,
+    0.925,
+    0.95,
+    0.975,
+    1.0
+  ],
+  "risk_curve": [
+    {
+      "lambda": 0.0,
+      "n_released": 32,
+      "release_rate": 0.10666666666666667,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.025,
+      "n_released": 61,
+      "release_rate": 0.20333333333333334,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.05,
+      "n_released": 113,
+      "release_rate": 0.37666666666666665,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.075,
+      "n_released": 126,
+      "release_rate": 0.42,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.1,
+      "n_released": 159,
+      "release_rate": 0.53,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.125,
+      "n_released": 163,
+      "release_rate": 0.5433333333333333,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.15,
+      "n_released": 203,
+      "release_rate": 0.6766666666666666,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.175,
+      "n_released": 207,
+      "release_rate": 0.69,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.2,
+      "n_released": 209,
+      "release_rate": 0.6966666666666667,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.225,
+      "n_released": 214,
+      "release_rate": 0.7133333333333334,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.25,
+      "n_released": 219,
+      "release_rate": 0.73,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.275,
+      "n_released": 232,
+      "release_rate": 0.7733333333333333,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.3,
+      "n_released": 236,
+      "release_rate": 0.7866666666666666,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.325,
+      "n_released": 245,
+      "release_rate": 0.8166666666666667,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.35,
+      "n_released": 255,
+      "release_rate": 0.85,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.375,
+      "n_released": 259,
+      "release_rate": 0.8633333333333333,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.4,
+      "n_released": 271,
+      "release_rate": 0.9033333333333333,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.425,
+      "n_released": 277,
+      "release_rate": 0.9233333333333333,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.45,
+      "n_released": 283,
+      "release_rate": 0.9433333333333334,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.475,
+      "n_released": 290,
+      "release_rate": 0.9666666666666667,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.5,
+      "n_released": 291,
+      "release_rate": 0.97,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.525,
+      "n_released": 292,
+      "release_rate": 0.9733333333333334,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.55,
+      "n_released": 293,
+      "release_rate": 0.9766666666666667,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.575,
+      "n_released": 295,
+      "release_rate": 0.9833333333333333,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.6,
+      "n_released": 297,
+      "release_rate": 0.99,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.625,
+      "n_released": 298,
+      "release_rate": 0.9933333333333333,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.65,
+      "n_released": 299,
+      "release_rate": 0.9966666666666667,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.675,
+      "n_released": 299,
+      "release_rate": 0.9966666666666667,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.7,
+      "n_released": 299,
+      "release_rate": 0.9966666666666667,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.725,
+      "n_released": 299,
+      "release_rate": 0.9966666666666667,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.75,
+      "n_released": 299,
+      "release_rate": 0.9966666666666667,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.775,
+      "n_released": 299,
+      "release_rate": 0.9966666666666667,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.8,
+      "n_released": 300,
+      "release_rate": 1.0,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.825,
+      "n_released": 300,
+      "release_rate": 1.0,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.85,
+      "n_released": 300,
+      "release_rate": 1.0,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.875,
+      "n_released": 300,
+      "release_rate": 1.0,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.9,
+      "n_released": 300,
+      "release_rate": 1.0,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.925,
+      "n_released": 300,
+      "release_rate": 1.0,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.95,
+      "n_released": 300,
+      "release_rate": 1.0,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 0.975,
+      "n_released": 300,
+      "release_rate": 1.0,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    },
+    {
+      "lambda": 1.0,
+      "n_released": 300,
+      "release_rate": 1.0,
+      "risk": 0.0,
+      "risk_ucb": 0.010948243897235865
+    }
+  ],
+  "vacuous": false,
+  "bound": "hb",
+  "score_name": "0.7*critic_ip_pred + 0.3*grounding_violation_mass",
+  "distribution_id": "own_generator_v1",
+  "provenance": {
+    "dialogues": "runs/v3_50/dialogues/calib_dec_ungated.jsonl",
+    "n_turns": 300,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  }
+}

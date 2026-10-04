@@ -1,0 +1,13 @@
+{
+  "arm": "cellD_dec_gated",
+  "supporter": "sft_with_thoughts",
+  "adapter": null,
+  "sessions_written": 121,
+  "profiles": 40,
+  "dialogues_path": "runs/v3_50/dialogues/cellD_dec_gated.jsonl",
+  "gate": "conformal",
+  "calibrated": true,
+  "memory": "needstate",
+  "architecture": "decomposed",
+  "in_distribution": true
+}

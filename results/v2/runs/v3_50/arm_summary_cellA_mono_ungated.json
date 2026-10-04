@@ -1,0 +1,13 @@
+{
+  "arm": "cellA_mono_ungated",
+  "supporter": "sft_with_thoughts",
+  "adapter": null,
+  "sessions_written": 121,
+  "profiles": 40,
+  "dialogues_path": "runs/v3_50/dialogues/cellA_mono_ungated.jsonl",
+  "gate": false,
+  "calibrated": false,
+  "memory": "needstate",
+  "architecture": "monolithic",
+  "in_distribution": true
+}

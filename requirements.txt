@@ -1,0 +1,17 @@
+# Core (needed for every stage; nothing here downloads a model)
+pyyaml>=6.0
+numpy>=1.24
+
+# Inference / training backends. Only needed when configs/models.yaml backend is not `echo`.
+torch>=2.7          # 2.7 is the first release with Blackwell (RTX 50xx, sm_120) kernels
+transformers>=4.44
+accelerate>=0.33
+peft>=0.12
+bitsandbytes>=0.46   # Blackwell support for the 4-bit (QLoRA) kernels
+datasets>=2.20
+sentencepiece>=0.2
+vllm>=0.6          # optional: batched serving. Drop it and use backend=transformers on small GPUs.
+
+# Optional helpers
+sentence-transformers>=3.0   # dense-retrieval memory baseline; a bag-of-words fallback runs without it
+autoawq>=0.2                 # only if loading AWQ checkpoints via transformers

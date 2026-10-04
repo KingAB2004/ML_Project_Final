@@ -1,0 +1,17 @@
+runs/*
+!runs/scaling/
+data/raw/*
+!data/raw/problem_types.json
+data/seeds/
+data/profiles/
+data/corpus/
+data/sft/
+data/quarantine/
+data/external/
+__pycache__/
+*.pyc
+.venv/
+coccon/
+*.safetensors
+results/**/adapter_*/
+*.lock

@@ -1,0 +1,13 @@
+{
+  "arm": "sft_with_thoughts",
+  "supporter": "sft_with_thoughts",
+  "adapter": "runs/v3_50/adapter_with_thoughts",
+  "sessions_written": 40,
+  "profiles": 40,
+  "dialogues_path": "runs/v3_50/dialogues/sft_with_thoughts.jsonl",
+  "gate": false,
+  "calibrated": false,
+  "memory": "none",
+  "architecture": "monolithic",
+  "in_distribution": true
+}

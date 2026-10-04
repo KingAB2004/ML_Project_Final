@@ -1,0 +1,23 @@
+corpus profiles: 50
+sessions written 50 (skipped 0 already present) -> /home/cse/COCCON_NEW/data/corpus/sessions.jsonl
+follow-up sessions written 103 across 50 profiles
+temporal integrity: ok
+filter: kept 140/153, rejected 5, quarantined 0, tails dropped 8
+annotated 1280 turns in 140 sessions; 1280 unique strategy phrases in 1254 clusters, top-3 share 1%
+with_thoughts: train=1149, val=131, test=0, calibration=0
+wo_thoughts: train=1149, val=131, test=0, calibration=0
+    1280 data/corpus/annotations.jsonl
+     140 data/corpus/sessions_annotated.jsonl
+     140 data/corpus/sessions_filtered.jsonl
+     153 data/corpus/sessions.jsonl
+       5 data/corpus/sessions_rejected.jsonl
+       0 data/sft/with_thoughts_calibration.jsonl
+       0 data/sft/with_thoughts_test.jsonl
+    1149 data/sft/with_thoughts_train.jsonl
+     131 data/sft/with_thoughts_val.jsonl
+       0 data/sft/wo_thoughts_calibration.jsonl
+       0 data/sft/wo_thoughts_test.jsonl
+    1149 data/sft/wo_thoughts_train.jsonl
+     131 data/sft/wo_thoughts_val.jsonl
+    4278 total
+PHASE_B_DONE

@@ -1,0 +1,47 @@
+seeds: 400 released of 800 screened (87.4% passed) -> /home/cse/COCCON_NEW/data/seeds/seeds.jsonl
+profiles kept 400, rejected 0, resistance {'low': 100, 'medium': 200, 'high': 100}
+  train: 288 -> /home/cse/COCCON_NEW/data/profiles/profiles_train.jsonl
+  val: 40 -> /home/cse/COCCON_NEW/data/profiles/profiles_val.jsonl
+  test: 40 -> /home/cse/COCCON_NEW/data/profiles/profiles_test.jsonl
+  calibration: 32 -> /home/cse/COCCON_NEW/data/profiles/profiles_calibration.jsonl
+[warn] arm 'cellC_dec_ungated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+cellC_dec_ungated: 93 sessions -> runs/week1/dialogues/cellC_dec_ungated.jsonl
+run dir: runs/week1
+lambda_hat=1.000 at alpha=0.1 tau=0.5 on n=98 turns
+saved runs/week1/conformal/calibration.json
+base_instruct: 30 sessions -> runs/week1/dialogues/base_instruct.jsonl
+run dir: runs/week1
+reactive_baseline: 30 sessions -> runs/week1/dialogues/reactive_baseline.jsonl
+run dir: runs/week1
+[warn] arm 'cellA_mono_ungated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+cellA_mono_ungated: 93 sessions -> runs/week1/dialogues/cellA_mono_ungated.jsonl
+run dir: runs/week1
+[warn] arm 'cellB_mono_gated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+cellB_mono_gated: 93 sessions -> runs/week1/dialogues/cellB_mono_gated.jsonl
+run dir: runs/week1
+[warn] arm 'cellD_dec_gated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+cellD_dec_gated: 93 sessions -> runs/week1/dialogues/cellD_dec_gated.jsonl
+run dir: runs/week1
+success: n=16 mean=0.375 failures=14 judge=mistralai/Mistral-Nemo-Instruct-2407
+aels: n=30 mean=0.935 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+crs: n=30 mean=0.5938888888888889 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+rac: n=27 mean=0.8560956790123456 failures=3 judge=mistralai/Mistral-Nemo-Instruct-2407
+basic: n=30 mean=0.812962962962963 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+ip: n=120 mean=0.04186507936507936 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+pri: n=314 mean=0.1067637245981195 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+PRI = -0.0012896825396825399 (95% CI -0.012499999999999995 .. 0.010317460317460317) over 240 seed-matched pairs on 120 turns
+success: n=30 mean=0.4222222222222222 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+aels: n=30 mean=0.9288888888888889 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+crs: n=30 mean=0.5922222222222222 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+rac: n=29 mean=0.853448275862069 failures=1 judge=mistralai/Mistral-Nemo-Instruct-2407
+basic: n=30 mean=0.8166666666666667 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+ip: n=120 mean=0.04503968253968253 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+pri: n=305 mean=0.12138953942232632 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+PRI = -0.003472222222222223 (95% CI -0.01666666666666667 .. 0.009722222222222224) over 240 seed-matched pairs on 120 turns
+success: n=92 mean=0.3949275362318841 failures=1 judge=mistralai/Mistral-Nemo-Instruct-2407
+aels: n=93 mean=0.9388888888888889 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+crs: n=93 mean=0.5967741935483871 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+rac: n=82 mean=0.8473069105691058 failures=11 judge=mistralai/Mistral-Nemo-Instruct-2407
+basic: n=93 mean=0.8142174432497012 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+ip: n=372 mean=0.062147977470558106 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+pri: n=914 mean=0.11907366885485048 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407

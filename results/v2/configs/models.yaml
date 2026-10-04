@@ -1,0 +1,70 @@
+# Exactly two distinct model families, one resident at a time (Sec. 2.2 of PLAN.md).
+backend: ollama            # echo | ollama | transformers | vllm   (echo = deterministic stub, no GPU)
+cache_dir: runs/_cache
+ollama_host: http://localhost:11434   # or set OLLAMA_HOST; used only when backend: ollama
+
+# Ollama serves GGUF and cannot train. Fine-tuning always runs through the transformers backend
+# (src/train.py); to serve the resulting adapter through Ollama, merge it into the base, convert to GGUF
+# with llama.cpp, and `ollama create`. Until that is done, run supporter arms on backend: transformers.
+
+roles:
+  generator:             # corpus generation + user role-play + the four agent roles
+    ollama_tag: qwen2.5:7b-instruct
+    model: Qwen/Qwen2.5-7B-Instruct
+    quantization: awq
+    max_model_len: 4096
+    temperature: 0.7
+    top_p: 0.9
+    max_tokens: 512
+  simulator:             # same weights as generator, warmer sampling
+    ollama_tag: qwen2.5:7b-instruct
+    model: Qwen/Qwen2.5-7B-Instruct
+    quantization: awq
+    max_model_len: 4096
+    temperature: 0.85
+    top_p: 0.95
+    max_tokens: 160
+  analyzer:
+    ollama_tag: qwen2.5:7b-instruct
+    model: Qwen/Qwen2.5-7B-Instruct
+    quantization: awq
+    temperature: 0.2
+    max_tokens: 640
+  strategist:
+    ollama_tag: qwen2.5:7b-instruct
+    model: Qwen/Qwen2.5-7B-Instruct
+    quantization: awq
+    temperature: 0.3
+    max_tokens: 384
+  critic:
+    ollama_tag: qwen2.5:7b-instruct
+    model: Qwen/Qwen2.5-7B-Instruct
+    quantization: awq
+    temperature: 0.2
+    max_tokens: 384
+  supporter:             # fine-tuned: base + adapter
+    ollama_tag: qwen2.5:7b-instruct
+    model: Qwen/Qwen2.5-7B-Instruct
+    adapter: null
+    quantization: nf4      # the 4-bit base train.py fine-tunes on (transformers backend); awq loaded unquantized
+    temperature: 0.7
+    max_tokens: 512        # the with_thoughts target carries analysis + strategy before the response
+  judge:                 # different family, never co-resident with the generator
+    ollama_tag: mistral-nemo:12b-instruct-2407-q4_K_M
+    model: mistralai/Mistral-Nemo-Instruct-2407
+    # Mistral publishes no official AWQ build for Nemo, so nf4 (bitsandbytes, transformers backend) is the
+    # default. For the vLLM backend use an AWQ build instead - a community one, or switch to the fallback.
+    quantization: nf4
+    max_model_len: 8192
+    temperature: 0.0
+    max_tokens: 256
+  judge_fallback:        # smaller, still a different family from Qwen; official AWQ INT4 exists
+    ollama_tag: llama3.1:8b-instruct-q4_K_M
+    model: hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4
+    quantization: awq
+    temperature: 0.0
+    max_tokens: 256
+
+embeddings:
+  model: BAAI/bge-small-en-v1.5
+  device: cpu

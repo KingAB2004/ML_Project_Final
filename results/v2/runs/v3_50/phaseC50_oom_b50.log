@@ -1,0 +1,122 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:09<53:01,  9.41s/it]Loading weights:   1%|          | 2/339 [00:18<50:50,  9.05s/it]Loading weights:   1%|          | 4/339 [00:20<23:20,  4.18s/it]Loading weights:   1%|▏         | 5/339 [00:21<17:24,  3.13s/it]Loading weights:   2%|▏         | 6/339 [00:22<13:37,  2.45s/it]Loading weights:   3%|▎         | 10/339 [00:22<05:04,  1.08it/s]Loading weights:   4%|▎         | 12/339 [00:23<03:45,  1.45it/s]Loading weights:   5%|▍         | 16/339 [00:24<02:37,  2.05it/s]Loading weights:   5%|▌         | 17/339 [00:25<03:07,  1.72it/s]Loading weights:   5%|▌         | 18/339 [00:26<03:26,  1.56it/s]Loading weights:   6%|▋         | 22/339 [00:26<01:49,  2.88it/s]Loading weights:   7%|▋         | 24/339 [00:26<01:28,  3.56it/s]Loading weights:   8%|▊         | 28/339 [00:27<01:24,  3.69it/s]Loading weights:   9%|▊         | 29/339 [00:28<01:52,  2.76it/s]Loading weights:   9%|▉         | 30/339 [00:29<02:39,  1.94it/s]Loading weights:  10%|█         | 34/339 [00:30<01:35,  3.18it/s]Loading weights:  12%|█▏        | 40/339 [00:31<01:23,  3.59it/s]Loading weights:  12%|█▏        | 41/339 [00:34<02:31,  1.97it/s]Loading weights:  12%|█▏        | 42/339 [00:35<03:11,  1.55it/s]Loading weights:  14%|█▎        | 46/339 [00:35<01:55,  2.53it/s]Loading weights:  14%|█▍        | 48/339 [00:36<01:46,  2.74it/s]Loading weights:  15%|█▌        | 52/339 [00:37<01:36,  2.98it/s]Loading weights:  16%|█▌        | 53/339 [00:38<02:11,  2.17it/s]Loading weights:  16%|█▌        | 54/339 [00:40<02:56,  1.61it/s]Loading weights:  17%|█▋        | 57/339 [00:40<01:50,  2.55it/s]Loading weights:  17%|█▋        | 58/339 [00:40<01:41,  2.78it/s]Loading weights:  18%|█▊        | 60/339 [00:40<01:18,  3.55it/s]Loading weights:  19%|█▉        | 64/339 [00:42<01:24,  3.27it/s]Loading weights:  19%|█▉        | 65/339 [00:43<01:52,  2.44it/s]Loading weights:  19%|█▉        | 66/339 [00:44<02:22,  1.92it/s]Loading weights:  21%|██        | 70/339 [00:44<01:26,  3.11it/s]Loading weights:  21%|██        | 72/339 [00:45<01:12,  3.67it/s]Loading weights:  22%|██▏       | 74/339 [00:45<00:56,  4.66it/s]Loading weights:  22%|██▏       | 76/339 [00:46<01:25,  3.09it/s]Loading weights:  23%|██▎       | 77/339 [00:47<01:45,  2.49it/s]Loading weights:  23%|██▎       | 78/339 [00:48<02:16,  1.91it/s]Loading weights:  24%|██▍       | 82/339 [00:48<01:12,  3.54it/s]Loading weights:  25%|██▍       | 84/339 [00:48<00:59,  4.31it/s]Loading weights:  26%|██▌       | 88/339 [00:49<00:55,  4.53it/s]Loading weights:  26%|██▋       | 89/339 [00:50<01:22,  3.03it/s]Loading weights:  27%|██▋       | 90/339 [00:51<01:51,  2.24it/s]Loading weights:  28%|██▊       | 96/339 [00:51<00:50,  4.77it/s]Loading weights:  29%|██▉       | 100/339 [00:52<00:53,  4.49it/s]Loading weights:  30%|██▉       | 101/339 [00:54<01:27,  2.73it/s]Loading weights:  30%|███       | 102/339 [00:56<02:23,  1.65it/s]Loading weights:  32%|███▏      | 108/339 [00:56<01:11,  3.24it/s]Loading weights:  33%|███▎      | 112/339 [00:58<01:19,  2.87it/s]Loading weights:  33%|███▎      | 113/339 [01:00<01:54,  1.98it/s]Loading weights:  34%|███▎      | 114/339 [01:01<02:25,  1.54it/s]Loading weights:  35%|███▍      | 117/339 [01:02<01:39,  2.23it/s]Loading weights:  35%|███▍      | 118/339 [01:02<01:32,  2.40it/s]Loading weights:  35%|███▌      | 120/339 [01:02<01:10,  3.13it/s]Loading weights:  37%|███▋      | 124/339 [01:03<01:06,  3.23it/s]Loading weights:  37%|███▋      | 125/339 [01:05<01:36,  2.21it/s]Loading weights:  37%|███▋      | 126/339 [01:06<02:10,  1.63it/s]Loading weights:  38%|███▊      | 129/339 [01:06<01:18,  2.68it/s]Loading weights:  38%|███▊      | 130/339 [01:06<01:15,  2.79it/s]Loading weights:  39%|███▉      | 132/339 [01:07<00:55,  3.74it/s]Loading weights:  40%|████      | 136/339 [01:08<01:00,  3.34it/s]Loading weights:  40%|████      | 137/339 [01:09<01:27,  2.30it/s]Loading weights:  41%|████      | 138/339 [01:10<01:57,  1.71it/s]Loading weights:  42%|████▏     | 142/339 [01:11<01:02,  3.14it/s]Loading weights:  42%|████▏     | 144/339 [01:11<00:51,  3.76it/s]Loading weights:  44%|████▎     | 148/339 [01:12<00:54,  3.48it/s]Loading weights:  44%|████▍     | 149/339 [01:13<01:21,  2.33it/s]Loading weights:  44%|████▍     | 150/339 [01:15<01:46,  1.77it/s]Loading weights:  45%|████▌     | 153/339 [01:15<01:06,  2.81it/s]Loading weights:  45%|████▌     | 154/339 [01:15<00:59,  3.13it/s]Loading weights:  46%|████▌     | 156/339 [01:15<00:52,  3.48it/s]Loading weights:  47%|████▋     | 160/339 [01:17<00:59,  3.02it/s]Loading weights:  47%|████▋     | 161/339 [01:19<01:41,  1.75it/s]Loading weights:  48%|████▊     | 162/339 [01:21<02:31,  1.17it/s]Loading weights:  49%|████▉     | 166/339 [01:22<01:26,  2.01it/s]Loading weights:  50%|████▉     | 168/339 [01:22<01:05,  2.60it/s]Loading weights:  50%|█████     | 170/339 [01:22<00:52,  3.24it/s]Loading weights:  51%|█████     | 172/339 [01:25<01:53,  1.47it/s]Loading weights:  51%|█████     | 173/339 [01:28<02:45,  1.00it/s]Loading weights:  51%|█████▏    | 174/339 [01:30<03:05,  1.12s/it]Loading weights:  53%|█████▎    | 178/339 [01:30<01:31,  1.76it/s]Loading weights:  53%|█████▎    | 180/339 [01:30<01:14,  2.13it/s]Loading weights:  54%|█████▍    | 184/339 [01:31<01:01,  2.54it/s]Loading weights:  55%|█████▍    | 185/339 [01:32<01:11,  2.17it/s]Loading weights:  55%|█████▍    | 186/339 [01:34<01:46,  1.44it/s]Loading weights:  56%|█████▌    | 190/339 [01:35<00:59,  2.52it/s]Loading weights:  58%|█████▊    | 196/339 [01:37<00:51,  2.76it/s]Loading weights:  58%|█████▊    | 197/339 [01:38<01:01,  2.30it/s]Loading weights:  58%|█████▊    | 198/339 [01:38<01:10,  2.00it/s]Loading weights:  60%|█████▉    | 202/339 [01:39<00:43,  3.13it/s]Loading weights:  61%|██████▏   | 208/339 [01:40<00:38,  3.40it/s]Loading weights:  62%|██████▏   | 209/339 [01:42<00:50,  2.59it/s]Loading weights:  62%|██████▏   | 210/339 [01:45<01:43,  1.24it/s]Loading weights:  63%|██████▎   | 214/339 [01:45<01:01,  2.04it/s]Loading weights:  64%|██████▎   | 216/339 [01:46<00:51,  2.39it/s]Loading weights:  65%|██████▍   | 220/339 [01:47<00:43,  2.75it/s]Loading weights:  65%|██████▌   | 221/339 [01:48<00:54,  2.16it/s]Loading weights:  65%|██████▌   | 222/339 [01:49<01:10,  1.67it/s]Loading weights:  67%|██████▋   | 226/339 [01:50<00:40,  2.79it/s]Loading weights:  67%|██████▋   | 228/339 [01:50<00:35,  3.11it/s]Loading weights:  68%|██████▊   | 232/339 [01:51<00:30,  3.54it/s]Loading weights:  69%|██████▊   | 233/339 [01:53<00:44,  2.37it/s]Loading weights:  69%|██████▉   | 234/339 [01:54<00:58,  1.78it/s]Loading weights:  70%|███████   | 238/339 [01:54<00:33,  2.98it/s]Loading weights:  71%|███████   | 240/339 [01:54<00:26,  3.67it/s]Loading weights:  71%|███████▏  | 242/339 [01:55<00:23,  4.14it/s]Loading weights:  72%|███████▏  | 244/339 [01:56<00:31,  3.06it/s]Loading weights:  72%|███████▏  | 245/339 [01:57<00:37,  2.50it/s]Loading weights:  73%|███████▎  | 246/339 [02:00<01:28,  1.05it/s]Loading weights:  74%|███████▎  | 250/339 [02:00<00:42,  2.09it/s]Loading weights:  74%|███████▍  | 252/339 [02:00<00:34,  2.52it/s]Loading weights:  76%|███████▌  | 256/339 [02:03<00:40,  2.06it/s]Loading weights:  76%|███████▌  | 257/339 [02:04<00:48,  1.70it/s]Loading weights:  76%|███████▌  | 258/339 [02:05<00:54,  1.49it/s]Loading weights:  77%|███████▋  | 262/339 [02:05<00:28,  2.68it/s]Loading weights:  78%|███████▊  | 264/339 [02:05<00:21,  3.41it/s]Loading weights:  79%|███████▉  | 268/339 [02:07<00:23,  2.99it/s]Loading weights:  79%|███████▉  | 269/339 [02:08<00:29,  2.36it/s]Loading weights:  80%|███████▉  | 270/339 [02:11<00:54,  1.27it/s]Loading weights:  81%|████████  | 274/339 [02:11<00:29,  2.22it/s]Loading weights:  81%|████████▏ | 276/339 [02:12<00:27,  2.33it/s]Loading weights:  83%|████████▎ | 280/339 [02:16<00:39,  1.49it/s]Loading weights:  83%|████████▎ | 281/339 [02:18<00:51,  1.12it/s]Loading weights:  83%|████████▎ | 282/339 [02:20<00:55,  1.03it/s]Loading weights:  84%|████████▍ | 286/339 [02:20<00:28,  1.85it/s]Loading weights:  85%|████████▍ | 288/339 [02:20<00:21,  2.39it/s]Loading weights:  86%|████████▌ | 292/339 [02:21<00:16,  2.84it/s]Loading weights:  86%|████████▋ | 293/339 [02:22<00:23,  2.00it/s]Loading weights:  87%|████████▋ | 294/339 [02:24<00:27,  1.66it/s]Loading weights:  88%|████████▊ | 298/339 [02:24<00:14,  2.88it/s]Loading weights:  88%|████████▊ | 300/339 [02:25<00:14,  2.76it/s]Loading weights:  89%|████████▉ | 302/339 [02:25<00:10,  3.49it/s]Loading weights:  90%|████████▉ | 304/339 [02:27<00:18,  1.94it/s]Loading weights:  90%|████████▉ | 305/339 [02:29<00:27,  1.25it/s]Loading weights:  90%|█████████ | 306/339 [02:30<00:28,  1.14it/s]Loading weights:  91%|█████████▏| 310/339 [02:31<00:13,  2.16it/s]Loading weights:  92%|█████████▏| 312/339 [02:31<00:10,  2.48it/s]Loading weights:  93%|█████████▎| 316/339 [02:33<00:08,  2.76it/s]Loading weights:  94%|█████████▎| 317/339 [02:34<00:10,  2.07it/s]Loading weights:  94%|█████████▍| 318/339 [02:35<00:12,  1.67it/s]Loading weights:  95%|█████████▍| 322/339 [02:35<00:05,  2.91it/s]Loading weights:  96%|█████████▌| 326/339 [02:36<00:03,  4.28it/s]Loading weights:  97%|█████████▋| 328/339 [02:37<00:03,  3.10it/s]Loading weights:  97%|█████████▋| 329/339 [02:38<00:04,  2.09it/s]Loading weights:  97%|█████████▋| 330/339 [02:40<00:05,  1.65it/s]Loading weights:  99%|█████████▊| 334/339 [02:40<00:01,  2.86it/s]Loading weights: 100%|██████████| 339/339 [02:40<00:00,  2.11it/s]
+trainable params: 80,740,352 || all params: 7,696,356,864 || trainable%: 1.0491
+  0%|          | 0/144 [00:00<?, ?it/s]  1%|          | 1/144 [00:38<1:31:22, 38.34s/it]  1%|▏         | 2/144 [01:04<1:14:04, 31.30s/it]  2%|▏         | 3/144 [01:29<1:06:43, 28.40s/it]  3%|▎         | 4/144 [01:55<1:03:43, 27.31s/it]  3%|▎         | 5/144 [02:21<1:02:35, 27.02s/it]  4%|▍         | 6/144 [02:47<1:01:09, 26.59s/it]  5%|▍         | 7/144 [03:13<1:00:15, 26.39s/it]  6%|▌         | 8/144 [03:37<58:05, 25.63s/it]    6%|▋         | 9/144 [03:58<54:28, 24.21s/it]  7%|▋         | 10/144 [04:24<55:02, 24.65s/it]                                                  7%|▋         | 10/144 [04:24<55:02, 24.65s/it]  8%|▊         | 11/144 [04:51<56:31, 25.50s/it]  8%|▊         | 12/144 [05:19<57:52, 26.30s/it]  9%|▉         | 13/144 [05:45<57:10, 26.19s/it] 10%|▉         | 14/144 [06:08<54:47, 25.29s/it] 10%|█         | 15/144 [06:37<56:10, 26.13s/it] 11%|█         | 16/144 [07:01<54:53, 25.73s/it] 12%|█▏        | 17/144 [07:27<54:14, 25.62s/it] 12%|█▎        | 18/144 [07:53<54:17, 25.85s/it] 13%|█▎        | 19/144 [08:18<53:31, 25.69s/it] 14%|█▍        | 20/144 [08:41<51:17, 24.82s/it]                                                 14%|█▍        | 20/144 [08:41<51:17, 24.82s/it] 15%|█▍        | 21/144 [09:10<53:03, 25.88s/it] 15%|█▌        | 22/144 [09:37<53:18, 26.22s/it] 16%|█▌        | 23/144 [10:04<53:54, 26.73s/it] 17%|█▋        | 24/144 [10:30<52:39, 26.33s/it] 17%|█▋        | 25/144 [11:02<55:35, 28.03s/it] 18%|█▊        | 26/144 [11:29<54:35, 27.76s/it] 19%|█▉        | 27/144 [11:55<52:54, 27.13s/it] 19%|█▉        | 28/144 [12:23<53:20, 27.59s/it] 20%|██        | 29/144 [12:50<52:13, 27.25s/it] 21%|██        | 30/144 [13:14<49:54, 26.27s/it]                                                 21%|██        | 30/144 [13:14<49:54, 26.27s/it] 22%|██▏       | 31/144 [13:41<50:02, 26.57s/it] 22%|██▏       | 32/144 [14:06<48:33, 26.02s/it] 23%|██▎       | 33/144 [14:28<46:05, 24.91s/it] 24%|██▎       | 34/144 [14:51<44:32, 24.29s/it] 24%|██▍       | 35/144 [15:17<45:05, 24.82s/it] 25%|██▌       | 36/144 [15:40<43:40, 24.27s/it] 26%|██▌       | 37/144 [16:05<43:26, 24.36s/it] 26%|██▋       | 38/144 [16:31<43:59, 24.90s/it] 27%|██▋       | 39/144 [16:56<43:32, 24.88s/it] 28%|██▊       | 40/144 [17:22<44:09, 25.47s/it]                                                 28%|██▊       | 40/144 [17:22<44:09, 25.47s/it] 28%|██▊       | 41/144 [17:49<44:02, 25.66s/it] 29%|██▉       | 42/144 [18:13<43:11, 25.41s/it] 30%|██▉       | 43/144 [18:37<42:03, 24.98s/it] 31%|███       | 44/144 [19:02<41:38, 24.98s/it] 31%|███▏      | 45/144 [19:26<40:43, 24.69s/it] 32%|███▏      | 46/144 [19:52<40:48, 24.99s/it] 33%|███▎      | 47/144 [20:19<41:36, 25.74s/it] 33%|███▎      | 48/144 [20:44<40:29, 25.31s/it] 34%|███▍      | 49/144 [21:09<40:13, 25.41s/it] 35%|███▍      | 50/144 [21:33<38:53, 24.82s/it]                                                 35%|███▍      | 50/144 [21:33<38:53, 24.82s/it] 35%|███▌      | 51/144 [22:01<40:14, 25.96s/it] 36%|███▌      | 52/144 [22:29<40:33, 26.46s/it] 37%|███▋      | 53/144 [22:57<40:46, 26.88s/it] 38%|███▊      | 54/144 [23:23<39:43, 26.48s/it] 38%|███▊      | 55/144 [23:50<39:47, 26.83s/it] 39%|███▉      | 56/144 [24:18<39:36, 27.00s/it] 40%|███▉      | 57/144 [24:44<38:54, 26.84s/it] 40%|████      | 58/144 [25:11<38:31, 26.87s/it] 41%|████      | 59/144 [25:36<37:05, 26.18s/it] 42%|████▏     | 60/144 [26:02<36:35, 26.14s/it]                                                 42%|████▏     | 60/144 [26:02<36:35, 26.14s/it] 42%|████▏     | 61/144 [26:26<35:38, 25.76s/it] 43%|████▎     | 62/144 [26:57<37:10, 27.20s/it] 44%|████▍     | 63/144 [27:22<35:47, 26.52s/it] 44%|████▍     | 64/144 [27:48<35:06, 26.34s/it] 45%|████▌     | 65/144 [28:10<33:12, 25.23s/it] 46%|████▌     | 66/144 [28:32<31:25, 24.17s/it] 47%|████▋     | 67/144 [28:56<31:03, 24.20s/it] 47%|████▋     | 68/144 [29:24<32:04, 25.32s/it] 48%|████▊     | 69/144 [29:50<31:41, 25.35s/it] 49%|████▊     | 70/144 [30:13<30:25, 24.67s/it]                                                 49%|████▊     | 70/144 [30:13<30:25, 24.67s/it] 49%|████▉     | 71/144 [30:38<30:20, 24.93s/it] 50%|█████     | 72/144 [31:01<29:13, 24.35s/it][W1003 12:04:30.454137178 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 3735552, total: 12488343552).
+[W1003 12:04:31.394069538 CUDACachingAllocator.cpp:508] expandable_segments: memory mapping failed with OOM on device 0 while trying to map 20971520 bytes (free: 10027008, total: 12488343552).
+{'loss': '1.111', 'grad_norm': '0.5755', 'learning_rate': '0.0001996', 'epoch': '0.1393'}
+{'loss': '0.8414', 'grad_norm': '0.5802', 'learning_rate': '0.000195', 'epoch': '0.2785'}
+{'loss': '0.7914', 'grad_norm': '0.5215', 'learning_rate': '0.0001856', 'epoch': '0.4178'}
+{'loss': '0.7649', 'grad_norm': '0.5367', 'learning_rate': '0.0001719', 'epoch': '0.557'}
+{'loss': '0.7461', 'grad_norm': '0.5857', 'learning_rate': '0.0001545', 'epoch': '0.6963'}
+{'loss': '0.7556', 'grad_norm': '0.627', 'learning_rate': '0.0001343', 'epoch': '0.8355'}
+{'loss': '0.7394', 'grad_norm': '0.5607', 'learning_rate': '0.0001124', 'epoch': '0.9748'}
+Traceback (most recent call last):
+  File "/home/cse/COCCON_NEW/src/train.py", line 149, in <module>
+    main()
+    ~~~~^^
+  File "/home/cse/COCCON_NEW/src/train.py", line 138, in main
+    trainer.train()
+    ~~~~~~~~~~~~~^^
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/trainer.py", line 1549, in train
+    return inner_training_loop(
+        args=args,
+    ...<2 lines>...
+        ignore_keys_for_eval=ignore_keys_for_eval,
+    )
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/trainer.py", line 1631, in _inner_training_loop
+    self._run_epoch(
+    ~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<9 lines>...
+        steps_trained_in_current_epoch=steps_trained_in_current_epoch,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/trainer.py", line 1944, in _run_epoch
+    self._maybe_log_save_evaluate(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._tr_loss,
+        ^^^^^^^^^^^^^^
+    ...<6 lines>...
+        learning_rate=learning_rate,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/trainer.py", line 2225, in _maybe_log_save_evaluate
+    metrics = self._evaluate(trial, ignore_keys_for_eval)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/trainer.py", line 3205, in _evaluate
+    metrics = self.evaluate(ignore_keys=ignore_keys_for_eval)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/trainer.py", line 2768, in evaluate
+    output = self.evaluation_loop(
+        eval_dataloader,
+    ...<5 lines>...
+        metric_key_prefix=metric_key_prefix,
+    )
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/trainer.py", line 2893, in evaluation_loop
+    losses, logits, labels = self.prediction_step(model, inputs, prediction_loss_only, ignore_keys=ignore_keys)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/trainer.py", line 3170, in prediction_step
+    loss, outputs = self.compute_loss(
+                    ~~~~~~~~~~~~~~~~~^
+        model, inputs, return_outputs=True, num_items_in_batch=num_items_in_batch
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/trainer.py", line 2117, in compute_loss
+    outputs = model(**inputs)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/accelerate/utils/operations.py", line 943, in forward
+    return model_forward(*args, **kwargs)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/accelerate/utils/operations.py", line 931, in __call__
+    return convert_to_fp32(self.model_forward(*args, **kwargs))
+                           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/peft/peft_model.py", line 2120, in forward
+    return self.base_model(
+           ~~~~~~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/peft/tuners/tuners_utils.py", line 359, in forward
+    return self.model(*args, **kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/utils/generic.py", line 939, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 469, in forward
+    loss = self.loss_function(logits=logits, labels=labels, vocab_size=self.config.vocab_size, **kwargs)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/loss/loss_utils.py", line 70, in ForCausalLMLoss
+    loss = fixed_cross_entropy(logits, shift_labels, num_items_in_batch, ignore_index, **kwargs)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/transformers/loss/loss_utils.py", line 40, in fixed_cross_entropy
+    loss = nn.functional.cross_entropy(source, target, ignore_index=ignore_index, reduction=reduction)
+  File "/home/cse/COCCON_NEW/coccon/lib/python3.13/site-packages/torch/nn/functional.py", line 3555, in cross_entropy
+    return torch._C._nn.cross_entropy_loss(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        input,
+        ^^^^^^
+    ...<5 lines>...
+        label_smoothing,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 3.02 GiB. GPU 0 has a total capacity of 11.63 GiB of which 1.16 GiB is free. Including non-PyTorch memory, this process has 10.45 GiB memory in use. Of the allocated memory 10.20 GiB is allocated by PyTorch, and 106.26 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+ 50%|█████     | 72/144 [31:14<31:14, 26.03s/it]

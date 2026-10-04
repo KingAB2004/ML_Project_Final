@@ -1,0 +1,92 @@
+# Every tunable knob in the project. Sec. 4.1 of PLAN.md. Nothing numeric belongs at a call site.
+seed: 20260928
+
+corpus:
+  # Sizing against the baseline: COCOON reports 3.5k dialogues at 18.82 average turns (their Table 1).
+  # Ours are sessions inside linked sequences, so: n_profiles_target x mean(sessions_per_profile) x the
+  # filter survival rate. Sized to the GPU budget (one RTX 3060): 1000 x 3 x ~0.65 ~= 2k sessions kept
+  # (~3k generated), each 16-24 turns - below COCOON's 3.5k. Raising it and rerunning costs only the new
+  # records; every stage resumes. (2000 profiles would give ~3.9k.)
+  n_profiles_target: 1000
+  sessions_per_profile: [2, 4]
+  turns_per_session: [8, 12]
+  gap_days_range: [1.0, 56.0]      # log-uniform
+  need_chain_depth: 3
+  resistance_strata: {low: 1, medium: 2, high: 1}
+  ambiguous_profile_fraction: 0.10 # deliberate no-answer profiles for the abstention probe
+  triviality_similarity_max: 0.75  # depth-2 must not paraphrase depth-0
+  openers:
+    - "Hey - you've been on my mind. How are things with you today?"
+    - "Hi. No particular reason, I just wanted to check in on you."
+    - "Morning. You seemed a bit flat last time we spoke - how's today going?"
+    - "Hello. I have a little time if you feel like talking about anything."
+
+filter:
+  aels_min_mean: 5.0
+  aels_min_item: 3
+  min_turns: 6
+  max_regen_attempts: 2
+  leakage_guard_turns: 2           # user must not recite terminal_need in first N user turns
+  ascii_ratio_min: 0.90            # crude English-only screen
+  crisis_terms: ["kill myself", "suicide", "end my life", "self-harm", "hurt myself", "overdose"]
+
+parallel:
+  # Concurrent LLM requests per stage (llm.pmap). Only the ollama and echo backends run in parallel;
+  # transformers/vllm always run serially. Ollama must accept as many: set OLLAMA_NUM_PARALLEL >= workers
+  # on the server, and leave room in VRAM for that many KV caches. 4 suits a 12 GB RTX 3060.
+  workers: 4
+
+judge:
+  samples_per_item: 1
+  temperature: 0.0
+  scale_min: 1
+  scale_max: 7
+
+agents:
+  analyzer_confidence_floor: 0.45  # below this, Strategist restricted to L0-L1
+  max_revisions: 2
+  memory_brief_token_budget: 320
+
+conformal:
+  alpha: 0.10
+  tau: 0.20                        # IP_norm > tau is a violation. 0.5 left the gate inert: 0/300 calibration turns above it (v3)
+  delta: 0.10
+  n_calibration_turns: 300
+  lambda_grid_steps: 41
+  score_weights: {ip_pred: 0.7, violation_mass: 0.3}
+
+pri:
+  n_rollouts: 2
+  turns_sampled_per_dialogue: 4
+  bootstrap_resamples: 10000
+
+memory:
+  decay_half_life_days: 14.0
+  reinstate_confidence_factor: 0.5
+  min_spans_to_confirm: 2
+  min_spans_to_reopen_disconfirmed: 2
+  dormant_confidence_floor: 0.15
+  equivalence_overlap_min: 0.6
+
+# Enhancement 5 (adaptive disclosure pacing) was dropped in the modified SOP. The ladder itself stays as
+# an Enhancement 2 mechanism: agents.analyzer_confidence_floor caps the rung when the Analyzer is unsure,
+# and L3 additionally requires a confirmed terminal need in memory.
+
+eval:
+  n_dialogues_per_arm: 150
+  bootstrap_resamples: 10000
+  pri_turn_positions: [early, middle, middle, late]
+
+train:
+  lora_r: 32
+  lora_alpha: 64
+  lora_dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+  seq_len: 2048
+  micro_batch_size: 1
+  grad_accum: 16
+  epochs: 2
+  lr: 0.0002
+  warmup_ratio: 0.03
+  gradient_checkpointing: true
+  split_fractions: {train: 0.8, val: 0.1, test: 0.1}

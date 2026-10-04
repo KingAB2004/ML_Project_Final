@@ -1,0 +1,13 @@
+{
+  "arm": "base_instruct",
+  "supporter": "base",
+  "adapter": null,
+  "sessions_written": 40,
+  "profiles": 40,
+  "dialogues_path": "runs/v3_50/dialogues/base_instruct.jsonl",
+  "gate": false,
+  "calibrated": false,
+  "memory": "none",
+  "architecture": "monolithic",
+  "in_distribution": true
+}

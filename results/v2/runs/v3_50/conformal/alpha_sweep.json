@@ -1,0 +1,26 @@
+[
+  {
+    "alpha": 0.05,
+    "lambda_hat": 0.0,
+    "vacuous": false,
+    "release_rate": 0.10666666666666667,
+    "risk": 0.013333333333333334,
+    "risk_ucb": 0.03184048814944779
+  },
+  {
+    "alpha": 0.1,
+    "lambda_hat": 0.125,
+    "vacuous": false,
+    "release_rate": 0.5433333333333333,
+    "risk": 0.056666666666666664,
+    "risk_ucb": 0.08623504769486029
+  },
+  {
+    "alpha": 0.2,
+    "lambda_hat": 1.0,
+    "vacuous": false,
+    "release_rate": 1.0,
+    "risk": 0.12666666666666668,
+    "risk_ucb": 0.16588612670752906
+  }
+]

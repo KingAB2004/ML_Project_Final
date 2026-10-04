@@ -1,0 +1,78 @@
+[warn] arm 'calib_dec_ungated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+calib_dec_ungated: 81 sessions -> runs/v3_50/dialogues/calib_dec_ungated.jsonl
+run dir: runs/v3_50
+lambda_hat=1.000 at alpha=0.1 tau=0.5 on n=300 turns
+saved runs/v3_50/conformal/calibration.json
+base_instruct: 40 sessions -> runs/v3_50/dialogues/base_instruct.jsonl
+run dir: runs/v3_50
+reactive_baseline: 40 sessions -> runs/v3_50/dialogues/reactive_baseline.jsonl
+run dir: runs/v3_50
+[warn] arm 'cellA_mono_ungated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+cellA_mono_ungated: 121 sessions -> runs/v3_50/dialogues/cellA_mono_ungated.jsonl
+run dir: runs/v3_50
+[warn] arm 'cellB_mono_gated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+cellB_mono_gated: 121 sessions -> runs/v3_50/dialogues/cellB_mono_gated.jsonl
+run dir: runs/v3_50
+[warn] arm 'cellC_dec_ungated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+cellC_dec_ungated: 121 sessions -> runs/v3_50/dialogues/cellC_dec_ungated.jsonl
+run dir: runs/v3_50
+[warn] arm 'cellD_dec_gated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+cellD_dec_gated: 121 sessions -> runs/v3_50/dialogues/cellD_dec_gated.jsonl
+run dir: runs/v3_50
+base_instruct.jsonl: 412 supporter turns, 0 leaking
+calib_dec_ungated.jsonl: 792 supporter turns, 0 leaking
+cellA_mono_ungated.jsonl: 1199 supporter turns, 0 leaking
+cellB_mono_gated.jsonl: 1197 supporter turns, 0 leaking
+cellC_dec_ungated.jsonl: 1206 supporter turns, 0 leaking
+cellD_dec_gated.jsonl: 1234 supporter turns, 0 leaking
+reactive_baseline.jsonl: 409 supporter turns, 0 leaking
+success: n=40 mean=0.3833333333333333 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+aels: n=40 mean=0.8379166666666666 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+crs: n=40 mean=0.5825 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+rac: n=40 mean=0.7791666666666667 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+basic: n=40 mean=0.8041666666666666 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+ip: n=160 mean=0.08229166666666667 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+pri: n=410 mean=0.20923344947735192 failures=2 judge=mistralai/Mistral-Nemo-Instruct-2407
+PRI = -0.0005208333333333308 (95% CI -0.01584821428571428 .. 0.014657738095238093) over 320 seed-matched pairs on 160 turns
+success: n=40 mean=0.3875 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+aels: n=40 mean=0.8724999999999999 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+crs: n=40 mean=0.605 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+rac: n=40 mean=0.7958333333333333 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+basic: n=40 mean=0.8076388888888888 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+ip: n=160 mean=0.08467261904761905 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+pri: n=407 mean=0.20896220896220896 failures=2 judge=mistralai/Mistral-Nemo-Instruct-2407
+PRI = -0.0019345238095238092 (95% CI -0.016443452380952385 .. 0.012574404761904759) over 320 seed-matched pairs on 160 turns
+success: n=121 mean=0.37878787878787873 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+aels: n=121 mean=0.8542699724517907 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+crs: n=121 mean=0.5924242424242424 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+rac: n=121 mean=0.777978650137741 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+basic: n=121 mean=0.80188246097337 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+ip: n=484 mean=0.07939787485242031 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+pri: n=1198 mean=0.21502106685746084 failures=1 judge=mistralai/Mistral-Nemo-Instruct-2407
+PRI = 0.0025580480125934673 (95% CI -0.00555883510428965 .. 0.010674931129476584) over 968 seed-matched pairs on 484 turns
+success: n=121 mean=0.35812672176308535 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+aels: n=121 mean=0.8323691460055097 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+crs: n=121 mean=0.58732782369146 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+rac: n=121 mean=0.7613636363636364 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+basic: n=121 mean=0.800734618916437 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+ip: n=484 mean=0.06036009445100354 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+pri: n=1195 mean=0.21291093843395098 failures=2 judge=mistralai/Mistral-Nemo-Instruct-2407
+PRI = -0.0036686856748904314 (95% CI -0.01149849805485793 .. 0.0042842369626237276) over 967 seed-matched pairs on 484 turns
+success: n=121 mean=0.37878787878787873 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+aels: n=121 mean=0.8395316804407714 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+crs: n=121 mean=0.6004132231404959 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+rac: n=121 mean=0.7590392561983471 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+basic: n=121 mean=0.7757116620752984 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+ip: n=484 mean=0.09769775678866588 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+pri: n=1203 mean=0.22877330483315522 failures=3 judge=mistralai/Mistral-Nemo-Instruct-2407
+PRI = 0.007936507936507936 (95% CI -0.0008133688257911857 .. 0.01668638469880706) over 966 seed-matched pairs on 484 turns
+success: n=121 mean=0.3608815426997245 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+aels: n=121 mean=0.8289256198347107 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+crs: n=121 mean=0.600275482093664 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+rac: n=121 mean=0.74974173553719 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+basic: n=121 mean=0.7566574839302113 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+ip: n=484 mean=0.06168831168831169 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+pri: n=1222 mean=0.1952887537993921 failures=12 judge=mistralai/Mistral-Nemo-Instruct-2407
+PRI = -0.005342985177524992 (95% CI -0.012532624218249865 .. 0.00196976412074654) over 967 seed-matched pairs on 484 turns
+wrote runs/v3_50/results_v3.md
+PHASE_A_DONE
