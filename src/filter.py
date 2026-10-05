@@ -1,13 +1,3 @@
-"""Phase 1.6 - quality filtering (PLAN Sec. 8.6). Cheap checks first, model calls second.
-
-Structural checks cost nothing and catch the failures that matter most (a simulator that recites its own
-hidden need, a collapsed alternation, verbatim repetition). Only survivors reach the AELS judge.
-
-Filtering happens at the PROFILE level too: if session 2 fails, the profile's later sessions are broken as a
-temporal sequence, so the tail is dropped and that fact is recorded.
-
-  python src/filter.py --backend echo
-"""
 from __future__ import annotations
 
 import argparse

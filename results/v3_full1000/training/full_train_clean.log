@@ -1,0 +1,21 @@
+queued Sun Oct  4 08:04:08 AM IST 2026; waiting for the dataset run (pid 854150) to exit
+dataset run gone at Sun Oct  4 08:16:08 AM IST 2026
+dataset run exited with 0 at Sun Oct  4 08:15:48 AM IST 2026
+        0 data/sft/with_thoughts_calibration.jsonl
+        0 data/sft/with_thoughts_test.jsonl
+    18821 data/sft/with_thoughts_train.jsonl
+     2608 data/sft/with_thoughts_val.jsonl
+        0 data/sft/wo_thoughts_calibration.jsonl
+        0 data/sft/wo_thoughts_test.jsonl
+    18821 data/sft/wo_thoughts_train.jsonl
+     2608 data/sft/wo_thoughts_val.jsonl
+    42858 total
+memory.used [MiB]
+15 MiB
+=== pipeline start: scale=full backend=ollama arms=8 steps=2
+RUN  [train] train.py --arm with_thoughts --out runs/full_1000
+       {'eval_loss': '0.704', 'eval_runtime': '1345', 'eval_samples_per_second': '1.939', 'eval_steps_per_second': '1.939', 'epoch': '3'}
+       {'train_runtime': '9.453e+04', 'train_samples_per_second': '0.597', 'train_steps_per_second': '0.037', 'train_loss': '0.4714', 'epoch': '3'}
+       adapter saved to runs/full_1000/adapter_with_thoughts
+OK   [train] 94976.8s
+RUN  [train] train.py --arm wo_thoughts --out runs/full_1000

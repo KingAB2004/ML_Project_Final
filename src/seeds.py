@@ -54,10 +54,7 @@ def ensure_problem_types() -> list[str]:
 def load_empathetic_dialogues(limit: int | None = None) -> list[dict]:
     """Situations from EmpatheticDialogues. Falls back to a local JSONL export when datasets is absent.
 
-    Expected local fallback: data/raw/empatheticdialogues.jsonl, one object per conversation with
-    {conv_id, situation|prompt, emotion|context}. On Hugging Face (facebook/empathetic_dialogues) the
-    situation lives in the `prompt` column and the emotion label in `context`, which is why both spellings
-    are accepted here.
+
     """
     local = DATA / "raw" / "empatheticdialogues.jsonl"
     rows: list[dict] = []

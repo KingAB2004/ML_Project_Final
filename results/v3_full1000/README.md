@@ -5,14 +5,16 @@ fine-tuning runs, and the analyses run on top of them (GPU and CPU). Nothing her
 copied from `runs/` (which git ignores) by `scripts/collect_results.sh`, and refreshed by rerunning that
 script as each pending step finishes. Model weights are not included (too large for git).
 
-**Status on 4 October 2026, 16:00 IST.** Dataset: done. Qwen2.5-0.5B fine-tune (both arms) and its analyses:
-done. Qwen2.5-7B fine-tune: running on the lab server. Qwen2.5-3B fine-tune: not started (run
-`scripts/scale_3b.sh`). Test-profile evaluation of the fine-tuned models: queued on the lab server.
+**Status on 5 October 2026, 15:30 IST.** Dataset: done. Qwen2.5-0.5B fine-tune (both arms) and its analyses:
+done. Qwen2.5-3B `with_thoughts`: done (laptop); `wo_thoughts`: next on the laptop. Qwen2.5-7B
+`with_thoughts`: done (lab); `wo_thoughts`: running on the lab server. Scaling fit for `with_thoughts` over
+all three sizes: done. PVI and LoRA geometry for 3B / 7B need both arms of a size, so they follow each size's
+`wo_thoughts`. Test-profile evaluation of the fine-tuned models: queued on the lab server.
 
 | Folder | What | Where it ran |
 |---|---|---|
 | `dataset/` | corpus statistics, the generation log, the pipeline state | lab server, RTX 3060 (Ollama) + CPU |
-| `training/` | loss curves, best checkpoints, adapter configs, cleaned training log | laptop RTX 4060 (0.5B); lab RTX 3060 (7B, pending) |
+| `training/` | loss curves, best checkpoints, adapter configs, cleaned training log | laptop RTX 4060 (0.5B, 3B); lab RTX 3060 (7B) |
 | `analyses/pvi/` | usable information in the thoughts | laptop RTX 4060 (forward passes) |
 | `analyses/lora_geometry/` | SVD geometry of the LoRA updates, rank truncation | CPU (SVD) + laptop RTX 4060 (truncation) |
 | `analyses/scaling/` | scaling-law table and training curves | CPU |
@@ -93,7 +95,7 @@ size is the only variable in the scaling study.
 | `wo_thoughts` | 17.6 M (3.4 %) | 3 h 08 m | 1.026 / 0.719 / 0.454 | 0.918 / **0.876** / 0.957 | epoch 2 |
 
 3,531 optimizer steps per arm at 3.2 s/step, about 3.3 GB of VRAM. No example was dropped for length.
-Plot: `analyses/scaling/training_curves.png`. Files: `training/0.5B/train_summary_*.json`,
+Plot: `training/0.5B/training_curves_0.5B.png`. Files: `training/0.5B/train_summary_*.json`,
 `trainer_state_*.json` (full loss history), `adapter_config_*.json`; log: `training/scale_local_clean.log`.
 
 **Why these numbers**
@@ -110,12 +112,39 @@ Plot: `analyses/scaling/training_curves.png`. Files: `training/0.5B/train_summar
   tokens, wo_thoughts over reply tokens only. The lower number for with_thoughts (0.842 vs 0.876) does not
   mean it is better; the fair comparison on the same reply tokens is in the PVI analysis (section 3).
 
-### Qwen2.5-7B-Instruct (lab RTX 3060): running
-`with_thoughts` started 4 Oct 08:16 (about 25 h, ETA Mon 5 Oct ~10:00), then `wo_thoughts` (ETA Tue 6 Oct
-~08:00). 1,177 steps per epoch at about 24.7 s/step. Results will appear in `training/7B/`.
+### Qwen2.5-3B-Instruct (laptop RTX 4060): `with_thoughts` done, `wo_thoughts` next
 
-### Qwen2.5-3B-Instruct (laptop): not started
-`scripts/scale_3b.sh`, about one day for both arms. Results will appear in `training/3B/`.
+| Arm | Trainable params | Time | Mean train loss, epoch 1 / 2 / 3 | Validation loss, epoch 1 / 2 / 3 | Kept |
+|---|---|---|---|---|---|
+| `with_thoughts` | 59.9 M (1.9 %) | 11 h 39 m | 0.771 / 0.574 / 0.391 | 0.715 / **0.687** / 0.752 | epoch 2 |
+| `wo_thoughts` | - | about 10 h | - | - | - |
+
+Plot: `training/3B/training_curves_3B.png`. Files: `training/3B/train_summary_with_thoughts.json`,
+`trainer_state_with_thoughts.json`, `adapter_config_with_thoughts.json`; log: `training/scale_3b_clean.log`.
+
+### Qwen2.5-7B-Instruct (lab RTX 3060): `with_thoughts` done, `wo_thoughts` running
+
+| Arm | Trainable params | Time | Mean train loss, epoch 1 / 2 / 3 | Validation loss, epoch 1 / 2 / 3 | Kept |
+|---|---|---|---|---|---|
+| `with_thoughts` | 80.7 M (1.1 %) | 26 h 23 m | 0.666 / 0.473 / 0.277 | 0.629 / **0.612** / 0.704 | epoch 2 |
+| `wo_thoughts` | - | running, ETA Tue 6 Oct ~12:00 | - | - | - |
+
+1,177 steps per epoch at about 27 s/step (7.6 B parameters, micro-batch 1 x 16, gradient checkpointing,
+4-bit de-quantisation on every matmul). Plot: `training/7B/training_curves_7B.png`. Files:
+`training/7B/trainer_state_with_thoughts.json` (the loss history; this run started before `train.py` began
+writing it into the summary), `train_summary_with_thoughts.json`, `adapter_config_with_thoughts.json`; log:
+`training/full_train_clean.log`. The adapter weights (309 MB) are in `runs/full_1000/adapter_with_thoughts/`
+(not tracked by git).
+
+**Why these numbers (all sizes)**
+
+- **Every size is best at epoch 2 and overfits in epoch 3**, and the gap grows with size (validation rises
+  by 0.034 for 0.5B, 0.065 for 3B, 0.092 for 7B): a bigger model memorises the repeated examples faster.
+  Train loss at epoch 3 (0.553 / 0.391 / 0.277) shows that memorisation directly.
+- **Bigger is better on held-out data**: best validation loss 0.842 -> 0.687 -> 0.612 for `with_thoughts`.
+  The fit over the three sizes is L = 7.14 N^-0.108 (section 5); with only 3 points (1 residual degree of
+  freedom) the exponent is a description, not a reliable law.
+- **Diminishing returns**: 0.5B -> 3B (7.7x parameters) cuts the loss by 0.155; 3B -> 7B (2.4x) by 0.075.
 
 ---
 
@@ -198,9 +227,14 @@ Figures: `effective_rank.png` (layer x module heatmap), `norm_and_similarity_by_
 
 `extra/scaling.py` combines the training logs, the PVI reply losses and (later) the test-profile scores of
 every size into one table, fits L(N) = a N^-b over the sizes present, and measures the thoughts gain per size.
-Right now only 0.5B is complete, so the table has one row per arm and no fit yet; it fills in automatically
-as 7B (Tuesday) and 3B (when run) finish, and the test columns (Success, IP, PRI, counterfactual PRI) fill in
-from the lab-server evaluation. Figures: `training_curves.png`, `scaling_loss.png` (more once more sizes exist).
+
+Now: `with_thoughts` is trained at all three sizes, so its fit exists: **best validation loss = 7.14 N^-0.108**
+(N = non-embedding parameters 0.36 B / 2.77 B / 6.53 B). The `wo_thoughts` fit appears once 3B and 7B
+`wo_thoughts` finish; the test columns (Success, IP, PRI, counterfactual PRI) fill in from the lab-server
+evaluation (`scripts/scaling_eval.sh`, after the 7B training).
+
+Figures: `scaling_loss.png` (validation loss vs size, log-log, with the fit), `training_curves.png` (every
+trained run side by side), `training_curves_<size>.png` (one per size; also copied into `training/<size>/`).
 
 ---
 
@@ -209,6 +243,6 @@ from the lab-server evaluation. Figures: `training_curves.png`, `scaling_loss.pn
 ```
 ./scripts/local_analyses.sh      # laptop: lora_geometry --truncate, pvi, scaling for every complete size
 ./scripts/collect_results.sh     # copy everything new from runs/ into this folder
-python extra/test_extra.py       # 24 checks of the analysis code, no GPU
+python extra/test_extra.py       # 25 checks of the analysis code, no GPU
 ```
 All numbers come from simulated seekers and an LLM judge; the judge-human agreement study is still open.

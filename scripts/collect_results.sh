@@ -20,9 +20,10 @@ for run in runs/scale_qwen2.5_*/ runs/full_1000/; do
         [ -n "$last" ] && cp "$last/trainer_state.json" "$out/trainer_state_$arm.json"
         [ -f "$adapter/adapter_config.json" ] && cp "$adapter/adapter_config.json" "$out/adapter_config_$arm.json"
     done
+    cp runs/scaling/extra/scaling/training_curves_$size.png "$out"/ 2>/dev/null
 done
 # training logs without the progress bars
-for log in runs/scale_local.log runs/scale_3b.log; do
+for log in runs/scale_local.log runs/scale_3b.log runs/full_1000/full_train.log; do
     [ -f "$log" ] && tr '\r' '\n' < "$log" | grep -v -E "it/s\]|s/it\]|Loading weights|^\s*$" > "$D/training/$(basename "$log" .log)_clean.log"
 done
 

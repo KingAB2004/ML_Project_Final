@@ -162,6 +162,9 @@ def plots(sizes, train, tests, fits, gains, dest) -> list[str]:
                 ax.plot(xs, fit["a"] * xs ** -fit["b"], ":", color="gray", lw=1)
     ax.set_xscale("log")
     ax.set_yscale("log")
+    ax.set_xticks([MODEL_SIZES[s]["params"] for s in sizes], [f"{MODEL_SIZES[s]['params'] / 1e9:.2f}B\n({s})" for s in sizes],
+                  fontsize=7)
+    ax.xaxis.set_minor_formatter(plt.NullFormatter())
     ax.set_xlabel("non-embedding parameters N")
     ax.set_ylabel("best validation loss")
     ax.set_title("Validation loss vs size (arms differ in target)", fontsize=8)
@@ -188,6 +191,29 @@ def plots(sizes, train, tests, fits, gains, dest) -> list[str]:
         fig.savefig(dest / "training_curves.png", dpi=150)
         plt.close(fig)
         made.append("training_curves.png")
+        # one figure per size too, both arms on the same axes (copied next to that size's training results)
+        for s in sizes:
+            arms = [a for a in SFT_ARMS if train.get((s, a))]
+            if not arms:
+                continue
+            fig, ax = plt.subplots(figsize=(4.8, 3.4))
+            for a, color in zip(arms, ("C0", "C1")):
+                tr = train[(s, a)]["train_loss"]
+                k = min(10, len(tr))
+                sm = [sum(l for _, l in tr[i - k + 1:i + 1]) / k for i in range(k - 1, len(tr))]
+                ax.plot([e for e, _ in tr[k - 1:]], sm, lw=1, color=color, alpha=0.6, label=f"{a} train")
+                ax.plot(*zip(*train[(s, a)]["eval_loss_by_epoch"]), "o-", color=color, label=f"{a} validation")
+                be, bl = train[(s, a)]["best_epoch"], train[(s, a)]["best_eval_loss"]
+                ax.annotate(f"best {bl:.3f}", (be, bl), textcoords="offset points", xytext=(4, -10), fontsize=6,
+                            color=color)
+            ax.set_title(f"Qwen2.5-{s} QLoRA: loss per epoch", fontsize=8)
+            ax.set_xlabel("epoch")
+            ax.set_ylabel("loss")
+            ax.legend(fontsize=6)
+            fig.tight_layout()
+            fig.savefig(dest / f"training_curves_{s}.png", dpi=150)
+            plt.close(fig)
+            made.append(f"training_curves_{s}.png")
 
     metrics = [m for m in TEST_METRICS if any((tests.get((s, a)) or {}).get(m) for s in sizes for a in SFT_ARMS)]
     if metrics:
