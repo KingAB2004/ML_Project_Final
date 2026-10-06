@@ -46,6 +46,18 @@ arms:
   # through extra/memeval_qa.py (every memory type above). ExTES profiles carry no hidden need, so they serve
   # the cross-corpus arms below, not memory.
 
+  # --- Option C: memory-aware fine-tuning (corpus data/corpus_mem, sessions.py --memory) --------------
+  # The memory-arm setting (2-4 linked sessions, seeker moves on, corrective simulator) with the fine-tuned
+  # monolithic supporter as the reply writer. memory_writer: the base Analyzer (adapter off) updates the
+  # need-state memory after every turn, as in mem_needstate; the fine-tuned model only reads its brief.
+  #   sftmem_zero_shot  old adapter (trained with "[memory] none.") given the brief: does memory help untrained?
+  #   sftmem_with/wo    memory-trained adapters with the brief: does training on memory help?
+  #   sftmem_no_memory  memory-trained adapter, brief withheld: how much of its gain is the memory itself?
+  sftmem_zero_shot:     {supporter: sft_with_thoughts,    architecture: monolithic, gate: off, memory: needstate, memory_writer: true, multi_session: true, advance_profile: true, simulator: corrective}
+  sftmem_with_thoughts: {supporter: sftmem_with_thoughts, architecture: monolithic, gate: off, memory: needstate, memory_writer: true, multi_session: true, advance_profile: true, simulator: corrective}
+  sftmem_wo_thoughts:   {supporter: sftmem_wo_thoughts,   architecture: monolithic, gate: off, memory: needstate, memory_writer: true, multi_session: true, advance_profile: true, simulator: corrective}
+  sftmem_no_memory:     {supporter: sftmem_with_thoughts, architecture: monolithic, gate: off, memory: none,      multi_session: true, advance_profile: true, simulator: corrective}
+
   # --- Training-corpus comparison: one base model, one adapter per corpus, same profiles -----
   # This is the shape of the baseline paper's Tables 3 and 4: the row label is the TRAINING dataset.
   corpus_ours:          {supporter: sft_with_thoughts, architecture: monolithic, gate: off, memory: none}
@@ -63,6 +75,8 @@ adapters:
   base: null
   sft_with_thoughts: null       # e.g. runs/<run_id>/adapter_with_thoughts
   sft_wo_thoughts: null
+  sftmem_with_thoughts: null    # Option C: runs/memcorpus/adapter_with_thoughts (scripts/memcorpus.sh passes --adapter)
+  sftmem_wo_thoughts: null
   corpus_esconv: null
   corpus_extes: null
   corpus_smile: null

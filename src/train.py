@@ -1,16 +1,5 @@
-"""QLoRA supervised fine-tuning of the supporter (PLAN Sec. 9.2).
-
-4-bit base, low-rank adapters, gradient checkpointing, loss on target tokens only. Sized for a 12 GB card:
-micro-batch 1 with accumulation, sequence length 2048, paged optimizer.
-
-Two adapters come out of this stage - `with_thoughts` and `wo_thoughts` - and that pair is the annotation
-ablation the SOP promises as a reproduction check.
-
-Nothing is imported from torch/transformers/peft until main() runs, so the rest of the project stays
-importable on a machine with no GPU.
-
-  python src/train.py --arm with_thoughts
-  python src/train.py --arm wo_thoughts
+"""
+4-bit base, low-rank adapters, gradient checkpointing, loss on target tokens only. 
 """
 from __future__ import annotations
 
@@ -25,16 +14,12 @@ SFT_DIR = DATA / "sft"
 
 
 def load_rows(arm: str, split: str, sft_dir: Path = SFT_DIR) -> list[dict]:
-    """Works for our two arms and for any `corpus_<name>` produced by src/convert_corpus.py."""
+
     return [{"system": r.get("system", ""), "input": r["input"], "target": r["target"]}
             for r in read_jsonl(sft_dir / f"{arm}_{split}.jsonl")]
 
 
 def encode_example(tokenizer, row: dict, seq_len: int) -> dict | None:
-    """Prompt through the model's own chat template - exactly what llm.TransformersBackend sends at
-    inference - so the adapter learns the format it will be served in. Loss on target tokens only.
-    Returns None when the example does not fit: cutting it would drop the target (an all-masked example
-    gives a NaN loss) or the chat header (a malformed prompt)."""
     msgs = ([{"role": "system", "content": row["system"]}] if row.get("system") else []) + \
         [{"role": "user", "content": row["input"]}]
     prompt = tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
@@ -58,16 +43,12 @@ def build_trainer(arm: str, model_id: str, out_dir: Path, resume_adapter: str | 
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     tokenizer.pad_token = tokenizer.pad_token or tokenizer.eos_token
 
-    # bf16 needs an Ampere-or-newer GPU; older cards (V100, T4) train in fp16 instead of crashing.
     bf16 = torch.cuda.is_bf16_supported()
     dtype = torch.bfloat16 if bf16 else torch.float16
     quant = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
                                bnb_4bit_compute_dtype=dtype, bnb_4bit_use_double_quant=True)
     model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=quant, device_map="auto",
                                                  torch_dtype=dtype)
-    # Not prepare_model_for_kbit_training: it upcasts every non-quantized weight to fp32, and Qwen2.5-7B's
-    # 152k-vocab embedding + lm_head alone then take ~4.4 GB more - out of memory on a 12 GB card at step 2.
-    # Kept in bf16 (fp16); only checkpointing and input grads (what checkpointing needs) are switched on.
     if tcfg.get("gradient_checkpointing", True):
         model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
         model.enable_input_require_grads()
@@ -121,8 +102,6 @@ def build_trainer(arm: str, model_id: str, out_dir: Path, resume_adapter: str | 
 
 
 def free_gpu_from_ollama() -> None:
-    """Ollama keeps a model resident for minutes after its last request (the judge: ~7.5 GB plus KV cache);
-    training needs that VRAM. Best effort: with no Ollama running there is nothing to free."""
     import urllib.request
 
     from llm import ollama_host
@@ -140,7 +119,7 @@ def free_gpu_from_ollama() -> None:
         pass
 
 
-def main() -> None:  # pragma: no cover - needs GPU
+def main() -> None:  
     ap = argparse.ArgumentParser(description="QLoRA SFT for the supporter.")
     ap.add_argument("--arm", default="with_thoughts",
                     help="with_thoughts | wo_thoughts | corpus_<name> from src/convert_corpus.py")

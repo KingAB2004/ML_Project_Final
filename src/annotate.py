@@ -1,12 +1,5 @@
-"""Phase 1.7 - content-level annotation (PLAN Sec. 8.7).
-
-Free-form Analysis and Strategy phrases, NOT a fixed atomic taxonomy: the content level is the baseline
-paper's claimed advantage over ESConv and ExTES, so it is inherited deliberately rather than replaced.
-
-The consistency pass matters as much as the annotation: if three phrases cover most Strategy labels the
+"""if three phrases cover most Strategy labels the
 fine-tuning signal is gone, and no aggregate metric will say so.
-
-  python src/annotate.py --backend echo
 """
 from __future__ import annotations
 
@@ -48,9 +41,14 @@ def annotate_session(llm: LLM, session: dict) -> list[dict]:
         if turn.get("role") != "supporter" or turn.get("meta", {}).get("source") == "opener_pool":
             continue
         prefix = [t for t in turns if t["turn_index"] <= turn["turn_index"]]
+        history = render_transcript(prefix)
+        if turn.get("memory_block") and session.get("session_index", 1) > 1:
+            # Memory-aware corpus: the turn may draw on earlier sessions, which the annotator must see to
+            # explain it. Session 1's brief only restates this transcript, so its prompt stays as before.
+            history = f"What the supporter remembered from earlier sessions:\n{turn['memory_block']}\n\n{history}"
         out = llm.structured(
             fill(template, profile_block=profile_block(profile),
-                 history=render_transcript(prefix), turn_text=turn["text"]),
+                 history=history, turn_text=turn["text"]),
             required=("analysis", "strategy"),
             max_tokens=512,
         )
@@ -89,7 +87,7 @@ def apply_annotations(session: dict, records: list[dict]) -> dict:
 
 
 def vocabulary_report(records: list[dict], top_n: int = 20) -> dict:
-    """Degeneracy check: how much of the label space the largest clusters cover."""
+    """ how much of the label space the largest clusters cover."""
     strategies = [r["strategy"].strip().lower() for r in records if r.get("strategy")]
     counts = Counter(strategies)
     clusters: list[list[str]] = []
@@ -126,7 +124,8 @@ def run(sessions_path: Path = FILTERED_PATH, out_path: Path = ANNOTATED_PATH,
     finally:
         llm.release()
     # Rewritten, not appended: a rerun replays from the LLM cache and must not duplicate every record.
-    write_jsonl(ANNOTATIONS_PATH, all_records)
+    # beside the output, so annotating a second corpus (data/corpus_mem) never overwrites the first one's records
+    write_jsonl(out_path.with_name(ANNOTATIONS_PATH.name), all_records)
     write_jsonl(out_path, out_sessions)
     vocab = vocabulary_report(all_records)
     return {"sessions": len(out_sessions), "turns_annotated": len(all_records), "vocabulary": vocab}

@@ -1,14 +1,7 @@
-"""Phase 2.1 - target-sequence construction (PLAN Sec. 9.1).
-
-The point of the fine-tuning design is that intermediate reasoning is LEARNED, not prompted: Analysis and
+"""
+ fine-tuning design is that intermediate reasoning is LEARNED, not prompted: Analysis and
 Strategy sit in the *target* sequence, ahead of the response.
 
-Training-time and inference-time context must be identical in shape - same system prompt, same memory block
-placement, same elapsed-interval statement - or the adapter learns a format that never occurs at deployment.
-`render_input` is therefore the single renderer used by both.
-
-  python src/build_sft.py --arm with_thoughts
-  python src/build_sft.py --arm wo_thoughts
 """
 from __future__ import annotations
 
@@ -39,7 +32,6 @@ R_OPEN, R_CLOSE = "<response>", "</response>"
 
 def render_input(turns: list[dict], upto_index: int, memory_block: str = "",
                  gap_statement: str = "") -> str:
-    """The prompt half of a training example - and the same text used at inference."""
     prefix = [t for t in turns if t["turn_index"] < upto_index]
     parts = []
     if gap_statement:
@@ -62,10 +54,6 @@ REPLY_LABEL = r"(?:what you say to them|reply|response|supporter)\s*:\s*"
 
 
 def parse_target(text: str) -> dict:
-    """Round-trip parser. Inference uses it to recover the response from a generated target sequence.
-
-    The response is "" when the generation holds only thoughts: the caller must regenerate or fall back,
-    never show the raw text (v1 and the v2 probes leaked the analysis into the dialogue that way)."""
     def grab(open_tag: str, close_tag: str) -> str:
         m = re.search(re.escape(open_tag) + r"(.*?)" + re.escape(close_tag), text, re.S)
         return m.group(1).strip() if m else ""
@@ -88,7 +76,6 @@ def parse_target(text: str) -> dict:
 
 
 def gap_statement(gap_days: float | None, session_index: int | None) -> str:
-    """The elapsed-interval line. Training and inference (listener_mono) both build it here."""
     if not gap_days:
         return ""
     return (f"It has been about {round(float(gap_days))} days since the previous session with this person "
@@ -109,8 +96,6 @@ def examples_from_session(session: dict, with_thoughts: bool = True,
             continue
         if turn.get("meta", {}).get("source") == "opener_pool":
             continue
-        # Both arms skip unannotated turns, so with/wo thoughts train on the SAME turns and the ablation
-        # isolates the thoughts, not a difference in data.
         if not (turn.get("analysis") and turn.get("strategy")):
             continue
         rows.append({
@@ -118,7 +103,8 @@ def examples_from_session(session: dict, with_thoughts: bool = True,
             "profile_id": session["profile_id"],
             "turn_index": turn["turn_index"],
             "system": SUPPORTER_SYSTEM,
-            "input": render_input(turns, turn["turn_index"], memory_block=memory_block,
+            # memory-aware corpus: the brief this turn was generated under (sessions.py --memory)
+            "input": render_input(turns, turn["turn_index"], memory_block=turn.get("memory_block") or memory_block,
                                   gap_statement=gap),
             "target": render_target(turn.get("analysis", ""), turn.get("strategy", ""), turn["text"],
                                     with_thoughts),
@@ -128,9 +114,6 @@ def examples_from_session(session: dict, with_thoughts: bool = True,
 
 
 def split_assignment(profile_ids: list[str], profiles_dir: Path = PROFILES_DIR) -> dict[str, str]:
-    """profile_id -> split, as profiles.py wrote it. Re-splitting here is wrong: filtering drops profiles,
-    so the shuffle runs over a different list and held-out evaluation profiles leak into training.
-    Re-splitting is only the fallback when no split files exist."""
     assignment: dict[str, str] = {}
     for name in ("train", "val", "test", "calibration"):
         path = profiles_dir / f"profiles_{name}.jsonl"

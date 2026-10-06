@@ -18,9 +18,13 @@ from pacing import permitted_rung
 class MonolithicListener:
     """Same step() contract as AgentPipeline, so evaluate.py does not branch on architecture."""
 
-    def __init__(self, llm, memory=None, calibration: Calibration | None = None, gate: bool = False):
+    def __init__(self, llm, memory=None, calibration: Calibration | None = None, gate: bool = False,
+                 memory_writer=None):
         self.llm = llm
         self.memory = memory
+        # An AgentPipeline over the same memory whose observe() writes it (arm switch memory_writer). Without one
+        # this arm only reads the memory, and a need-state brief never gets past "first session".
+        self.memory_writer = memory_writer
         self.gate = gate
         # The critic role's own sampling (low temperature), as in the decomposed pipeline - not the supporter's.
         critic_llm = llm.view("critic") if hasattr(llm, "view") else llm
@@ -83,4 +87,5 @@ class MonolithicListener:
         return TurnResult(text=draft, permitted_rung=rung, analyzer=analyzer_view,
                           strategist={"plan": parts["strategy"], "requested_rung": rung},
                           critic=critic_out, path=path, revisions=revisions,
-                          memory_writes=[], restricted_reason=restricted)
+                          memory_writes=self.memory_writer.observe(turns, session_id) if self.memory_writer else [],
+                          restricted_reason=restricted)

@@ -5,11 +5,10 @@ fine-tuning runs, and the analyses run on top of them (GPU and CPU). Nothing her
 copied from `runs/` (which git ignores) by `scripts/collect_results.sh`, and refreshed by rerunning that
 script as each pending step finishes. Model weights are not included (too large for git).
 
-**Status on 5 October 2026, 15:30 IST.** Dataset: done. Qwen2.5-0.5B fine-tune (both arms) and its analyses:
-done. Qwen2.5-3B `with_thoughts`: done (laptop); `wo_thoughts`: next on the laptop. Qwen2.5-7B
-`with_thoughts`: done (lab); `wo_thoughts`: running on the lab server. Scaling fit for `with_thoughts` over
-all three sizes: done. PVI and LoRA geometry for 3B / 7B need both arms of a size, so they follow each size's
-`wo_thoughts`. Test-profile evaluation of the fine-tuned models: queued on the lab server.
+**Status on 6 October 2026, 09:00 IST.** Dataset: done. Qwen2.5-0.5B and Qwen2.5-3B fine-tunes (both arms,
+laptop) and their analyses (PVI, LoRA geometry, scaling): done. Qwen2.5-7B `with_thoughts`: done (lab);
+`wo_thoughts`: in its third epoch on the lab server, after which the lab runs the 7B PVI and geometry.
+Test-profile evaluation of the fine-tuned models: queued on the lab server.
 
 | Folder | What | Where it ran |
 |---|---|---|
@@ -112,15 +111,21 @@ Plot: `training/0.5B/training_curves_0.5B.png`. Files: `training/0.5B/train_summ
   tokens, wo_thoughts over reply tokens only. The lower number for with_thoughts (0.842 vs 0.876) does not
   mean it is better; the fair comparison on the same reply tokens is in the PVI analysis (section 3).
 
-### Qwen2.5-3B-Instruct (laptop RTX 4060): `with_thoughts` done, `wo_thoughts` next
+### Qwen2.5-3B-Instruct (laptop RTX 4060): both arms done
 
 | Arm | Trainable params | Time | Mean train loss, epoch 1 / 2 / 3 | Validation loss, epoch 1 / 2 / 3 | Kept |
 |---|---|---|---|---|---|
 | `with_thoughts` | 59.9 M (1.9 %) | 11 h 39 m | 0.771 / 0.574 / 0.391 | 0.715 / **0.687** / 0.752 | epoch 2 |
-| `wo_thoughts` | - | about 10 h | - | - | - |
+| `wo_thoughts` | 59.9 M (1.9 %) | 10 h 20 m | 0.781 / 0.541 / 0.290 | 0.718 / **0.696** / 0.828 | epoch 2 |
 
-Plot: `training/3B/training_curves_3B.png`. Files: `training/3B/train_summary_with_thoughts.json`,
-`trainer_state_with_thoughts.json`, `adapter_config_with_thoughts.json`; log: `training/scale_3b_clean.log`.
+3,531 optimizer steps per arm, about 10.5 s/step and 4.8 GB of VRAM. The first `wo_thoughts` attempt crashed
+at step 452 (5 Oct 19:28) while another program held about 3 GB of the 8 GB card; the rerun from scratch
+(5 Oct 21:49 to 6 Oct 08:09) is the one reported. Plot: `training/3B/training_curves_3B.png`. Files:
+`training/3B/train_summary_*.json`, `trainer_state_*.json`, `adapter_config_*.json`; log:
+`training/scale_3b_clean.log`.
+
+As at 0.5B, `wo_thoughts` overfits harder in epoch 3 (validation +0.132, against +0.065 for `with_thoughts`;
+train 0.290 vs 0.391): the short reply alone is easier to memorise.
 
 ### Qwen2.5-7B-Instruct (lab RTX 3060): `with_thoughts` done, `wo_thoughts` running
 
@@ -159,8 +164,10 @@ al. 2022). Both score the identical `<response>...</response>` tokens. Mean PVI 
 | Size | V-information (bits / turn) [95 % CI] | bits / token | PVI < 0 | reply NLL with thoughts | reply NLL without | Spearman(thought length, PVI) |
 |---|---|---|---|---|---|---|
 | 0.5B | **8.91 [8.49, 9.34]** | 0.24 | 17.9 % | 0.727 | 0.891 | 0.16 |
+| 3B | **7.36 [7.02, 7.72]** | 0.20 | 17.3 % | 0.571 | 0.707 | 0.13 |
 
-By ladder rung: L1 (gentle) 7.87 bits (n = 1,160), L2 (deeper) 9.76 bits (n = 1,444), L0 -0.22 (n = 4).
+By ladder rung: 0.5B L1 (gentle) 7.87 bits (n = 1,160), L2 (deeper) 9.76 bits (n = 1,444), L0 -0.22 (n = 4);
+3B L1 6.43, L2 8.12, L0 0.96.
 
 **Why**
 
@@ -174,7 +181,11 @@ By ladder rung: L1 (gentle) 7.87 bits (n = 1,160), L2 (deeper) 9.76 bits (n = 1,
 - **17.9 % of turns have negative PVI.** For these, the thoughts made the gold reply *less* likely: the label
   describes something the reply does not do. They are the first annotations to audit
   (`per_example_0.5B.jsonl`, sort by `pvi_bits`).
-- **Longer thoughts help only a little** (Spearman 0.16): content matters more than length.
+- **Longer thoughts help only a little** (Spearman 0.16 / 0.13): content matters more than length.
+- **The bigger model gets less out of the thoughts (8.9 -> 7.4 bits, CIs do not overlap).** The 3B predicts the
+  reply much better from the conversation alone (reply loss without thoughts 0.891 -> 0.707), so there is less
+  left for the thoughts to explain. They still cut the 3B's reply loss by 19 % (0.707 -> 0.571), about the
+  same relative drop as at 0.5B (18 %). The 7B point follows from the lab.
 
 Figures: `pvi_hist.png` (distribution, mostly positive with a long right tail), `pvi_by_size.png`.
 
@@ -191,14 +202,20 @@ and A^T, then SVD), on the CPU in seconds. `--truncate` replaces every dW by its
 |---|---|---|---|---|---|---|
 | 0.5B | with_thoughts | 2.19 | 6.84 | 28.2 | 43 % | 26 / 34 / 40 % |
 | 0.5B | wo_thoughts | 1.98 | 6.52 | 28.1 | 44 % | 27 / 35 / 38 % |
+| 3B | with_thoughts | 4.20 | 3.62 | 24.9 | 62 % | 38 / 28 / 33 % |
+| 3B | wo_thoughts | 3.78 | 3.63 | 25.3 | 61 % | 43 / 27 / 30 % |
 
-Overlap of the two arms' top directions phi(k) (1 = same subspace): k=1 0.074, k=4 0.066, k=8 0.077, against
-0.003 / 0.011 / 0.022 for random subspaces.
+Overlap of the two arms' top directions phi(k) (1 = same subspace): 0.5B k=1 0.074, k=4 0.066, k=8 0.077,
+against 0.003 / 0.011 / 0.022 for random subspaces; 3B 0.054 / 0.055 / 0.059 against 0.001 / 0.005 / 0.011.
 
 | Rank kept k | 0 (base) | 1 | 2 | 4 | 8 | 16 | 32 (full) | k for 95 % of the gain |
 |---|---|---|---|---|---|---|---|---|
 | with_thoughts val loss | 1.868 | 1.367 | 1.208 | 1.054 | 0.933 | 0.864 | 0.848 | 16 |
 | wo_thoughts val loss | 1.874 | 1.350 | 1.183 | 1.048 | 0.951 | 0.896 | 0.895 | 16 |
+| 3B with_thoughts | 1.526 | 0.915 | 0.823 | 0.755 | 0.710 | 0.693 | 0.694 | 8 |
+| 3B wo_thoughts | 1.635 | 0.938 | 0.822 | 0.769 | 0.727 | 0.717 | 0.727 | 4 |
+
+(The first two rows are 0.5B.)
 
 **Why**
 
@@ -218,6 +235,13 @@ Overlap of the two arms' top directions phi(k) (1 = same subspace): k=1 0.074, k
   specific to its objective: learning to write the analysis first changes the network differently from
   learning to reply directly.
 
+- **The 3B update is more concentrated** (stable rank 3.6 against 6.8, 62 % of the energy in the top 4
+  directions against 43 %), and rank 4-8 already recovers 95 % of the gain. The bigger model already has most
+  of what the task needs, so a few directions steer it; rank 32 is more than the 3B needs. Unlike the 0.5B,
+  the 3B puts the largest share of its update in the early layers (38-43 %).
+- **At 3B rank 16 is slightly better than the full rank 32** on these 300 examples (0.717 vs 0.727 for
+  `wo_thoughts`): dropping the smallest directions removes a little of the epoch-2 overfitting.
+
 Figures: `effective_rank.png` (layer x module heatmap), `norm_and_similarity_by_depth.png`,
 `rank_truncation.png`. Per-matrix numbers: `per_matrix.jsonl`.
 
@@ -229,8 +253,10 @@ Figures: `effective_rank.png` (layer x module heatmap), `norm_and_similarity_by_
 every size into one table, fits L(N) = a N^-b over the sizes present, and measures the thoughts gain per size.
 
 Now: `with_thoughts` is trained at all three sizes, so its fit exists: **best validation loss = 7.14 N^-0.108**
-(N = non-embedding parameters 0.36 B / 2.77 B / 6.53 B). The `wo_thoughts` fit appears once 3B and 7B
-`wo_thoughts` finish; the test columns (Success, IP, PRI, counterfactual PRI) fill in from the lab-server
+(N = non-embedding parameters 0.36 B / 2.77 B / 6.53 B). `wo_thoughts` has two sizes so far (0.876 -> 0.696),
+an exact line 8.0 N^-0.112 with no residual degree of freedom; the 7B point makes it a fit. On the identical
+reply tokens (PVI losses, 0.5B and 3B), the exponents are 0.118 [0.114, 0.122] with thoughts and 0.113
+[0.109, 0.117] without: both arms improve with size at about the same rate. The test columns (Success, IP, PRI, counterfactual PRI) fill in from the lab-server
 evaluation (`scripts/scaling_eval.sh`, after the 7B training).
 
 Figures: `scaling_loss.png` (validation loss vs size, log-log, with the fit), `training_curves.png` (every

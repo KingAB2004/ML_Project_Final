@@ -158,7 +158,10 @@ def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
             if pipeline_cls is AgentPipeline:
                 pipeline = AgentPipeline(agent_views["generator"], views=agent_views, **kwargs)
             else:
-                pipeline = MonolithicListener(llm, **kwargs)
+                # memory_writer: the base Analyzer keeps the need-state memory for the fine-tuned reply (Option C)
+                writer = (AgentPipeline(agent_views["generator"], views=agent_views, memory=memory, gate=False)
+                          if spec.get("memory_writer") and isinstance(memory, NeedStateMemory) else None)
+                pipeline = MonolithicListener(llm, memory_writer=writer, **kwargs)
             multi = spec.get("memory") != "none" or spec.get("multi_session")
             n_sessions = sample_session_count(pid) if multi else 1
             lo, hi = cfg("corpus.turns_per_session", default=[8, 12])

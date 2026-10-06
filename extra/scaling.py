@@ -165,6 +165,8 @@ def plots(sizes, train, tests, fits, gains, dest) -> list[str]:
     ax.set_xticks([MODEL_SIZES[s]["params"] for s in sizes], [f"{MODEL_SIZES[s]['params'] / 1e9:.2f}B\n({s})" for s in sizes],
                   fontsize=7)
     ax.xaxis.set_minor_formatter(plt.NullFormatter())
+    for axis in (ax.yaxis.set_major_formatter, ax.yaxis.set_minor_formatter):   # 0.70, not 7 x 10^-1
+        axis(plt.FormatStrFormatter("%.2f"))
     ax.set_xlabel("non-embedding parameters N")
     ax.set_ylabel("best validation loss")
     ax.set_title("Validation loss vs size (arms differ in target)", fontsize=8)
@@ -197,14 +199,14 @@ def plots(sizes, train, tests, fits, gains, dest) -> list[str]:
             if not arms:
                 continue
             fig, ax = plt.subplots(figsize=(4.8, 3.4))
-            for a, color in zip(arms, ("C0", "C1")):
+            for i, (a, color) in enumerate(zip(arms, ("C0", "C1"))):
                 tr = train[(s, a)]["train_loss"]
                 k = min(10, len(tr))
                 sm = [sum(l for _, l in tr[i - k + 1:i + 1]) / k for i in range(k - 1, len(tr))]
                 ax.plot([e for e, _ in tr[k - 1:]], sm, lw=1, color=color, alpha=0.6, label=f"{a} train")
                 ax.plot(*zip(*train[(s, a)]["eval_loss_by_epoch"]), "o-", color=color, label=f"{a} validation")
                 be, bl = train[(s, a)]["best_epoch"], train[(s, a)]["best_eval_loss"]
-                ax.annotate(f"best {bl:.3f}", (be, bl), textcoords="offset points", xytext=(4, -10), fontsize=6,
+                ax.annotate(f"best {bl:.3f}", (be, bl), textcoords="offset points", xytext=(4, 6 if i else -10), fontsize=6,
                             color=color)
             ax.set_title(f"Qwen2.5-{s} QLoRA: loss per epoch", fontsize=8)
             ax.set_xlabel("epoch")

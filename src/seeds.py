@@ -1,14 +1,5 @@
-"""Phase 1.1 - seed situations (PLAN Sec. 8.1).
-
-EmpatheticDialogues supplies human-written narrated situations; ESConv supplies the problem-type taxonomy
-used for stratification. Each candidate passes a sustainability screen: can this situation plausibly support
-a three-step need chain? The screen is per item, because the SOP's own worry - that many ED situations are
-too short - has to be tested rather than assumed.
-
-Outputs data/seeds/seeds.jsonl, plus reports/seed_stats.md.
-
-  python src/seeds.py --limit 400
-  python src/seeds.py --route synthetic --limit 400     # the declared fallback route
+"""
+ ESConv supplies the problem-type taxonomy
 """
 from __future__ import annotations
 
@@ -105,7 +96,6 @@ def classify_problem_type(llm: LLM, situation: str, types: list[str]) -> str:
 
 
 def sustainability_screen(llm: LLM, situation: str) -> tuple[bool, str]:
-    """Can a three-step need chain (surface feeling -> intermediate need -> terminal need) live here?"""
     prompt = (
         "A proactive emotional-support simulation needs situations deep enough to support a three-step need "
         "chain: the surface feeling, an intermediate unmet need, and a terminal need the person cannot name "

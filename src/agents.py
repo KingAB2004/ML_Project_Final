@@ -271,6 +271,12 @@ class AgentPipeline:
                           memory_writes=writes, restricted_reason=restricted)
 
     # -- memory writes -----------------------------------------------------
+    def observe(self, turns: Sequence[dict], session_id: str = "") -> list[dict]:
+        """Analyzer + memory write only, no reply: keeps the need-state memory for a reply that comes from
+        elsewhere (memory-aware corpus generation, a fine-tuned monolithic supporter). Same writes as step()."""
+        analyzer = self.analyze(turns, session_id, self.memory.render_brief())
+        return self.update_memory(analyzer, session_id)
+
     def update_memory(self, analyzer: dict, session_id: str) -> list[dict]:
         """Only grounded, non-zero-confidence claims reach the belief state (PLAN R4)."""
         writes: list[dict] = []

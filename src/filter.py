@@ -43,14 +43,12 @@ def structural_problems(session: dict) -> list[str]:
 
 
 def recites(need: str, text: str, threshold: float = 0.6) -> bool:
-    """Share of the need's content words that appear in the turn. Jaccard would dilute a recited need
-    inside a longer turn below any threshold, so containment is the right measure here."""
+    """ so containment is the right measure here."""
     words = _content_words(need)
     return bool(words) and len(words & _content_words(text)) / len(words) > threshold
 
 
 def leakage_problems(session: dict) -> list[str]:
-    """The simulator must not recite its own hidden need early, or quote its instructions at all."""
     guard = int(cfg("filter.leakage_guard_turns", default=2))
     need = (session.get("profile_snapshot", {}) or {}).get("terminal_need", "")
     out = []
@@ -130,7 +128,9 @@ def run(sessions_path: Path = SESSIONS_PATH, out_path: Path = FILTERED_PATH,
 
     kept = prune_broken_tails(scored)
     write_jsonl(out_path, kept)
-    write_jsonl(QUARANTINE_PATH, quarantined)
+    # a second corpus (data/corpus_mem) keeps its quarantine beside it instead of overwriting the first one's
+    first_corpus = Path(out_path).resolve() == FILTERED_PATH.resolve()
+    write_jsonl(QUARANTINE_PATH if first_corpus else Path(out_path).with_name(QUARANTINE_PATH.name), quarantined)
     write_jsonl(out_path.with_name("sessions_rejected.jsonl"),
                 [s for s in scored if s["qc"].get("verdict") != "keep"])
     return {

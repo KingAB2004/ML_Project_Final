@@ -1,20 +1,9 @@
-"""Phase 1.4 - two-stage session generation (PLAN Sec. 8.4).
-
-The system opens: this is a proactive setting, the person did not ask for help. Then a listening phase
-(reflect, validate, explore, no advice) and a suggestion phase (perspective tied to the inferred need,
-still refusable).
-
-Two mirrored histories - what is `assistant` for the simulator is `user` for the supporter - plus one flat
-transcript for judges. That two-history shape is the one piece of the upstream chat loop worth keeping.
-
-  python src/dialogue.py --limit 20 --backend echo
-"""
 from __future__ import annotations
 
 import argparse
 import json
 from pathlib import Path
-from typing import Sequence
+from typing import Callable, Sequence
 
 from common import (
     DATA,
@@ -33,10 +22,13 @@ from llm import LLM, pmap
 
 PROFILES_PATH = DATA / "profiles" / "profiles.jsonl"
 SESSIONS_PATH = DATA / "corpus" / "sessions.jsonl"
+# Shown to the generator after the memory brief, never stored with it: training inputs carry the brief alone,
+# exactly as the evaluation arms render it.
+MEMORY_NOTE = ("\nThis is background from earlier conversations with this person. You may gently check in on "
+               "something from before, but treat beliefs as guesses, and never bring back anything they denied.\n")
 
 
 def as_list(value) -> list[str]:
-    """A list of phrases out of model JSON: a bare string is one phrase, not one phrase per character."""
     if isinstance(value, str):
         return [value] if value.strip() else []
     return [str(v) for v in value if str(v).strip()] if isinstance(value, (list, tuple)) else []
@@ -53,8 +45,6 @@ def memory_lines(profile: dict) -> str:
 
 
 def seeker_prompt(turns: Sequence[dict]) -> str:
-    """The simulator's per-turn request. It must say WHICH speaker the model is: without that, Qwen-7B
-    sometimes continued as the supporter and echoed its last line (v1: about 1 seeker turn in 10)."""
     return (f"{render_transcript(turns)}\n\nYou are the seeker in this conversation; the 'supporter:' lines "
             f"are the other person. Write only your next reply as the seeker, in your own words and in "
             f"English - never repeat or rephrase the supporter.")
@@ -62,9 +52,6 @@ def seeker_prompt(turns: Sequence[dict]) -> str:
 
 def simulator_system(profile: dict, session_context: str = "", reactive: bool = False,
                      corrective: bool = False) -> str:
-    """corrective: the evaluation-only seeker that explicitly rejects a wrong reading of its needs
-    (prompts/user_corrective.md), so that disconfirmation - and re-proposal - can be measured. The corpus
-    seeker resists by deflecting and almost never says "that's not it" (v2: 0 denials of 101 inferences)."""
     if reactive:
         return fill(read_prompt("user_reactive.md"), emotion=profile.get("emotion", ""),
                     feeling=profile.get("feeling", ""), memory=memory_lines(profile))
@@ -86,8 +73,6 @@ def simulator_system(profile: dict, session_context: str = "", reactive: bool = 
 def rung_schedule(turn_number: int, total_turns: int) -> str:
     """Corpus-generation pacing curriculum: shallow early, deeper only late.
 
-    This is a curriculum, not the learned policy - Enhancement 5 replaces it at inference time. It exists so
-    the corpus contains rung variety for the annotator and the pacing teacher to learn from.
     """
     frac = turn_number / max(1, total_turns)
     if frac < 0.3:
@@ -101,8 +86,11 @@ def rung_schedule(turn_number: int, total_turns: int) -> str:
 
 def generate_session(profile: dict, session_id: str, gen: LLM, sim: LLM, n_supporter_turns: int,
                      session_context: str = "", memory_block: str = "", reactive: bool = False,
-                     opener: str | None = None) -> dict:
-    """One session. `gen` and `sim` may be the same LLM handle (they share a model by design)."""
+                     opener: str | None = None, memory_fn: Callable[[list[dict]], str] | None = None) -> dict:
+    """One session. `gen` and `sim` may be the same LLM handle (they share a model by design).
+
+    memory_fn(turns) -> the memory brief for this turn (memory-aware corpus, sessions.py --memory). The brief is
+    stored on the turn so build_sft trains on exactly the block the generator saw."""
     rng = rng_for(session_id, "dialogue")
     openers = cfg("corpus.openers", default=["Hey - how are things with you today?"])
     turns: list[dict] = []
@@ -129,12 +117,14 @@ def generate_session(profile: dict, session_id: str, gen: LLM, sim: LLM, n_suppo
         phase = "listening" if i + 1 < stage_boundary else "suggestion"
         template = read_prompt("listen_stage.md" if phase == "listening" else "suggest_stage.md")
         rung = rung_schedule(i + 1, n_supporter_turns)
-        sup_prompt = fill(template, permitted_rung=rung, memory_block=memory_block or "[memory] none.",
+        block = memory_fn(turns) if memory_fn else (memory_block or "[memory] none.")
+        sup_prompt = fill(template, permitted_rung=rung, memory_block=block + (MEMORY_NOTE if memory_fn else ""),
                           history=render_transcript(turns))
         text = fresh_turn(gen.chat, sup_prompt, turns, "supporter")
         turns.append({"turn_index": len(turns), "role": "supporter", "text": text, "phase": phase,
                       "ladder_rung": rung, "analysis": None, "strategy": None,
-                      "meta": {"model": gen.spec["model"], "curriculum_rung": rung}})
+                      "meta": {"model": gen.spec["model"], "curriculum_rung": rung},
+                      **({"memory_block": block} if memory_fn else {})})
 
     return {
         "session_id": session_id,

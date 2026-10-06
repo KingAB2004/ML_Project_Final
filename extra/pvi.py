@@ -145,8 +145,8 @@ def plots(results: dict, per_size: dict, dest) -> list[str]:
     fig, ax = plt.subplots(figsize=(4.5, 3.4))
     ax.errorbar(x, y, yerr=err, marker="o", capsize=4)
     ax.set_xscale("log")
-    for xi, yi, s in zip(x, y, sizes):
-        ax.annotate(s, (xi, yi), textcoords="offset points", xytext=(5, 5), fontsize=8)
+    ax.set_xticks(x, [f"{xi / 1e9:.2f}B\n({s})" for xi, s in zip(x, sizes)], fontsize=7)
+    ax.xaxis.set_minor_formatter(plt.NullFormatter())
     ax.set_xlabel("non-embedding parameters")
     ax.set_ylabel("V-information (bits / turn)")
     ax.set_title("Usable information in the thoughts", fontsize=9)

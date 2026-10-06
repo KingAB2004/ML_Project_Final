@@ -1,11 +1,4 @@
-"""Phase 1.2-1.3 - need chains and hidden personas (PLAN Sec. 8.2, 8.3).
-
-Three validators decide whether a profile is usable, and the middle one matters most: if the terminal need
-is a paraphrase of the surface feeling, Success Rate becomes meaningless and the whole proactive premise is
-vacuous. So triviality is checked mechanically AND by the judge, and failures are written out with a reason
-rather than silently dropped.
-
-  python src/profiles.py --limit 200
+"""three validators decide whether a profile is usable
 """
 from __future__ import annotations
 
@@ -33,7 +26,6 @@ def resistance_plan(n: int) -> list[str]:
 
 
 def check_chain(chain: list[dict], llm: LLM | None = None) -> tuple[bool, str]:
-    """Boundedness, non-triviality, inferability."""
     if len(chain) != int(cfg("corpus.need_chain_depth", default=3)):
         return False, f"chain has {len(chain)} nodes, expected 3"
     texts = [(c.get("text") or "").strip() for c in chain]
@@ -105,7 +97,6 @@ def build(limit: int | None = None, backend: str | None = None, seeds_path: Path
     if limit:
         seeds = seeds[:limit]
     levels = resistance_plan(len(seeds))
-    # Seeds arrive round-robin over problem types, so assigning the 1:2:1 plan by position tied resistance
     # to problem type (v1: appearance anxiety 4 high vs 37 medium). Shuffle; the exact counts are kept.
     rng_for("profiles", "resistance").shuffle(levels)
     amb_fraction = float(cfg("corpus.ambiguous_profile_fraction", default=0.10))
@@ -140,7 +131,6 @@ def build(limit: int | None = None, backend: str | None = None, seeds_path: Path
 
 
 def split_profiles(profiles: list[dict], fractions: dict | None = None) -> dict[str, list[dict]]:
-    """Split BY PROFILE so no profile appears in two splits, plus a disjoint calibration slice."""
     fr = fractions or cfg("train.split_fractions", default={"train": 0.8, "val": 0.1, "test": 0.1})
     rng = rng_for("split", "profiles")
     shuffled = list(profiles)

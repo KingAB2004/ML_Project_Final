@@ -1353,6 +1353,43 @@ def _() -> None:
     assert result.memory_writes == [], "the monolithic arm writes no inspectable analyzer state"
 
 
+@check("sessions.memory_corpus_trains_on_the_brief_the_generator_saw")
+def _() -> None:
+    from baselines.listener_mono import MonolithicListener
+
+    need = {"text": "wants to matter beyond what they produce", "depth": 2, "confidence": 0.6,
+            "evidence_spans": [span(1, "Work has been a lot")]}
+
+    def writer(handle):
+        w = sessions_mod.memory_writer(handle, "p000001")
+        w.analyze = lambda turns, sid, block: {"emotional_state": {}, "implicit_needs": [need]}
+        return w
+
+    handle = echo("generator")
+    try:
+        w = writer(handle)
+        session = dialogue.generate_session(fake_profile(), "p000001-s2", handle, handle, n_supporter_turns=4,
+                                            memory_fn=sessions_mod.turn_brief(w, "p000001-s2"))
+        plain = dialogue.generate_session(fake_profile(), "p000001-s1", handle, handle, n_supporter_turns=3)
+        replayed = sessions_mod.replay(writer(handle), json.loads(json.dumps(session)))
+        mono = MonolithicListener(handle, memory=w.memory, gate=False, memory_writer=w)
+        writes = mono.step(fake_turns(), session_id="p1-s3").memory_writes
+    finally:
+        handle.release()
+    sup = [t for t in session["turns"] if t["role"] == "supporter" and t["turn_index"]]
+    blocks = [t["memory_block"] for t in sup]
+    assert "first session" in blocks[0] and need["text"] in blocks[1], "brief before the turn, writes after"
+    assert all("memory_block" not in t for t in plain["turns"]), "without memory_fn generation is unchanged"
+    assert [t.get("memory_block") for t in replayed["turns"]] == [t.get("memory_block") for t in session["turns"]], \
+        "a replayed (resumed) session must rebuild the same briefs"
+    for t in sup:
+        t["analysis"], t["strategy"] = "worn down", "reflect"
+    inputs = [r["input"] for r in build_sft.examples_from_session(session)]
+    assert all(b in i and dialogue.MEMORY_NOTE.strip() not in i for b, i in zip(blocks, inputs)), \
+        "training input = the brief alone, without the generator-only note"
+    assert writes and writes[0]["action"] in ("proposed", "blocked"), "memory_writer must write the memory"
+
+
 # --------------------------------------------------------------------------- human evaluation
 
 

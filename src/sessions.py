@@ -1,17 +1,12 @@
-"""Phase 1.5 - multi-session linking with sampled time gaps (PLAN Sec. 8.5).
+"""gaps are log-uniform over 1 day to 8 weeks, 
+  the profile is advanced under a named transition (resolved / intensified / displaced)
+ chain node ids stay stable across sessions; only a displaced concern introduces new ids.
 
-This is the part that makes Limitation 3 (context collapse across sessions) addressable, so the rules are
-explicit rather than free drift:
-
-  - gaps are log-uniform over 1 day to 8 weeks, so "next day" and "six weeks later" both occur and
-    recency-versus-relevance becomes a real tension;
-  - the profile is advanced under a named transition (resolved / intensified / displaced), and the applied
-    transition is recorded as the ground truth E4's memory recall is scored against;
-  - the elapsed interval is stated in BOTH contexts - a memory system cannot be evaluated on time it was
-    never told about;
-  - chain node ids stay stable across sessions; only a displaced concern introduces new ids.
-
-  python src/sessions.py --limit 20 --backend echo
+--memory (Option C, memory-aware corpus): a need-state memory per profile is kept across its sessions exactly as
+the evaluation's mem_needstate arm keeps it (the base Analyzer writes after every supporter turn, unconfirmed
+beliefs decay over the gap). Session 1 is reused from --source and only replayed to build the memory; sessions
+2+ are regenerated with the brief in the generator prompt. Every supporter turn stores the brief it was written
+under, which build_sft puts in the training input. Writes a separate corpus (data/corpus_mem/), never the old one.
 """
 from __future__ import annotations
 
@@ -31,11 +26,14 @@ from common import (
     rng_for,
     to_int,
 )
+from agents import AgentPipeline
 from dialogue import generate_session
 from llm import LLM, pmap
+from memory import NeedStateMemory
 
 PROFILES_PATH = DATA / "profiles" / "profiles.jsonl"
 SESSIONS_PATH = DATA / "corpus" / "sessions.jsonl"
+MEM_SESSIONS_PATH = DATA / "corpus_mem" / "sessions.jsonl"
 TRANSITIONS = ("resolved", "intensified", "displaced")
 
 
@@ -95,7 +93,6 @@ def advance_profile(llm: LLM, profile: dict, prev_session: dict, gap_days: float
                              f"each with non-empty text.", required=("need_chain",), max_tokens=1024)
     chain_ok = valid_chain(out.get("need_chain"))
     advanced = dict(profile)
-    # Still malformed: keep the previous chain (recorded below) rather than a truncated one.
     chain_in = out["need_chain"] if chain_ok else profile["need_chain"]
     old = {n["depth"]: n for n in profile.get("need_chain", [])}
     chain = []
@@ -126,10 +123,36 @@ def advance_profile(llm: LLM, profile: dict, prev_session: dict, gap_days: float
     return advanced
 
 
+def memory_writer(llm: LLM, profile_id: str) -> AgentPipeline:
+    """The need-state memory plus the base Analyzer that writes it, as in the decomposed evaluation arms."""
+    return AgentPipeline(llm, memory=NeedStateMemory(profile_id), gate=False,
+                         views={"analyzer": llm.view("analyzer")})
+
+
+def turn_brief(writer: AgentPipeline, session_id: str):
+    """memory_fn for generate_session: the brief as it stands before this turn, then the Analyzer's writes for
+    the seeker's latest turn - the same order as AgentPipeline.step, so training and evaluation briefs match."""
+    def fn(turns: list[dict]) -> str:
+        block = writer.memory.render_brief()
+        writer.observe(turns, session_id)
+        return block
+    return fn
+
+
+def replay(writer: AgentPipeline, session: dict) -> dict:
+    """Run a finished session through the memory (session 1, or a resumed one); records each turn's brief."""
+    fn = turn_brief(writer, session["session_id"])
+    for turn in session["turns"]:
+        if turn["role"] == "supporter" and turn.get("meta", {}).get("source") != "opener_pool":
+            turn["memory_block"] = fn([t for t in session["turns"] if t["turn_index"] < turn["turn_index"]])
+    return session
+
+
 def build(limit: int | None = None, backend: str | None = None, profiles_path: Path = PROFILES_PATH,
-          sessions_path: Path = SESSIONS_PATH) -> dict:
+          sessions_path: Path = SESSIONS_PATH, memory: bool = False, source_path: Path | None = None) -> dict:
     profiles = {p["profile_id"]: p for p in read_jsonl(profiles_path)}
-    first_sessions = {s["profile_id"]: s for s in read_jsonl(sessions_path) if s["session_index"] == 1}
+    first_sessions = {s["profile_id"]: s for s in read_jsonl(source_path or sessions_path)
+                      if s["session_index"] == 1}
     existing = {s["session_id"]: s for s in read_jsonl(sessions_path)}
     lo, hi = cfg("corpus.turns_per_session", default=[8, 12])
     llm = LLM("generator", backend=backend)
@@ -137,18 +160,24 @@ def build(limit: int | None = None, backend: str | None = None, profiles_path: P
     sim = llm.view("simulator")
 
     def chain(first: dict) -> list[dict]:
-        """Follow-up sessions for one profile. Returns only the newly generated ones."""
         pid = first["profile_id"]
         new: list[dict] = []
         total = sample_session_count(pid)
+        writer = memory_writer(llm, pid) if memory else None
+        if writer:
+            first = replay(writer, json.loads(json.dumps(existing.get(first["session_id"], first))))
+            if first["session_id"] not in existing:
+                new.append(first)
         prev, current = first, dict(first["profile_snapshot"])
         for index in range(2, total + 1):
             sid = f"{pid}-s{index}"
             gap = sample_gap_days(sid)
             transition = pick_transition(pid, index)
             current = advance_profile(llm, current, prev, gap, transition)
+            if writer:
+                writer.memory.decay(gap, session_id=sid)
             if sid in existing:
-                prev = existing[sid]
+                prev = replay(writer, existing[sid]) if writer else existing[sid]
                 continue
             context = (f"This conversation is a follow-up: it has been {gap:.0f} days "
                        f"({gap_phrase(gap)}) since the previous one. What has changed: "
@@ -156,11 +185,14 @@ def build(limit: int | None = None, backend: str | None = None, profiles_path: P
             n_turns = rng_for(sid, "turns").randint(int(lo), int(hi))
             session = generate_session(
                 current, sid, llm, sim, n_turns, session_context=context,
-                opener=f"Hey - it's been a little while. How have things been {gap_phrase(gap)}?")
+                opener=f"Hey - it's been a little while. How have things been {gap_phrase(gap)}?",
+                memory_fn=turn_brief(writer, sid) if writer else None)
             session.update({"session_index": index, "prev_session_id": prev["session_id"],
                             "gap_days_from_prev": gap, "profile_snapshot": current})
             new.append(session)
             prev = session
+        if writer:
+            writer.memory.save(sessions_path.parent / "memory" / f"{pid}.jsonl")
         return new
 
     firsts = [f for pid, f in list(first_sessions.items())[: limit or len(first_sessions)] if pid in profiles]
@@ -176,7 +208,6 @@ def build(limit: int | None = None, backend: str | None = None, profiles_path: P
 
 
 def integrity_check(sessions: list[dict]) -> list[str]:
-    """Temporal integrity: gaps positive, order monotone, links resolvable, transitions recorded."""
     problems: list[str] = []
     by_profile: dict[str, list[dict]] = {}
     for s in sessions:
@@ -202,15 +233,21 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--backend", default=None)
     ap.add_argument("--profiles", default=str(PROFILES_PATH))
-    ap.add_argument("--sessions", default=str(SESSIONS_PATH))
+    ap.add_argument("--sessions", default=None,
+                    help=f"output corpus (default {SESSIONS_PATH}, or {MEM_SESSIONS_PATH} with --memory)")
+    ap.add_argument("--memory", action="store_true",
+                    help="memory-aware corpus: regenerate sessions 2+ with the need-state brief (Option C)")
+    ap.add_argument("--source", default=str(SESSIONS_PATH), help="with --memory: where session 1 is read from")
     ap.add_argument("--check", action="store_true", help="only run the temporal integrity check")
     args = ap.parse_args()
+    sessions_path = Path(args.sessions or (MEM_SESSIONS_PATH if args.memory else SESSIONS_PATH))
     if args.check:
-        problems = integrity_check(read_jsonl(args.sessions))
+        problems = integrity_check(read_jsonl(sessions_path))
         print("\n".join(problems) if problems else "temporal integrity: ok")
         return
     stats = build(limit=args.limit, backend=args.backend, profiles_path=Path(args.profiles),
-                  sessions_path=Path(args.sessions))
+                  sessions_path=sessions_path, memory=args.memory,
+                  source_path=Path(args.source) if args.memory else None)
     print(f"follow-up sessions written {stats['written']} across {stats['profiles_linked']} profiles")
 
 

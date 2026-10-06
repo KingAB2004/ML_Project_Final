@@ -7,7 +7,7 @@ numbers, and why they came out as they did.
 |---|---|---|---|---|
 | [`v1/`](v1/README.md) | first baseline run (Phase A), 2 Oct 2026 | none (untuned base model) | partial baseline scores, the bugs they exposed and the fixes | superseded by v2; kept as evidence |
 | [`v2/`](v2/README.md) | 50-profile end-to-end run (Phases A, B, C), 3 Oct 2026 | 50 profiles, 140 sessions | all baselines, the 2 x 2 (decomposition x gate), conformal gate calibration, 7B QLoRA fine-tune and its test | complete |
-| [`v3_full1000/`](v3_full1000/README.md) | full-size run, 3-6 Oct 2026 | 1,000 profiles, 2,369 sessions | dataset statistics, fine-tuning curves (0.5B done; 3B and 7B with_thoughts done, wo_thoughts running), PVI, LoRA geometry, scaling study | in progress; refresh with `scripts/collect_results.sh` |
+| [`v3_full1000/`](v3_full1000/README.md) | full-size run, 3-6 Oct 2026 | 1,000 profiles, 2,369 sessions | dataset statistics, fine-tuning curves (0.5B and 3B done; 7B with_thoughts done, wo_thoughts running), PVI, LoRA geometry, scaling study | in progress; refresh with `scripts/collect_results.sh` |
 
 Headline findings so far:
 - **v2:** the pipeline works end to end (0 hidden-need leaks in 6,449 supporter turns). The conformal gate cuts
