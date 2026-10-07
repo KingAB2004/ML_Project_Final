@@ -20,6 +20,7 @@ Only numpy is needed beyond the main requirements.
 | `memeval_qa.py` | Can each memory answer questions about a user's real past sessions? | ES-MemEval: ingest 401 dated sessions per memory type, answer 1,427 questions in five capabilities from the memory brief, judge against gold | generator + judge (lab server, ~6-7 h) |
 | `scaling.py` | Does the supporter improve with size, and do the thoughts help small models more? | power law L = a N^-b on validation loss and reply NLL (profile bootstrap CI on b), paired thoughts gain per size and its slope in log N | none (reads training logs, `scripts/scaling_eval.sh` output, `pvi.py` output) |
 | `pvi.py` | How much usable information do the thoughts carry about the reply? | pointwise V-information between the with- and wo-thoughts adapters, per validation turn | GPU forward passes, 2 per turn per size |
+| `baseline_plots.py` | How do the untuned baselines and the 2 x 2 compare, and is the data clean? | mean per scale with profile-bootstrap CIs, score distributions, per-turn IP vs tau, counterfactual PRI, conformal risk curve, reply length / leak / copy / gate-path diagnostics | none (CPU) |
 | `lora_geometry.py` | Where in the network does the thoughts supervision land? | SVD of every LoRA update from its r x r core: effective/stable rank, depth profile, subspace similarity; `--truncate`: rank-k validation loss (Eckart-Young) | CPU; GPU for `--truncate` |
 
 Each script's docstring states its model, its assumptions and what its guarantee does and does not cover.

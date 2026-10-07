@@ -693,7 +693,7 @@ def _() -> None:
         """Whitespace 'tokenizer' with a ChatML template, standing in for Qwen's."""
         eos_token = "<|im_end|>"
 
-        def apply_chat_template(self, msgs, tokenize=False, add_generation_prompt=True):
+        def apply_chat_template(self, msgs, tokenize=False, add_generation_prompt=True, **kw):
             body = "".join(f"<|im_start|>{m['role']}\n{m['content']}<|im_end|>\n" for m in msgs)
             return body + ("<|im_start|>assistant\n" if add_generation_prompt else "")
 

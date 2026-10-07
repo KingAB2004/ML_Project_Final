@@ -1,0 +1,14 @@
+{
+  "arm": "mem_needstate",
+  "supporter": "base",
+  "adapter": null,
+  "supporter_base": null,
+  "sessions_written": 310,
+  "profiles": 100,
+  "dialogues_path": "runs/memory_1000/dialogues/mem_needstate.jsonl",
+  "gate": false,
+  "calibrated": false,
+  "memory": "needstate",
+  "architecture": "decomposed",
+  "in_distribution": true
+}

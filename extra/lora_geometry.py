@@ -146,7 +146,8 @@ def truncation_curve(size: str, arm: str, rows: list[dict], ks) -> dict[int, flo
             m.lora_B["default"].weight.data.copy_(newB.to(B.dtype))
         curve[k] = _lm.mean_nll(model, tok, rows)
         print(f"  {size} {arm} rank {k}: val loss {curve[k]:.4f}", flush=True)
-    _lm.release(model)
+    del model, loras, saved, svds          # the module lists hold the weights too
+    _lm.release()
     return curve
 
 

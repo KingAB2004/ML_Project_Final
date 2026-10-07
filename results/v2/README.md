@@ -121,7 +121,33 @@ inferences is 0 for every arm because the simulated seekers never explicitly den
 seeker turns open with a denial, all about questions or advice), so the memory never records a
 disconfirmation. Cells A and B build no memory at all (monolithic listener, no Analyzer).
 
-## 5. Files
+## Known limitations
+
+* **Judge strength.** Only open models run on the server, so Mistral-Nemo 12B is the judge. Its scores are
+  compressed (Success mostly 3 or 4 of 7, AELS 5.5-7), so differences between arms may stay within noise.
+* **Small n.** 40 test profiles per arm; the confidence intervals are wide. Read the numbers as preliminary.
+* **No human agreement yet.** IP and PRI are judge-only until `human_eval/` is completed.
+* **External sets.** No ExTES or ES-MemEval arm in this run (they run in the 1000-profile queue).
+* **Comparability with the COCOON paper.** Different supporter (Qwen vs Llama-3-8B), simulator and judge
+  (open models vs GPT-4o), language (English) and n: compare trends, not absolute numbers.
+
+## 5. Plots (`runs/v3_50/extra/baseline_plots/`)
+
+Made by `python extra/baseline_plots.py --run results/v2/runs/v3_50` from the files below (no model calls); every
+interval is a 95 % bootstrap over profiles. These are the baseline plots to report: v1 has the same set, but
+from contaminated dialogues and only 3 scored arms (see `../README.md`, "v1 or v2").
+
+| Plot | Shows |
+|---|---|
+| `scores_by_arm.png` | mean score per scale for all 7 arms. Success 0.36-0.39 everywhere (CIs overlap); IP drops for the gated cells B and D (0.060 / 0.062 vs 0.079 / 0.098) and rises for the fine-tuned model (0.103); observed reactance highest for the fine-tuned model (0.271) |
+| `two_by_two.png` | interaction plot. Success: the gate costs about 0.02 in both architectures, decomposition adds nothing (lines on top of each other). IP: the gate cuts it in both, more for the decomposed system (0.098 -> 0.062) |
+| `score_distributions.png` | Success is mostly 3 or 4 of 7 (a few 5-6), AELS 5.5-7: the judge still resolves little |
+| `ip_per_turn.png` | share of turns above tau = 0.2: 6-9 % ungated, 1.7-2.3 % gated, **15 % for the fine-tuned model** |
+| `pri_counterfactual.png` | reactance after the real turn vs a neutral reflection: every CI spans 0 |
+| `gate_calibration.png` | 38 of 300 calibration turns are violations; the risk bound crosses alpha = 0.1 at lambda_hat = 0.125, releasing 54 % |
+| `dialogue_diagnostics.png` | reply length 21-30 words in every arm (the v1 length confound is gone), 0 leaked thoughts and 0 copied seeker lines, gate paths: cellB 49 / 39 / 13 % and cellD 45 / 30 / 25 % released / revised / fallback |
+
+## 6. Files
 
 | Path | What it is |
 |---|---|
@@ -131,6 +157,7 @@ disconfirmation. Cells A and B build no memory at all (monolithic listener, no A
 | `runs/v3_50/scores/<arm>/` | Judge outputs per instrument, PRI rollouts and `pri_summary.json` |
 | `runs/v3_50/conformal/` | Gate calibration, calibration rows, alpha sweep (and the tau 0.5 versions) |
 | `runs/v3_50/memory/` | Need-state memory per profile and arm |
+| `runs/v3_50/extra/baseline_plots/` | The baseline plots of section 5 and their numbers (`summary.json`) |
 | `runs/v3_50/arm_summary_*.json`, `train_summary.json` | Per-arm run metadata, training config |
 | `runs/v3_50/calls.jsonl` | Every model call (role, model, prompt hash, sizes) |
 | `runs/v3_50/*.log` | `phaseA50`, `phaseB50`, `phaseC50`, the crashed `phaseC50_oom_b50`, and `run_v3` |

@@ -28,13 +28,16 @@ import statistics
 
 import numpy as np
 
-from _shared import (MODEL_SIZES, ROOT, SFT_ARMS, STUDY, adapter_dir, cluster_bootstrap, fmt, markdown_table,
+from _shared import (MODEL_SIZES, ROOT, SFT_ARMS, STUDY, adapter_dir, cluster_bootstrap, eval_tag, family, fmt,
+                     markdown_table,
                      out_dir, pyplot, read_jsonl, run_path, write_json)
 from common import read_json
 from report import collect_arm
 
 EVAL_ROOT = "runs/scaling_eval"
 TEST_METRICS = ("success", "ip", "pri")
+FAMILIES = ("qwen2.5", "qwen3")               # Qwen3: controls for the self-generated data, never on the fitted curve
+FAMILY_STYLE = {"with_thoughts": "^", "wo_thoughts": "v"}
 
 
 def training_record(size: str, arm: str) -> dict | None:
@@ -61,7 +64,7 @@ def training_record(size: str, arm: str) -> dict | None:
 
 
 def test_record(size: str, arm: str) -> dict | None:
-    run = ROOT / EVAL_ROOT / f"qwen2.5_{size}"
+    run = ROOT / EVAL_ROOT / eval_tag(size)
     name = f"sft_{arm}"
     if not (run / "scores" / name).exists():
         return None
@@ -132,6 +135,7 @@ def gain_stats(sizes: list[str], tests: dict, metric: str, reps: int) -> dict | 
         ds = list(per[s].values())
         out[s] = {"gain": statistics.fmean(ds), "ci": cluster_bootstrap(ds, statistics.fmean, reps, f"gain:{metric}:{s}"),
                   "n_profiles": len(ds)}
+    have = [s for s in have if family(s) == "qwen2.5"]      # the slope is along the Qwen2.5 curve only
     if len(have) >= 2:
         common = sorted(set.intersection(*(set(per[s]) for s in have)))
         x = [math.log10(MODEL_SIZES[s]["params"]) for s in have]
@@ -146,17 +150,26 @@ def gain_stats(sizes: list[str], tests: dict, metric: str, reps: int) -> dict | 
     return out
 
 
+def size_axis(plt, ax, sizes) -> None:
+    """Log-N axis labelled with the model sizes instead of 4 x 10^8-style ticks."""
+    ax.set_xscale("log")
+    ax.set_xticks([MODEL_SIZES[s]["params"] for s in sizes], [s for s in sizes], fontsize=8)
+    ax.xaxis.set_minor_formatter(plt.NullFormatter())
+    ax.set_xlabel("model size (log non-embedding parameters)", fontsize=8)
+
+
 def plots(sizes, train, tests, fits, gains, dest) -> list[str]:
     plt = pyplot()
     if plt is None:
         return []
     made = []
     fig, ax = plt.subplots(figsize=(4.8, 3.6))
-    for arm, style in zip(SFT_ARMS, ("-o", "--s")):
-        pts = [(MODEL_SIZES[s]["params"], train[(s, arm)]["best_eval_loss"]) for s in sizes if train.get((s, arm))]
+    for (arm, style), fam in ((a, f) for a in zip(SFT_ARMS, ("-o", "--s")) for f in FAMILIES):
+        pts = [(MODEL_SIZES[s]["params"], train[(s, arm)]["best_eval_loss"]) for s in sizes
+               if train.get((s, arm)) and family(s) == fam]
         if pts:
-            ax.plot(*zip(*pts), style, label=arm)
-            fit = fits.get(arm)
+            ax.plot(*zip(*pts), style if fam == "qwen2.5" else FAMILY_STYLE[arm], label=f"{arm} ({fam})")
+            fit = fits.get(arm) if fam == "qwen2.5" else None
             if fit:
                 xs = np.geomspace(min(p[0] for p in pts), max(p[0] for p in pts), 50)
                 ax.plot(xs, fit["a"] * xs ** -fit["b"], ":", color="gray", lw=1)
@@ -208,7 +221,7 @@ def plots(sizes, train, tests, fits, gains, dest) -> list[str]:
                 be, bl = train[(s, a)]["best_epoch"], train[(s, a)]["best_eval_loss"]
                 ax.annotate(f"best {bl:.3f}", (be, bl), textcoords="offset points", xytext=(4, 6 if i else -10), fontsize=6,
                             color=color)
-            ax.set_title(f"Qwen2.5-{s} QLoRA: loss per epoch", fontsize=8)
+            ax.set_title(f"{MODEL_SIZES[s]['base'].split('/')[-1]} QLoRA: loss per epoch", fontsize=8)
             ax.set_xlabel("epoch")
             ax.set_ylabel("loss")
             ax.legend(fontsize=6)
@@ -221,19 +234,19 @@ def plots(sizes, train, tests, fits, gains, dest) -> list[str]:
     if metrics:
         fig, axes = plt.subplots(1, len(metrics), figsize=(3.6 * len(metrics), 3.2), squeeze=False)
         for ax, m in zip(axes[0], metrics):
-            for arm, style in zip(SFT_ARMS, ("-o", "--s")):
-                pts = [(s, tests[(s, arm)][m]) for s in sizes if (tests.get((s, arm)) or {}).get(m)]
+            for (arm, style), fam in ((a, f) for a in zip(SFT_ARMS, ("-o", "--s")) for f in FAMILIES):
+                pts = [(s, tests[(s, arm)][m]) for s in sizes if (tests.get((s, arm)) or {}).get(m) and family(s) == fam]
                 if not pts:
                     continue
+                style, label = (style, arm) if fam == "qwen2.5" else (FAMILY_STYLE[arm], f"{arm} ({fam})")
                 x = [MODEL_SIZES[s]["params"] for s, _ in pts]
                 y = [r["mean"] for _, r in pts]
                 cis = [cluster_bootstrap(list(r["per_profile"].values()), statistics.fmean, 1000, f"plot:{m}:{s}:{arm}")
                        for s, r in pts]
                 ax.errorbar(x, y, yerr=[[yi - c[0] for yi, c in zip(y, cis)], [c[1] - yi for yi, c in zip(y, cis)]],
-                            fmt=style, capsize=3, label=arm)
-            ax.set_xscale("log")
+                            fmt=style, capsize=3, label=label)
+            size_axis(plt, ax, sizes)
             ax.set_title({"success": "Success Rate", "ip": "Intrusiveness (IP)", "pri": "Reactance (PRI)"}[m], fontsize=9)
-            ax.set_xlabel("N")
         axes[0][0].legend(fontsize=7)
         fig.tight_layout()
         fig.savefig(dest / "scaling_test.png", dpi=150)
@@ -242,15 +255,17 @@ def plots(sizes, train, tests, fits, gains, dest) -> list[str]:
 
     if gains:
         fig, ax = plt.subplots(figsize=(4.8, 3.4))
-        for m, g in gains.items():
-            ss = [s for s in sizes if s in g]
+        for (m, g), fam in ((x, f) for x in gains.items() for f in FAMILIES):
+            ss = [s for s in sizes if s in g and family(s) == fam]
+            if not ss:
+                continue
             x = [MODEL_SIZES[s]["params"] for s in ss]
             y = [g[s]["gain"] for s in ss]
             ax.errorbar(x, y, yerr=[[yi - g[s]["ci"][0] for yi, s in zip(y, ss)], [g[s]["ci"][1] - yi for yi, s in zip(y, ss)]],
-                        marker="o", capsize=3, label=m)
+                        marker="o" if fam == "qwen2.5" else "^", ls="-" if fam == "qwen2.5" else "none", capsize=3,
+                        label=m if fam == "qwen2.5" else f"{m} ({fam})")
         ax.axhline(0, color="k", lw=0.8)
-        ax.set_xscale("log")
-        ax.set_xlabel("N")
+        size_axis(plt, ax, sizes)
         ax.set_ylabel("with_thoughts - wo_thoughts")
         ax.set_title("What the thoughts buy, by size", fontsize=9)
         ax.legend(fontsize=7)
@@ -275,10 +290,10 @@ def main() -> None:
 
     fits = {}
     for arm in SFT_ARMS:
-        have = [s for s in sizes if train[(s, arm)]]
+        have = [s for s in sizes if train[(s, arm)] and family(s) == "qwen2.5"]
         fits[arm] = power_law([MODEL_SIZES[s]["params"] for s in have], [train[(s, arm)]["best_eval_loss"] for s in have])
     nll = {s: reply_nll_by_profile(s) for s in sizes}
-    nll_sizes = [s for s in sizes if nll[s]]
+    nll_sizes = [s for s in sizes if nll[s] and family(s) == "qwen2.5"]
     reply_b = {arm: slope_ci(nll_sizes, nll, arm, args.reps) for arm in ("with", "wo")} if len(nll_sizes) >= 2 else {}
     gains = {m: g for m in TEST_METRICS if (g := gain_stats(sizes, tests, m, args.reps))}
 
@@ -301,6 +316,8 @@ def main() -> None:
                          **{m: fmt(e.get(m, {}).get("mean")) for m in TEST_METRICS},
                          "PRI (counterfactual)": fmt(e.get("pri_counterfactual", {}).get("pri"))})
     lines = ["# Scaling study: Qwen2.5 0.5B / 3B / 7B, same QLoRA recipe, 1000-profile corpus", "",
+             "Qwen3 rows are controls for the self-generated data (Qwen2.5-7B wrote the corpus): same recipe, "
+             "another family, so they are shown but never enter the fits or the per-decade slopes.", "",
              "Test metrics: every size plays against the same Qwen2.5-7B seeker (scripts/scaling_eval.sh), "
              "scored by the Mistral-Nemo judge. Validation losses of the two arms are not comparable to each "
              "other (the with_thoughts target also holds the thoughts).", "", markdown_table(rows, list(rows[0])), ""]

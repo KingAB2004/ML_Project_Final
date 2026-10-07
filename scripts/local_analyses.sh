@@ -9,9 +9,10 @@ source coccon/bin/activate
 exec 9> runs/.local_analyses.lock
 flock 9                                            # one analysis pass on the GPU at a time
 while pgrep -f "src/train.py" > /dev/null; do sleep 300; done   # never beside a training run
+S=${ANALYSIS_SIZES:-"0.5B 3B"}                        # GPU steps for these sizes; summaries cover every size
 echo "=== local analyses start $(date)"
-python extra/lora_geometry.py --sizes 0.5B 3B --truncate || echo "lora_geometry FAILED"
+python extra/lora_geometry.py --sizes $S --truncate || echo "lora_geometry FAILED"
 python extra/lora_geometry.py || echo "lora_geometry summary FAILED"   # CPU: every size with adapters, cached curves
-python extra/pvi.py --sizes 0.5B 3B || echo "pvi FAILED"
+python extra/pvi.py --sizes $S || echo "pvi FAILED"
 python extra/scaling.py || echo "scaling FAILED"
 echo "=== local analyses done $(date)"

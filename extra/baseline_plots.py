@@ -9,6 +9,7 @@ Every interval is a 95 % percentile bootstrap over profiles (a profile's session
   pri_counterfactual.png    seeker reactance after the real turn vs a neutral one  (does the supporter provoke pushback?)
   gate_calibration.png      conformal risk curve and nonconformity scores          (why the gate does or does not fire)
   dialogue_diagnostics.png  reply length, leaked thoughts, copied seeker lines, gate paths (data-quality checks)
+  two_by_two.png            interaction plot of the 2 x 2 (decomposition x gate), when all four cells are scored
 
   python extra/baseline_plots.py --run results/v1/runs/week1_v1    -> <run>/extra/baseline_plots/
 """
@@ -24,7 +25,9 @@ from pathlib import Path
 from _shared import cluster_bootstrap, out_dir, pyplot, read_jsonl, run_path, write_json
 
 ARMS = ("base_instruct", "reactive_baseline", "cellA_mono_ungated", "cellB_mono_gated", "cellC_dec_ungated",
-        "cellD_dec_gated")
+        "cellD_dec_gated", "sft_with_thoughts", "sft_wo_thoughts")
+CELLS = {("mono", "off"): "cellA_mono_ungated", ("mono", "on"): "cellB_mono_gated",
+         ("dec", "off"): "cellC_dec_ungated", ("dec", "on"): "cellD_dec_gated"}
 SCALES = ("success", "aels", "basic", "crs", "rac", "ip", "pri")
 TITLES = {"success": "Success (need named) ↑", "aels": "AELS active listening ↑", "basic": "Basic qualities ↑",
           "crs": "CRS comforting ↑", "rac": "RAC competence ↑", "ip": "Intrusiveness IP ↓",
@@ -105,69 +108,70 @@ def main() -> None:
     scored = [a for a in ARMS if a in scores]
     colors = {a: f"C{i}" for i, a in enumerate(ARMS)}
 
-    # 1. mean score per arm and scale
-    fig, axes = plt.subplots(2, 4, figsize=(13, 5.6))
-    for ax, scale in zip(axes.flat, SCALES):
-        arms = [a for a in scored if scale in scores[a]]
-        for i, a in enumerate(arms):
-            m, lo, hi = mean_ci(scores[a][scale], f"{a}:{scale}")
-            summary["scores"].setdefault(a, {})[scale] = {"mean": m, "ci": [lo, hi], "n": len(scores[a][scale])}
-            ax.bar(i, m, color=colors[a], alpha=0.8)
-            ax.errorbar(i, m, yerr=[[m - lo], [hi - m]], color="k", capsize=4)
-            ax.text(i, hi, f"{m:.3f}", ha="center", va="bottom", fontsize=7)
-        ax.set_xticks(range(len(arms)), [short(a) for a in arms], fontsize=7)
-        ax.set_title(TITLES[scale], fontsize=9)
-        ax.set_ylim(0, 1.08 if scale not in ("ip", "pri") else None)
-    axes.flat[-1].axis("off")
-    axes.flat[-1].text(0, 0.5, "bars: mean normalised score (0-1)\nwhiskers: 95 % CI, bootstrap over profiles\n"
-                       "IP / PRI: lower is better", fontsize=8, va="center")
-    fig.suptitle(f"Judge scores per arm ({run.name})", fontsize=10)
-    fig.tight_layout()
-    fig.savefig(dest / "scores_by_arm.png", dpi=150)
-    plt.close(fig)
-
-    # 2. per-dialogue distributions: Success raw 1-7 and AELS mean
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 3.6))
-    width = 0.8 / max(1, len(scored))
-    for i, a in enumerate(scored):
-        if "success" in scores[a]:
-            c = Counter(round(r["mean"]) for r in scores[a]["success"])
-            n = sum(c.values())
-            a1.bar([k + (i - len(scored) / 2 + 0.5) * width for k in range(1, 8)],
-                   [c.get(k, 0) / n for k in range(1, 8)], width, color=colors[a], label=short(a))
-        if "aels" in scores[a]:
-            a2.hist([r["mean"] for r in scores[a]["aels"]], bins=[x / 4 for x in range(4, 29)], alpha=0.5,
-                    color=colors[a], label=short(a), density=True)
-    a1.set_xlabel("Success rating (1 = need missed, 7 = need named and confirmed)")
-    a1.set_ylabel("share of dialogues")
-    a1.legend(fontsize=7)
-    a1.set_title("Success per dialogue", fontsize=9)
-    a2.set_xlabel("AELS mean item rating (1-7)")
-    a2.set_title("Active listening per dialogue: near the ceiling of 7", fontsize=9)
-    a2.legend(fontsize=7)
-    fig.tight_layout()
-    fig.savefig(dest / "score_distributions.png", dpi=150)
-    plt.close(fig)
-
-    # 3. per-turn IP with the gate's tau
     calib_path = run / "conformal" / "calibration.json"
     calib = json.loads(calib_path.read_text()) if calib_path.exists() else {}
     tau = calib.get("tau", 0.5)
-    fig, ax = plt.subplots(figsize=(6, 3.6))
-    for a in scored:
-        if "ip" in scores[a]:
-            vals = [r["normalized"] for r in scores[a]["ip"]]
-            ax.hist(vals, bins=[x / 20 for x in range(21)], alpha=0.5, color=colors[a], density=True,
-                    label=f"{short(a)} ({100 * sum(v > tau for v in vals) / len(vals):.1f} % > tau)")
-    ax.axvline(tau, color="k", ls="--", lw=1)
-    ax.text(tau, ax.get_ylim()[1] * 0.9, f" tau = {tau}", fontsize=8)
-    ax.set_xlabel("IP per supporter turn (0 = not intrusive, 1 = maximally intrusive)")
-    ax.set_ylabel("density")
-    ax.set_title("Intrusiveness per turn (judge)", fontsize=9)
-    ax.legend(fontsize=7)
-    fig.tight_layout()
-    fig.savefig(dest / "ip_per_turn.png", dpi=150)
-    plt.close(fig)
+    if scored:  # a run with no judge scores (results/v1 keeps only dialogues) gets the diagnostics only
+        # 1. mean score per arm and scale
+        fig, axes = plt.subplots(2, 4, figsize=(13, 5.6))
+        for ax, scale in zip(axes.flat, SCALES):
+            arms = [a for a in scored if scale in scores[a]]
+            for i, a in enumerate(arms):
+                m, lo, hi = mean_ci(scores[a][scale], f"{a}:{scale}")
+                summary["scores"].setdefault(a, {})[scale] = {"mean": m, "ci": [lo, hi], "n": len(scores[a][scale])}
+                ax.bar(i, m, color=colors[a], alpha=0.8)
+                ax.errorbar(i, m, yerr=[[m - lo], [hi - m]], color="k", capsize=4)
+                ax.text(i, hi, f"{m:.3f}", ha="center", va="bottom", fontsize=7)
+            ax.set_xticks(range(len(arms)), [short(a) for a in arms], fontsize=6, rotation=30, ha="right")
+            ax.set_title(TITLES[scale], fontsize=9)
+            ax.set_ylim(0, 1.08 if scale not in ("ip", "pri") else None)
+        axes.flat[-1].axis("off")
+        axes.flat[-1].text(0, 0.5, "bars: mean normalised score (0-1)\nwhiskers: 95 % CI, bootstrap over profiles\n"
+                           "IP / PRI: lower is better", fontsize=8, va="center")
+        fig.suptitle(f"Judge scores per arm ({run.name})", fontsize=10)
+        fig.tight_layout()
+        fig.savefig(dest / "scores_by_arm.png", dpi=150)
+        plt.close(fig)
+
+        # 2. per-dialogue distributions: Success raw 1-7 and AELS mean
+        fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 3.6))
+        width = 0.8 / max(1, len(scored))
+        for i, a in enumerate(scored):
+            if "success" in scores[a]:
+                c = Counter(round(r["mean"]) for r in scores[a]["success"])
+                n = sum(c.values())
+                a1.bar([k + (i - len(scored) / 2 + 0.5) * width for k in range(1, 8)],
+                       [c.get(k, 0) / n for k in range(1, 8)], width, color=colors[a], label=short(a))
+            if "aels" in scores[a]:
+                a2.hist([r["mean"] for r in scores[a]["aels"]], bins=[x / 4 for x in range(4, 29)], alpha=0.5,
+                        color=colors[a], label=short(a), density=True)
+        a1.set_xlabel("Success rating (1 = need missed, 7 = need named and confirmed)")
+        a1.set_ylabel("share of dialogues")
+        a1.legend(fontsize=7)
+        a1.set_title("Success per dialogue", fontsize=9)
+        a2.set_xlabel("AELS mean item rating (1-7)")
+        a2.set_title("Active listening per dialogue: near the ceiling of 7", fontsize=9)
+        a2.legend(fontsize=7)
+        fig.tight_layout()
+        fig.savefig(dest / "score_distributions.png", dpi=150)
+        plt.close(fig)
+
+        # 3. per-turn IP with the gate's tau
+        fig, ax = plt.subplots(figsize=(6, 3.6))
+        for a in scored:
+            if "ip" in scores[a]:
+                vals = [r["normalized"] for r in scores[a]["ip"]]
+                ax.hist(vals, bins=[x / 20 for x in range(21)], alpha=0.5, color=colors[a], density=True,
+                        label=f"{short(a)} ({100 * sum(v > tau for v in vals) / len(vals):.1f} % > tau)")
+        ax.axvline(tau, color="k", ls="--", lw=1)
+        ax.text(tau, ax.get_ylim()[1] * 0.9, f" tau = {tau}", fontsize=8)
+        ax.set_xlabel("IP per supporter turn (0 = not intrusive, 1 = maximally intrusive)")
+        ax.set_ylabel("density")
+        ax.set_title("Intrusiveness per turn (judge)", fontsize=9)
+        ax.legend(fontsize=7)
+        fig.tight_layout()
+        fig.savefig(dest / "ip_per_turn.png", dpi=150)
+        plt.close(fig)
 
     # 4. counterfactual PRI: factual vs control and the paired difference
     pri = {a: json.loads((run / "scores" / a / "pri_summary.json").read_text()) for a in ARMS
@@ -203,8 +207,8 @@ def main() -> None:
         a1.plot(lam, [c["risk_ucb"] for c in curve], ls="--", label="upper confidence bound")
         a1.axhline(calib["alpha"], color="k", lw=0.8, ls=":")
         a1.axvline(calib["lambda_hat"], color="r", lw=1)
-        a1.text(calib["lambda_hat"], 0.5, f"lambda_hat = {calib['lambda_hat']} ", color="r", ha="right",
-                fontsize=8)
+        a1.text(calib["lambda_hat"], 0.3, f" lambda_hat = {calib['lambda_hat']}", color="r",
+                ha="right" if calib["lambda_hat"] > 0.5 else "left", fontsize=8)
         a1.text(0, calib["alpha"], f" alpha = {calib['alpha']}", fontsize=8, va="bottom")
         a1.set_xlabel("threshold lambda (release a turn if its score <= lambda)")
         a1.set_title(f"Conformal risk control, n = {calib['n_calibration']} calibration turns", fontsize=9)
@@ -239,6 +243,8 @@ def main() -> None:
         axes[1].set_title("Data-quality problems", fontsize=9)
         axes[1].set_ylim(0, 1.4 * max(100 * max(d["leak_rate"], d["seeker_copy_rate"]) for d in dstats.values()) + 1)
         axes[1].legend(fontsize=7, loc="upper right")
+        if not any(d["leak_rate"] or d["seeker_copy_rate"] for d in dstats.values()):
+            axes[1].text(0.5, 0.5, "0 % in every arm", transform=axes[1].transAxes, ha="center", fontsize=11)
         bottom = [0.0] * len(arms)
         for path, color in (("released", "C2"), ("revised", "C1"), ("fallback", "C3")):
             share = [100 * dstats[a]["paths"].get(path, 0) / max(1, dstats[a]["supporter_turns"]) for a in arms]
@@ -250,6 +256,23 @@ def main() -> None:
         axes[2].legend(fontsize=7, loc="upper left", bbox_to_anchor=(1.0, 1.0))
         fig.tight_layout()
         fig.savefig(dest / "dialogue_diagnostics.png", dpi=150)
+        plt.close(fig)
+
+    # 7. the 2 x 2: mean per cell, gate off -> on, one line per architecture (parallel lines = no interaction)
+    if all(c in scores and "success" in scores[c] and "ip" in scores[c] for c in CELLS.values()):
+        fig, axes = plt.subplots(1, 2, figsize=(8.5, 3.4))
+        for ax, scale in zip(axes, ("success", "ip")):
+            for arch, style in (("mono", "o-"), ("dec", "s--")):
+                pts = [mean_ci(scores[CELLS[(arch, g)]][scale], f"{CELLS[(arch, g)]}:{scale}") for g in ("off", "on")]
+                ax.errorbar([0, 1], [p[0] for p in pts], yerr=[[p[0] - p[1] for p in pts], [p[2] - p[0] for p in pts]],
+                            fmt=style, capsize=4, label={"mono": "monolithic (A, B)", "dec": "decomposed (C, D)"}[arch])
+            ax.set_xticks([0, 1], ["gate off", "gate on"])
+            ax.set_xlim(-0.3, 1.3)
+            ax.set_title(TITLES[scale], fontsize=9)
+            ax.legend(fontsize=7)
+        fig.suptitle("2 x 2: decomposition x conformal gate (parallel lines = no interaction)", fontsize=9)
+        fig.tight_layout()
+        fig.savefig(dest / "two_by_two.png", dpi=150)
         plt.close(fig)
 
     write_json(dest / "summary.json", summary)

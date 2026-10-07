@@ -22,7 +22,8 @@ def load_rows(arm: str, split: str, sft_dir: Path = SFT_DIR) -> list[dict]:
 def encode_example(tokenizer, row: dict, seq_len: int) -> dict | None:
     msgs = ([{"role": "system", "content": row["system"]}] if row.get("system") else []) + \
         [{"role": "user", "content": row["input"]}]
-    prompt = tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+    prompt = tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True,
+                                         enable_thinking=False)
     p = tokenizer(prompt, add_special_tokens=False)["input_ids"]
     t = tokenizer(row["target"] + tokenizer.eos_token, add_special_tokens=False)["input_ids"]
     if len(p) + len(t) > seq_len:

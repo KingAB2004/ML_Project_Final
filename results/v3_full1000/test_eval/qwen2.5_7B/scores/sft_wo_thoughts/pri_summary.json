@@ -1,0 +1,10 @@
+{
+  "pri": 0.010191310566779905,
+  "ci_low": 0.0005959830740806994,
+  "ci_high": 0.019816437213183147,
+  "n_pairs": 799,
+  "mean_factual": 0.20543536563561593,
+  "mean_control": 0.19524405506883605,
+  "n_turns_scored": 400,
+  "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+}

@@ -1,0 +1,58 @@
+2026-10-06T20:58:18.329650+00:00 === pipeline start: scale=full backend=ollama arms=6 steps=21
+2026-10-06T20:58:18.329852+00:00 RUN  [calib] evaluate.py --arm calib_dec_ungated --run-dir runs/baselines_1000 --limit 30 --backend ollama
+2026-10-06T22:35:07.997696+00:00        [warn] arm 'calib_dec_ungated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+2026-10-06T22:35:08.053155+00:00        calib_dec_ungated: 94 sessions -> runs/baselines_1000/dialogues/calib_dec_ungated.jsonl
+2026-10-06T22:35:08.053270+00:00        run dir: runs/baselines_1000
+2026-10-06T22:35:08.073313+00:00 OK   [calib] 5809.6s
+2026-10-06T22:35:08.074118+00:00 RUN  [calib] calibrate.py --dialogues runs/baselines_1000/dialogues/calib_dec_ungated.jsonl --out runs/baselines_1000/conformal/calibration.json --backend ollama
+2026-10-06T22:48:50.104797+00:00        lambda_hat=0.200 at alpha=0.1 tau=0.2 on n=300 turns
+2026-10-06T22:48:50.209852+00:00        saved runs/baselines_1000/conformal/calibration.json
+2026-10-06T22:48:50.379212+00:00 OK   [calib] 821.7s
+2026-10-06T22:48:50.460849+00:00 RUN  [eval] evaluate.py --arm base_instruct --run-dir runs/baselines_1000 --calibration runs/baselines_1000/conformal/calibration.json --backend ollama
+2026-10-06T23:04:10.885673+00:00        base_instruct: 100 sessions -> runs/baselines_1000/dialogues/base_instruct.jsonl
+2026-10-06T23:04:10.935557+00:00        run dir: runs/baselines_1000
+2026-10-06T23:04:11.004100+00:00 OK   [eval] 920.4s
+2026-10-06T23:04:11.040078+00:00 RUN  [score] metrics.py --dialogues runs/baselines_1000/dialogues/base_instruct.jsonl --backend ollama
+2026-10-06T23:29:06.884423+00:00        basic: n=100 mean=0.8013888888888888 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-06T23:29:06.909373+00:00        ip: n=400 mean=0.06464285714285714 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-06T23:29:06.909464+00:00        pri: n=995 mean=0.1918640823163436 failures=1 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-06T23:29:06.909827+00:00 OK   [score] 1495.8s
+2026-10-06T23:29:06.928709+00:00 RUN  [score] counterfactual.py --dialogues runs/baselines_1000/dialogues/base_instruct.jsonl --backend ollama
+2026-10-06T23:58:02.980413+00:00        PRI = -0.0014583333333333317 (95% CI -0.009285714285714284 .. 0.006517857142857144) over 800 seed-matched pairs on 400 turns
+2026-10-06T23:58:03.110051+00:00 OK   [score] 1736.1s
+2026-10-06T23:58:03.273186+00:00 RUN  [eval] evaluate.py --arm reactive_baseline --run-dir runs/baselines_1000 --calibration runs/baselines_1000/conformal/calibration.json --backend ollama
+2026-10-07T00:14:19.475407+00:00        reactive_baseline: 100 sessions -> runs/baselines_1000/dialogues/reactive_baseline.jsonl
+2026-10-07T00:14:19.513178+00:00        run dir: runs/baselines_1000
+2026-10-07T00:14:19.530346+00:00 OK   [eval] 976.2s
+2026-10-07T00:14:19.579142+00:00 RUN  [score] metrics.py --dialogues runs/baselines_1000/dialogues/reactive_baseline.jsonl --backend ollama
+2026-10-07T00:40:28.809313+00:00        basic: n=100 mean=0.8091666666666666 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-07T00:40:28.864346+00:00        ip: n=400 mean=0.08904761904761906 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-07T00:40:28.864451+00:00        pri: n=1002 mean=0.19007223647942212 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-07T00:40:29.005583+00:00 OK   [score] 1569.0s
+2026-10-07T00:40:29.071936+00:00 RUN  [score] counterfactual.py --dialogues runs/baselines_1000/dialogues/reactive_baseline.jsonl --backend ollama
+2026-10-07T01:12:26.741270+00:00        PRI = 0.008154761904761904 (95% CI 0.00011904761904761825 .. 0.016041666666666666) over 800 seed-matched pairs on 400 turns
+2026-10-07T01:12:27.048553+00:00 OK   [score] 1917.3s
+2026-10-07T01:12:27.136673+00:00 RUN  [eval] evaluate.py --arm cellA_mono_ungated --run-dir runs/baselines_1000 --calibration runs/baselines_1000/conformal/calibration.json --backend ollama
+2026-10-07T01:59:48.298956+00:00        [warn] arm 'cellA_mono_ungated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+2026-10-07T01:59:48.382683+00:00        cellA_mono_ungated: 310 sessions -> runs/baselines_1000/dialogues/cellA_mono_ungated.jsonl
+2026-10-07T01:59:48.382793+00:00        run dir: runs/baselines_1000
+2026-10-07T01:59:48.632820+00:00 OK   [eval] 2840.9s
+2026-10-07T01:59:48.778180+00:00 RUN  [score] metrics.py --dialogues runs/baselines_1000/dialogues/cellA_mono_ungated.jsonl --backend ollama
+2026-10-07T03:14:54.661351+00:00        basic: n=310 mean=0.8015232974910393 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-07T03:14:54.770901+00:00        ip: n=1240 mean=0.06762672811059908 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-07T03:14:54.791112+00:00        pri: n=3093 mean=0.1838098317244777 failures=4 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-07T03:14:54.903173+00:00 OK   [score] 4505.5s
+2026-10-07T03:14:54.973666+00:00 RUN  [score] counterfactual.py --dialogues runs/baselines_1000/dialogues/cellA_mono_ungated.jsonl --backend ollama
+2026-10-07T04:37:32.737424+00:00        PRI = -0.0026881720430107525 (95% CI -0.007142857142857142 .. 0.0019009216589861752) over 2480 seed-matched pairs on 1240 turns
+2026-10-07T04:37:33.078039+00:00 OK   [score] 4956.9s
+2026-10-07T04:37:33.169306+00:00 RUN  [eval] evaluate.py --arm cellB_mono_gated --run-dir runs/baselines_1000 --calibration runs/baselines_1000/conformal/calibration.json --backend ollama
+2026-10-07T06:53:34.092280+00:00        [warn] arm 'cellB_mono_gated' asks for supporter 'sft_with_thoughts' but no adapter is mapped in configs/arms.yaml: it will run on the UN-TUNED base model
+2026-10-07T06:53:34.250293+00:00        cellB_mono_gated: 310 sessions -> runs/baselines_1000/dialogues/cellB_mono_gated.jsonl
+2026-10-07T06:53:34.250470+00:00        run dir: runs/baselines_1000
+2026-10-07T06:53:34.384859+00:00 OK   [eval] 8160.1s
+2026-10-07T06:53:34.592727+00:00 RUN  [score] metrics.py --dialogues runs/baselines_1000/dialogues/cellB_mono_gated.jsonl --backend ollama
+2026-10-07T08:07:14.296473+00:00        basic: n=310 mean=0.7959677419354838 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-07T08:07:14.488776+00:00        ip: n=1240 mean=0.06065668202764977 failures=0 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-07T08:07:14.512744+00:00        pri: n=3140 mean=0.18700333636639369 failures=7 judge=mistralai/Mistral-Nemo-Instruct-2407
+2026-10-07T08:07:14.822036+00:00 OK   [score] 4419.0s
+2026-10-07T08:07:14.913147+00:00 RUN  [score] counterfactual.py --dialogues runs/baselines_1000/dialogues/cellB_mono_gated.jsonl --backend ollama

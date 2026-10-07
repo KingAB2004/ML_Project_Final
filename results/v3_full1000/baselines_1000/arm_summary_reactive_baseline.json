@@ -1,0 +1,14 @@
+{
+  "arm": "reactive_baseline",
+  "supporter": "base",
+  "adapter": null,
+  "supporter_base": null,
+  "sessions_written": 100,
+  "profiles": 100,
+  "dialogues_path": "runs/baselines_1000/dialogues/reactive_baseline.jsonl",
+  "gate": false,
+  "calibrated": false,
+  "memory": "none",
+  "architecture": "monolithic",
+  "in_distribution": true
+}

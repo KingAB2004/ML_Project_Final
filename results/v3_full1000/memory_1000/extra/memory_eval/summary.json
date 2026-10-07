@@ -1,0 +1,87 @@
+{
+  "buckets": [
+    "session 1",
+    "<= 7 d",
+    "7-21 d",
+    "> 21 d"
+  ],
+  "denial_cues": [
+    "that's not it",
+    "that's not what",
+    "that's not really",
+    "that's not the",
+    "it's not that",
+    "it isn't that",
+    "not really",
+    "not exactly",
+    "i don't think that's",
+    "i don't think so",
+    "i wouldn't say",
+    "you're wrong",
+    "that isn't",
+    "no, it's",
+    "no, i",
+    "no it's",
+    "nah"
+  ],
+  "arms": {
+    "mem_needstate": {
+      "sessions": 310,
+      "profiles": 100,
+      "memory": "needstate",
+      "multi_session": true,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 100,
+          "n_profiles": 100,
+          "success": 0.38166666666666665,
+          "ci": [
+            0.36166666666666664,
+            0.405
+          ]
+        },
+        "<= 7 d": {
+          "n_sessions": 114,
+          "n_profiles": 81,
+          "success": 0.3874269005847953,
+          "ci": [
+            0.3669590643274853,
+            0.41015625
+          ]
+        },
+        "7-21 d": {
+          "n_sessions": 47,
+          "n_profiles": 42,
+          "success": 0.3829787234042553,
+          "ci": [
+            0.358695652173913,
+            0.4111111111111111
+          ]
+        },
+        "> 21 d": {
+          "n_sessions": 49,
+          "n_profiles": 40,
+          "success": 0.3605442176870748,
+          "ci": [
+            0.3442028985507246,
+            0.3804347826086957
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 3066,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 633,
+        "by_status": {
+          "confirmed": 347,
+          "hypothesis": 286
+        },
+        "disconfirmed": 0,
+        "reproposals_after_disconfirmation": 0
+      }
+    }
+  }
+}

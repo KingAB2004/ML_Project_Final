@@ -1,0 +1,14 @@
+{
+  "arm": "sft_with_thoughts",
+  "supporter": "sft_with_thoughts",
+  "adapter": "runs/full_1000/adapter_with_thoughts",
+  "supporter_base": null,
+  "sessions_written": 100,
+  "profiles": 100,
+  "dialogues_path": "runs/scaling_eval/qwen2.5_7B/dialogues/sft_with_thoughts.jsonl",
+  "gate": false,
+  "calibrated": false,
+  "memory": "none",
+  "architecture": "monolithic",
+  "in_distribution": true
+}

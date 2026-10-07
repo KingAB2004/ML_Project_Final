@@ -29,12 +29,14 @@ def load(base: str, adapter: str | None):
     return model, tok
 
 
-def release(model) -> None:
+def release() -> None:
+    """Free GPU memory after the caller has dropped its own reference (`del model`). Deleting the model in
+    here would only drop this function's name: the caller's variable keeps the weights alive, and the next
+    load then finds the GPU full (the 7B PVI run failed this way loading its second adapter)."""
     import gc
 
     import torch
 
-    del model
     gc.collect()
     torch.cuda.empty_cache()
 
@@ -42,7 +44,7 @@ def release(model) -> None:
 def prompt_text(tok, row: dict) -> str:
     msgs = ([{"role": "system", "content": row["system"]}] if row.get("system") else []) + \
         [{"role": "user", "content": row["input"]}]
-    return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+    return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True, enable_thinking=False)
 
 
 def target_logprobs(model, tok, row: dict, scored_from: int = 0, seq_len: int = 2048) -> list[float] | None:

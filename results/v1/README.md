@@ -1,14 +1,18 @@
-# Phase A — v1 results (partial), problems found, and fixes
+# v1: the first baseline run, kept only as evidence of the bugs it exposed
 
-This folder is a frozen snapshot of the **first baseline run (v1)** of the COCCON_NEW pipeline, taken on
-2 October 2026 from the lab server (`cse@10.50.28.201`, RTX 3060 12 GB, Ollama). v1 was stopped
-deliberately before scoring finished, because quality checks on its outputs exposed several bugs that made
-some of its numbers unreliable. Everything here is kept as evidence; **the numbers to report come from v2**,
-which re-runs Phase A with the fixes described below.
+The first baseline run (Phase A) of the COCCON_NEW pipeline, 2 October 2026, on the lab server (RTX 3060 12 GB,
+Ollama). It was stopped deliberately before scoring finished, because its dialogues were broken: the supporter's
+private analysis leaked into the conversation, the critic invented violations so the gate rewrote most of one
+arm, the simulated seeker copied the supporter, and reply lengths differed fourfold between architectures.
+
+**No number from v1 should be reported.** Its scores, memory logs, model-call log, configs and data copies were
+removed (they are in the git history; the seeds and profiles are identical to `../v2/data/`). What remains is
+the evidence for each problem and the list of fixes. **The results to report are in [`../v2/`](../v2/README.md)**
+(and the full-size run in [`../v3_full1000/`](../v3_full1000/README.md)).
 
 ---
 
-## 1. What v1 is
+## 1. What v1 was
 
 Phase A evaluates **untuned** supporters (Qwen2.5-7B-Instruct, no fine-tuning yet) in six configurations
 ("arms") against a simulated seeker, then scores each dialogue with an independent judge model.
@@ -20,7 +24,7 @@ Phase A evaluates **untuned** supporters (Qwen2.5-7B-Instruct, no fine-tuning ye
 | Seeds | 400 situations from EmpatheticDialogues (800 screened, 87.4 % passed the sustainability screen) |
 | Profiles | 400 hidden-need profiles, 0 rejected; resistance low 100 / medium 200 / high 100 |
 | Splits | train 288, val 40, **test 40**, calibration 32 (split by profile, no overlap) |
-| Evaluation | 30 test profiles per arm; arms with memory run 2–4 linked sessions per profile |
+| Evaluation | 30 test profiles per arm (432 dialogues); arms with memory run 2–4 linked sessions per profile |
 | Reduced settings | 1 judge sample per item, 2 counterfactual (PRI) rollouts, 4 parallel requests |
 
 ### The six arms
@@ -39,58 +43,7 @@ model, because no fine-tuned adapter exists yet (the log warns about this; it is
 
 ---
 
-## 2. What v1 achieved
-
-* The whole Phase A pipeline ran end to end on open-weight models only: seeds → profiles → 432 evaluation
-  dialogues across 6 arms (average 20–21 turns each) → conformal calibration → judge scoring for 3 arms.
-* Parallel requests (4 at a time through Ollama) were added and measured at **~2.3×** the throughput of the
-  original one-request-at-a-time code, with byte-identical outputs.
-* Profile generation was fixed from 81 / 400 usable to **400 / 400**.
-* Two judge-parsing bugs were found and fixed; Success Rate for `base_instruct` went from 16 / 30 parsed to
-  **30 / 30** (re-parsed from cached judge replies, no new model calls).
-
-### 2.1 Scores (normalised 0–1; higher is better except IP and PRI)
-
-| Arm | Success | AELS | Basic | CRS | RAC | IP ↓ | PRI (observed) ↓ | PRI (counterfactual) |
-|---|---|---|---|---|---|---|---|---|
-| `base_instruct` | 0.406 (30) | 0.935 | 0.813 | 0.594 | 0.856 (27) | 0.042 (120 turns) | 0.111 | −0.001 [−0.012, 0.010] |
-| `reactive_baseline` | 0.422 (30) | 0.929 | 0.817 | 0.592 | 0.853 (29) | 0.045 (120 turns) | 0.123 | −0.003 [−0.017, 0.010] |
-| `cellA_mono_ungated` | 0.390 (92) | 0.938 | 0.815 | 0.596 | 0.849 (82) | 0.065 (372 turns) | 0.124 | not run |
-| `cellB_mono_gated` | not scored | | | | | | | |
-| `cellC_dec_ungated` | not scored | | | | | | | |
-| `cellD_dec_gated` | not scored | | | | | | | |
-
-Numbers in brackets are sample sizes where items failed to parse, or the 95 % CI for counterfactual PRI.
-`cellB`–`cellD` have dialogues but were not scored before v1 was stopped.
-
-* **Success** – did the supporter put the seeker's hidden underlying need into words (judge sees the ground truth).
-* **AELS / CRS / RAC / Basic** – published instruments for active listening, comforting responses,
-  conversational competence and six basic qualities.
-* **IP** – Intrusiveness Penalty (our metric): did a turn overstep what the seeker was ready for.
-* **PRI** – Psychological Reactance Index (our metric). The *counterfactual* version replays the seeker's
-  reply to the real turn and to a neutral control turn; a value near 0 means the supporter's turns provoked
-  no more reactance than a bland reflection would.
-
-### 2.2 Conformal gate calibration
-
-| alpha | tau | lambda_hat | n (turns) | violations in calibration set |
-|---|---|---|---|---|
-| 0.10 | 0.50 | **1.000** | 98 of 300 intended | 0 |
-
-`lambda_hat = 1.0` means the gate's threshold releases every turn. Only 98 turns were usable (see bug B7),
-and the judge rated none of them intrusive (max IP 0.48 < tau 0.50).
-
-### 2.3 What the v1 numbers do and do not show
-
-* The untuned supporter tends to **reassure and advise** ("You've got this!") rather than explore the hidden
-  need — visible in the dialogues and consistent with Success ≈ 0.4.
-* Proactive vs reactive and single-model vs memory-augmented differ by **less than the noise** at n = 30.
-  This is partly real and partly the judge (see problem P2).
-* The 2×2 cannot be read from v1: the gated cells and the critic inside them were broken (bugs B11–B14).
-
----
-
-## 3. Problems found in v1
+## 2. Problems found in v1
 
 Found by inspecting the 432 dialogues and the agent artifacts, not just the summary scores.
 
@@ -110,7 +63,7 @@ Found by inspecting the 432 dialogues and the agent artifacts, not just the summ
 
 ---
 
-## 4. Bugs fixed (whole project so far)
+## 3. Bugs fixed (for v2)
 
 All fixes are applied both locally and on the server; originals are backed up on the server under
 `~/coccon_prefix_backup/`. The component test suite went from 61 / 69 passing to **79 / 79** (new tests
@@ -120,7 +73,7 @@ A short real-model check of the v2 code (gated single-model arm, 2 profiles, 64 
 parse failures 0, critic IP predictions varied 0.00–0.38 (v1: always 0), no `denied_inference` flags,
 0 fallbacks, 0 repeated lines, 0 Chinese turns — and exposed B28 below.
 
-### 4.1 Before and during v1
+### 3.1 Before and during v1
 
 | # | Bug | Root cause | Fix (file) |
 |---|---|---|---|
@@ -136,7 +89,7 @@ parse failures 0, critic IP predictions varied 0.00–0.38 (v1: always 0), no `d
 | B10 | Two-thirds of judge replies discarded | Judge often scored only some questions; with 1 sample there was no second chance (calibration used 98 of 300 turns) | One explicit retry for every item; partial answers still rejected, never filled in (`src/judge.py`) |
 | B11 | Success Rate failed for 14 / 30 dialogues | Judge wrote `Question 1: Score - 4`; parser did not expect the labels | Parser accepts `Question`/`Item` and `Score` labels (`src/judge.py`) |
 
-### 4.2 Root causes found after v1 (fixed for v2)
+### 3.2 Root causes found after v1 (fixed for v2)
 
 | # | Problem | Root cause | Fix (file) |
 |---|---|---|---|
@@ -152,7 +105,7 @@ parse failures 0, critic IP predictions varied 0.00–0.38 (v1: always 0), no `d
 | B21 | P9 Chinese output | Prompts never asked for English | "English only" in seeker and supporter prompts |
 | B28 | Supporter's private analysis shown to the seeker | The single-model system prompt asked for "your analysis and strategy, then the reply" without saying how to mark them; the code only extracts a reply inside `<response>` tags, so untagged "Analysis: … Reply: …" went into the dialogue verbatim (v1: 7–13 % of turns in `base_instruct`, `reactive_baseline`, `cellA`, `cellB`; 0 % in the multi-agent arm) | System prompt gives the exact `<analysis>/<strategy>/<response>` format (the same one the fine-tuning targets use); the parser also strips untagged "Analysis:/Strategy:" sections and keeps only the reply (`src/build_sft.py`) |
 
-### 4.3 Problems found in Phases B and C before they ran (fixed)
+### 3.3 Problems found in Phases B and C before they ran (fixed)
 
 | # | Bug | Root cause | Fix (file) |
 |---|---|---|---|
@@ -163,7 +116,7 @@ parse failures 0, critic IP predictions varied 0.00–0.38 (v1: always 0), no `d
 | B26 | Fine-tuned model would load at full size / truncate | Supporter role said `quantization: awq` (ignored by transformers, so 15 GB unquantised) and `max_tokens: 256` (too short for analysis + strategy + response) | `nf4` (the base it is trained on) and 512 tokens (`configs/models.yaml`) |
 | B27 | One malformed model field could kill a stage | `int()` / `float()` on model JSON ("2 - intermediate", a list instead of a string) | Tolerant `to_int` / `to_float` / text coercion (`src/common.py`, `src/annotate.py`, `src/sessions.py`, `src/agents.py`) |
 
-### 4.4 Infrastructure changes
+### 3.4 Infrastructure changes
 
 * **Parallel requests** (`llm.pmap`, `parallel.workers: 4`) with `OLLAMA_NUM_PARALLEL=4`,
   `OLLAMA_FLASH_ATTENTION=1`, `OLLAMA_KV_CACHE_TYPE=q8_0` on the server: ~2.3× faster, identical outputs.
@@ -172,53 +125,32 @@ parse failures 0, critic IP predictions varied 0.00–0.38 (v1: always 0), no `d
 
 ---
 
-## 5. Known limitations that remain in v2
-
-* **Judge strength (P2).** Only open models on the server are available, so Mistral-Nemo 12B remains the
-  judge. Expect compressed scores; differences between arms may stay within noise.
-* **Small n.** 30 test profiles per arm; confidence intervals are wide. Report results as preliminary.
-* **Gate threshold (P10).** If the judge still rates almost nothing above tau = 0.5, the calibrated gate
-  will again release everything, and only hard rule-based violations will trigger it.
-* **No human agreement yet.** IP and PRI headlines are marked "judge-human agreement NOT YET MEASURED"
-  until `human_eval/` is completed.
-* **External sets.** ExTES failed to download (connection reset); ES-MemEval mapped only 18 profiles with
-  no annotated need. The out-of-distribution arms are not part of the 7-day plan.
-* **Comparability with the COCOON paper.** Different supporter (Qwen vs Llama-3-8B), simulator and judge
-  (open models vs GPT-4o), language (English) and n — compare trends, not absolute numbers.
-
 ---
 
-## 6. What is in this folder
+## 4. The evidence kept here
 
 ```
-results/v1/
-├── README.md                     this file
-├── runs/week1_v1/
-│   ├── results_v1.md             the report generated from v1 (partial)
-│   ├── phaseA_v1.log             the run log
-│   ├── dialogues/<arm>.jsonl     all 432 evaluation dialogues, with agent artifacts per turn
-│   ├── scores/<arm>/             judge scores (base_instruct, reactive_baseline, cellA_mono_ungated)
-│   ├── conformal/                calibration.json, calibration_rows.json, alpha_sweep.json
-│   ├── memory/                   need-state memory logs per profile and arm
-│   ├── arm_summary_<arm>.json    per-arm run summary
-│   └── calls.jsonl               one line per model call (role, sizes, no content)
-├── data/seeds/, data/profiles/   the exact seeds, profiles and splits v1 (and v2) use
-├── reports/seed_stats.md         seed screen statistics
-└── configs/                      the configuration v1 ran with
+results/v1/runs/week1_v1/
+├── dialogues/<arm>.jsonl          all 432 evaluation dialogues, with the agent artifacts of every turn
+├── conformal/                     calibration.json, calibration_rows.json, alpha_sweep.json
+├── phaseA_v1.log                  the run log (Success parsed for only 16 of 30 dialogues: B11)
+└── extra/baseline_plots/          dialogue_diagnostics.png, gate_calibration.png, summary.json
 ```
 
-Reading a dialogue: each line of `dialogues/<arm>.jsonl` is one session with `turns` (role, text, phase,
-ladder rung) and, for the agent arms, `agent_artifacts` (Analyzer state, Strategist plan, Critic verdict
-and gate path per supporter turn).
+| Problem | Where to see it |
+|---|---|
+| P1 seeker copied the supporter | `dialogues/*.jsonl` (repeated lines in `user` turns); orange bars in `dialogue_diagnostics.png` (2-12 % of seeker turns) |
+| P3 critic IP always 0 | `agent_artifacts[*].critic.ip_pred` in the cellB-D dialogues; `ip_pred: 0.0` on every row of `conformal/calibration_rows.json`; the three score spikes in `gate_calibration.png` (only rule violations move the score) |
+| P4 gate rewrote 72 % of cellB | `meta.path` of cellB supporter turns; right panel of `dialogue_diagnostics.png` (28 % released / 33 % revised / 39 % fallback) |
+| P5 fallback parroted the seeker | cellB / cellD turns with `meta.path = fallback` |
+| P6 analyzer evidence rejected | `agent_artifacts[*].analyzer` in the cellC / cellD dialogues (zeroed confidences) |
+| P7 reply length confound | left panel of `dialogue_diagnostics.png` (median 79-95 words single-model vs 22 multi-agent) |
+| P8 repeated supporter lines, P9 Chinese turns | `dialogues/cellC_dec_ungated.jsonl` and the other arms |
+| P10 / B10 gate never fires | `gate_calibration.png`: 0 violations among 98 usable calibration turns (of 300), so lambda_hat = 1 at every alpha (`conformal/alpha_sweep.json`) |
+| P11 / B28 private analysis in the dialogue | blue bars in `dialogue_diagnostics.png`: 28-42 % of single-model supporter turns show an "Analysis:" or "Strategy:" label (7-13 % show both) |
+| B11 Success parse failures | `phaseA_v1.log`: `success: n=16 ... failures=14` |
 
----
-
-## 7. Next steps
-
-1. **v2 Phase A** – rerun all six arms with the fixes above on the same 30 test profiles → `runs/v2/results_v2.md`.
-2. **Phase B** – generate the training corpus for the 328 train + val profiles with the fixed simulator
-   (~600 filtered, annotated sessions).
-3. **Phase C** – QLoRA fine-tune `with_thoughts`, evaluate it on the same test profiles and judge, and add it
-   to the v2 table.
-
-`run_v2.sh` on the server runs all three in sequence.
+Plots: `python extra/baseline_plots.py --run results/v1/runs/week1_v1` (no model calls). Reading a dialogue:
+each line of `dialogues/<arm>.jsonl` is one session with `turns` (role, text, phase, ladder rung, `meta.path`)
+and, for the agent arms, `agent_artifacts` (Analyzer state, Strategist plan, Critic verdict and gate path per
+supporter turn).

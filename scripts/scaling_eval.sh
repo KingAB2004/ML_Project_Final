@@ -7,7 +7,8 @@
 # Waits for the 7B training queue to exit, never stops anything. Evaluates the sizes whose adapters are present
 # (0.5B / 3B are copied up from the laptop into runs/scale_qwen2.5_<size>/), then keeps polling for the rest.
 # Resumable: a finished size/arm is skipped, a half-finished rollout continues where it stopped.
-#   ./scripts/scaling_eval.sh        results: runs/scaling_eval/qwen2.5_<size>/, runs/scaling/extra/scaling/
+#   ./scripts/scaling_eval.sh        results: runs/scaling_eval/<eval_tag>/, runs/scaling/extra/scaling/
+#   TRAIN_QUEUE_PID=<pid> SIZES="3B Qwen3-4B" ./scripts/scaling_eval.sh     # wait for another queue, these sizes only
 cd "$(dirname "$0")/.."
 source ~/COCCON_NEW/coccon/bin/activate
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
@@ -16,8 +17,9 @@ echo "queued $(date); waiting for the 7B training queue (pid $TRAIN_QUEUE_PID)"
 while kill -0 "$TRAIN_QUEUE_PID" 2>/dev/null; do sleep 300; done
 echo "training queue gone $(date)"
 
-adapter_of() {   # size arm -> adapter dir
-    if [ "$1" = "7B" ]; then echo "runs/full_1000/adapter_$2"; else echo "runs/scale_qwen2.5_$1/adapter_$2"; fi
+SIZES=${SIZES:-"0.5B 7B 3B"}                         # what is ready first goes first
+size_field() {   # size field -> value from extra/_shared.py MODEL_SIZES (base | dir | eval_tag)
+    python -c "import sys; sys.path.insert(0, 'extra'); import _shared as s; print({'eval_tag': s.eval_tag('$1')}.get('$2') or s.MODEL_SIZES['$1']['$2'])"
 }
 
 free_gpu() {     # the judge stays resident in Ollama for minutes after scoring; the rollout needs the VRAM
@@ -25,13 +27,14 @@ free_gpu() {     # the judge stays resident in Ollama for minutes after scoring;
 }
 
 evaluate_one() {  # size arm; returns 0 when its scores exist
-    local size=$1 arm=$2 run=runs/scaling_eval/qwen2.5_$1 adapter
-    adapter=$(adapter_of "$size" "$arm")
+    local size=$1 arm=$2 run adapter
+    run=runs/scaling_eval/$(size_field "$size" eval_tag)
+    adapter=$(size_field "$size" dir)/adapter_$arm
     [ -f "$run/scores/sft_$arm/pri_summary.json" ] && return 0
     [ -f "$adapter/adapter_config.json" ] || return 1
     echo "=== $size $arm start $(date)"
     local base_args=()
-    [ "$size" != "7B" ] && base_args=(--supporter-base "Qwen/Qwen2.5-$size-Instruct")
+    [ "$size" != "7B" ] && base_args=(--supporter-base "$(size_field "$size" base)")
     free_gpu
     python src/evaluate.py --arm "sft_$arm" --run-dir "$run" --adapter "$adapter" --backend transformers \
         "${base_args[@]}" || { echo "=== $size $arm rollout FAILED $(date)"; return 2; }
@@ -46,7 +49,7 @@ evaluate_one() {  # size arm; returns 0 when its scores exist
 
 while true; do
     pending=0
-    for size in 0.5B 7B 3B; do                      # what is ready first goes first
+    for size in $SIZES; do
         for arm in with_thoughts wo_thoughts; do
             evaluate_one "$size" "$arm"
             rc=$?

@@ -60,7 +60,8 @@ def score_size(size: str, pairs: list[tuple[dict, dict]]) -> list[dict]:
             if (k + 1) % 250 == 0:
                 print(f"  {size} {arm}: {k + 1}/{len(pairs)}", flush=True)
         logs[arm] = vals
-        _lm.release(model)
+        del model
+        _lm.release()
     rows = []
     for (w, _), a, b in zip(pairs, logs["with_thoughts"], logs["wo_thoughts"]):
         ok = a is not None and b is not None and len(a) == len(b)
@@ -137,15 +138,18 @@ def plots(results: dict, per_size: dict, dest) -> list[str]:
     plt.close(fig)
     made.append("pvi_hist.png")
 
-    sizes = list(results)
-    x = [MODEL_SIZES[s]["params"] for s in sizes]
-    y = [results[s]["v_information"] for s in sizes]
-    err = [[y[i] - results[s]["v_information_ci"][0] for i, s in enumerate(sizes)],
-           [results[s]["v_information_ci"][1] - y[i] for i, s in enumerate(sizes)]]
     fig, ax = plt.subplots(figsize=(4.5, 3.4))
-    ax.errorbar(x, y, yerr=err, marker="o", capsize=4)
+    for family in dict.fromkeys(MODEL_SIZES[s].get("family", "qwen2.5") for s in results):   # one line per family
+        sizes = [s for s in results if MODEL_SIZES[s].get("family", "qwen2.5") == family]
+        x = [MODEL_SIZES[s]["params"] for s in sizes]
+        y = [results[s]["v_information"] for s in sizes]
+        err = [[y[i] - results[s]["v_information_ci"][0] for i, s in enumerate(sizes)],
+               [results[s]["v_information_ci"][1] - y[i] for i, s in enumerate(sizes)]]
+        ax.errorbar(x, y, yerr=err, marker="o", capsize=4, label=family)
+    ax.legend(fontsize=7)
     ax.set_xscale("log")
-    ax.set_xticks(x, [f"{xi / 1e9:.2f}B\n({s})" for xi, s in zip(x, sizes)], fontsize=7)
+    x = [MODEL_SIZES[s]["params"] for s in results]
+    ax.set_xticks(x, [f"{xi / 1e9:.2f}B\n({s})" for xi, s in zip(x, results)], fontsize=7)
     ax.xaxis.set_minor_formatter(plt.NullFormatter())
     ax.set_xlabel("non-embedding parameters")
     ax.set_ylabel("V-information (bits / turn)")

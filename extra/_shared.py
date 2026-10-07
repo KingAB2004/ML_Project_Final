@@ -28,11 +28,17 @@ MODEL_SIZES = {
     "0.5B": {"base": "Qwen/Qwen2.5-0.5B-Instruct", "dir": "runs/scale_qwen2.5_0.5B", "params": 0.36e9},
     "3B": {"base": "Qwen/Qwen2.5-3B-Instruct", "dir": "runs/scale_qwen2.5_3B", "params": 2.77e9},
     "7B": {"base": "Qwen/Qwen2.5-7B-Instruct", "dir": "runs/full_1000", "params": 6.53e9},
+    # Controls for the self-generated-data effect (Qwen2.5-7B wrote the corpus): another family, same recipe.
+    # Not points on the Qwen2.5 scaling curve: extra/scaling.py fits family "qwen2.5" only.
+    "Qwen3-4B": {"base": "Qwen/Qwen3-4B", "dir": "runs/scale_qwen3_4B", "params": 3.6e9, "family": "qwen3",
+                 "eval_tag": "qwen3_4B"},
+    "Qwen3-8B": {"base": "Qwen/Qwen3-8B", "dir": "runs/scale_qwen3_8B", "params": 6.95e9, "family": "qwen3",
+                 "eval_tag": "qwen3_8B"},
 }
 SFT_ARMS = ("with_thoughts", "wo_thoughts")
 STUDY = "runs/scaling"          # where the cross-size analyses write: runs/scaling/extra/<analysis>/
 
-__all__ = ["EXTRA", "ROOT", "PROMPTS", "RUNG_ORDER", "MODEL_SIZES", "SFT_ARMS", "STUDY", "adapter_dir",
+__all__ = ["EXTRA", "ROOT", "PROMPTS", "RUNG_ORDER", "MODEL_SIZES", "SFT_ARMS", "STUDY", "adapter_dir", "eval_tag", "family",
            "sizes_with_adapters", "fill", "read_jsonl", "rng_for", "write_json",
            "write_jsonl", "fmt", "markdown_table", "read_extra_prompt", "run_path", "out_dir",
            "load_arm_dialogues", "rate_items", "chi2_sf", "norm_sf", "cluster_bootstrap", "pyplot"]
@@ -46,6 +52,15 @@ def run_path(run: str | Path) -> Path:
     """A run directory given relative to the repository root or to the current directory."""
     p = Path(run)
     return p if p.is_absolute() or p.exists() else ROOT / p
+
+
+def eval_tag(size: str) -> str:
+    """Folder of a size's test-profile evaluation under runs/scaling_eval/ (scripts/scaling_eval.sh)."""
+    return MODEL_SIZES[size].get("eval_tag", f"qwen2.5_{size}")
+
+
+def family(size: str) -> str:
+    return MODEL_SIZES[size].get("family", "qwen2.5")
 
 
 def adapter_dir(size: str, arm: str) -> Path:

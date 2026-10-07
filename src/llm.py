@@ -334,7 +334,7 @@ class TransformersBackend:  # pragma: no cover - requires GPU
 
         model, tok = (self.tuned, self.tuned_tokenizer) if use_adapter else (self.model, self.tokenizer)
         msgs = ([{"role": "system", "content": system}] if system else []) + list(messages)
-        text = tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+        text = tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True, enable_thinking=False)
         enc = tok(text, return_tensors="pt").to(model.device)
         temp = float(over.get("temperature", self.spec["temperature"]))
         # An adapter that is loaded but disabled gives the base model back without a second load.
@@ -370,7 +370,7 @@ class VLLMBackend:  # pragma: no cover - requires GPU
 
     def _render(self, system: str | None, messages: Messages) -> str:
         msgs = ([{"role": "system", "content": system}] if system else []) + list(messages)
-        return self.tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+        return self.tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True, enable_thinking=False)
 
     def generate(self, system: str | None, messages: Messages, **over: Any) -> str:
         return self.generate_batch([(system, messages)], **over)[0]

@@ -7,6 +7,7 @@
 #
 #   ./scripts/scale_local.sh            # all sizes, both arms
 #   SIZES="0.5B" ARMS="with_thoughts" ./scripts/scale_local.sh
+#   SIZES=Qwen3-4B ./scripts/scale_local.sh   # the Qwen3 control (thinking off in the chat template)
 cd "$(dirname "$0")/.."
 source coccon/bin/activate
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
@@ -19,13 +20,14 @@ done
 
 for size in $SIZES; do
     for arm in $ARMS; do
-        out=runs/scale_qwen2.5_${size}
+        # base model and run dir from extra/_shared.py MODEL_SIZES (Qwen2.5 sizes and the Qwen3 controls)
+        read -r model out < <(python -c "import sys; sys.path.insert(0, 'extra'); from _shared import MODEL_SIZES as M; print(M['$size']['base'], M['$size']['dir'])")
         if [ -f "$out/adapter_${arm}/adapter_config.json" ]; then
             echo "skip $size $arm: adapter exists"
             continue
         fi
         echo "=== $size $arm start $(date)"
-        python src/train.py --arm "$arm" --model "Qwen/Qwen2.5-${size}-Instruct" --out "$out" \
+        python src/train.py --arm "$arm" --model "$model" --out "$out" \
             || { echo "=== $size $arm FAILED $(date)"; exit 1; }
         # train.py writes one train_summary.json per run dir; keep one per arm
         mv "$out/train_summary.json" "$out/train_summary_${arm}.json"

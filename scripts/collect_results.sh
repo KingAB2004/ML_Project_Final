@@ -33,4 +33,12 @@ if [ -d runs/scaling_eval ]; then
     mkdir -p "$D/test_eval"
     cp -r runs/scaling_eval/. "$D/test_eval/"
 fi
+# SOP evaluations (lab RTX 3060): baselines + 2 x 2 + alpha sweep, memory arms. The LLM call log is left out.
+# memory_calibration only once the lab's own (Ollama judge) run lands: a local run without --backend is echo.
+for run in baselines_1000 memory_1000; do
+    [ -d runs/$run ] || continue
+    mkdir -p "$D/$run"
+    (cd runs/$run && tar cf - --exclude=calls.jsonl --exclude=pipeline_state.json --exclude=memory_calibration .) |
+        tar xf - -C "$D/$run"
+done
 echo "collected into $D"
