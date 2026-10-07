@@ -7,6 +7,11 @@ the evaluation's mem_needstate arm keeps it (the base Analyzer writes after ever
 beliefs decay over the gap). Session 1 is reused from --source and only replayed to build the memory; sessions
 2+ are regenerated with the brief in the generator prompt. Every supporter turn stores the brief it was written
 under, which build_sft puts in the training input. Writes a separate corpus (data/corpus_mem/), never the old one.
+
+--replay (cheap Option C): no generation. An existing corpus (annotated or not) is run through the memory in session
+order, with decay and pruning over each gap, and every supporter turn gets the brief it would have been written
+under. Only the base Analyzer runs. The targets stay as generated from the profile, not from the brief, so this
+teaches the model where continuity can come from but not how a brief-conditioned reply reads; --memory does both.
 """
 from __future__ import annotations
 
@@ -148,6 +153,41 @@ def replay(writer: AgentPipeline, session: dict) -> dict:
     return session
 
 
+def replay_corpus(src: Path, out: Path, backend: str | None = None, limit: int | None = None,
+                  profiles: set[str] | None = None, llm: LLM | None = None) -> dict:
+    """--replay: each profile's sessions in order through one memory; resumable per profile. `profiles` keeps
+    only those people (e.g. one split); a passed `llm` is used and left open."""
+    groups: dict[str, list[dict]] = {}
+    for s in read_jsonl(src):
+        if profiles is None or s["profile_id"] in profiles:
+            groups.setdefault(s["profile_id"], []).append(s)
+    done = {s["profile_id"] for s in read_jsonl(out)}
+    todo = [g for pid, g in list(groups.items())[: limit or len(groups)] if pid not in done]
+    own = llm is None
+    llm = llm or LLM("generator", backend=backend)
+
+    def one(group: list[dict]) -> list[dict]:
+        group.sort(key=lambda s: s["session_index"])
+        writer = memory_writer(llm, group[0]["profile_id"])
+        for s in group:
+            if s["session_index"] > 1:
+                writer.memory.decay(float(s.get("gap_days_from_prev") or 0.0), session_id=s["session_id"])
+            replay(writer, s)
+        writer.memory.save(out.parent / "memory" / f"{group[0]['profile_id']}.jsonl")
+        return group
+
+    written = 0
+    try:
+        for group in pmap(one, todo, llm):
+            for s in group:
+                append_jsonl(out, s)
+                written += 1
+    finally:
+        if own:
+            llm.release()
+    return {"written": written, "profiles": len(todo)}
+
+
 def build(limit: int | None = None, backend: str | None = None, profiles_path: Path = PROFILES_PATH,
           sessions_path: Path = SESSIONS_PATH, memory: bool = False, source_path: Path | None = None) -> dict:
     profiles = {p["profile_id"]: p for p in read_jsonl(profiles_path)}
@@ -238,9 +278,15 @@ def main() -> None:
     ap.add_argument("--memory", action="store_true",
                     help="memory-aware corpus: regenerate sessions 2+ with the need-state brief (Option C)")
     ap.add_argument("--source", default=str(SESSIONS_PATH), help="with --memory: where session 1 is read from")
+    ap.add_argument("--replay", action="store_true",
+                    help="add memory briefs to --source without regenerating (cheap Option C); writes --sessions")
     ap.add_argument("--check", action="store_true", help="only run the temporal integrity check")
     args = ap.parse_args()
     sessions_path = Path(args.sessions or (MEM_SESSIONS_PATH if args.memory else SESSIONS_PATH))
+    if args.replay:
+        out = Path(args.sessions or DATA / "corpus_mem" / "sessions_annotated_replay.jsonl")
+        print(replay_corpus(Path(args.source), out, backend=args.backend, limit=args.limit))
+        return
     if args.check:
         problems = integrity_check(read_jsonl(sessions_path))
         print("\n".join(problems) if problems else "temporal integrity: ok")

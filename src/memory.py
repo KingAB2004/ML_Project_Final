@@ -1,8 +1,16 @@
 """Enhancement 4: need-state trajectory memory (PLAN Sec. 12).
 
-Not a store of facts and not a graph: the unit of memory is the need chain, kept as a revisable belief.
-What the module must carry across sessions is *which links have been tested* - which is why
-`disconfirmed` is a first-class status with the user's own denial quoted, and why re-proposal is blocked.
+Not a store of facts: the unit of memory is the need chain, kept as a revisable belief. Nodes form a forest:
+each need may hang under the shallower need it explains (`parent_id`), and siblings are competing
+explanations of the same parent, not contradictions. What the module must carry across sessions is *which
+links have been tested* - which is why `disconfirmed` is a first-class status with the user's own denial
+quoted, why re-proposal is blocked, and why a denied need takes its subtree out of play (dormant).
+Only the brief (a bounded view: best path, rivals, denials) reaches a prompt.
+
+Lifetime across sessions: every belief except a denial fades over the gap between sessions, at a half-life that
+grows each time a later session brings the need up again (spaced repetition: what keeps coming back is what
+lasts). Below the dormant floor a node leaves the brief but can still be reinstated if mentioned; below the
+prune floor it leaves the graph (its history stays in the log). Denials are never dropped.
 
 State is a fold over an append-only transition log, so every belief change is explainable afterwards.
 """
@@ -22,13 +30,21 @@ STATUS_DISCONFIRMED = "disconfirmed"
 STATUS_RESOLVED = "resolved"
 
 
-def _content_words(text: str) -> set[str]:
-    return {w for w in re.findall(r"\b\w{4,}\b", (text or "").lower())}
+# Framing words that every need label carries ("need for validation" = "validation"): not content.
+_FRAME = {"need", "needs", "want", "wants", "wanting", "desire", "feel", "feels", "feeling", "being", "sense",
+          "more", "some", "that", "this", "their", "with", "from"}
 
 
-def similarity(a: str, b: str) -> float:
-    """Jaccard over content words. Cheap on purpose: no embedding model is loaded for equivalence."""
-    wa, wb = _content_words(a), _content_words(b)
+def _content_words(text: str, strip_frame: bool = False) -> set[str]:
+    words = {w for w in re.findall(r"\b\w{4,}\b", (text or "").lower())}
+    # ponytail: 7-letter prefix as a stem ("disappointed" = "disappointment"); a real stemmer if it over-merges
+    return {w[:7] for w in words - _FRAME} if strip_frame else words
+
+
+def similarity(a: str, b: str, strip_frame: bool = False) -> float:
+    """Jaccard over content words. Cheap on purpose: no embedding model is loaded for equivalence.
+    strip_frame drops the words every need label carries, for matching memory nodes."""
+    wa, wb = _content_words(a, strip_frame), _content_words(b, strip_frame)
     if not wa or not wb:
         return 1.0 if (a or "").strip().lower() == (b or "").strip().lower() else 0.0
     return len(wa & wb) / len(wa | wb)
@@ -52,6 +68,7 @@ class MemoryNode:
     blocked_from_reproposal: bool = False
     reinstated_count: int = 0
     dormant: bool = False
+    sessions_seen: int = 1          # distinct sessions with evidence: each one lengthens the half-life
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -66,12 +83,17 @@ class NeedStateMemory:
         self.transitions: list[dict] = []
         self.log_path = Path(log_path) if log_path else None
         self._counter = 0
-        self.half_life = float(cfg("memory.decay_half_life_days", default=14.0))
+        self.half_life_days = float(cfg("memory.decay_half_life_days", default=14.0))
         self.reinstate_factor = float(cfg("memory.reinstate_confidence_factor", default=0.5))
         self.min_confirm = int(cfg("memory.min_spans_to_confirm", default=2))
         self.min_reopen = int(cfg("memory.min_spans_to_reopen_disconfirmed", default=2))
         self.dormant_floor = float(cfg("memory.dormant_confidence_floor", default=0.15))
         self.equiv_min = float(cfg("memory.equivalence_overlap_min", default=0.6))
+        self.rival_factor = float(cfg("memory.rival_confidence_factor", default=0.7))
+        self.confirmed_hl_factor = float(cfg("memory.confirmed_half_life_factor", default=3.0))
+        self.reinforce_growth = float(cfg("memory.reinforcement_half_life_growth", default=1.5))
+        self.max_half_life = float(cfg("memory.max_half_life_days", default=180.0))
+        self.prune_floor = float(cfg("memory.prune_confidence_floor", default=0.05))
 
     # -- transition log ----------------------------------------------------
     def _record(self, node_id: str, frm: str | None, to: str, reason: str, span: dict | None = None,
@@ -96,10 +118,38 @@ class NeedStateMemory:
         for node in self.nodes.values():
             if not include_closed and node.status in (STATUS_DISCONFIRMED, STATUS_RESOLVED):
                 continue
-            sim = similarity(node.text, text)
+            sim = similarity(node.text, text, strip_frame=True)
             if sim > best_sim:
                 best, best_sim = node, sim
         return best if best and best_sim >= self.equiv_min else None
+
+    def children(self, node_id: str) -> list[MemoryNode]:
+        return [n for n in self.nodes.values() if n.parent_id == node_id]
+
+    def descendants(self, node_id: str) -> list[MemoryNode]:
+        out, stack = [], [node_id]
+        while stack:
+            for child in self.children(stack.pop()):
+                if child not in out:
+                    out.append(child)
+                    stack.append(child.node_id)
+        return out
+
+    def valid_parent(self, parent_id: str | None, depth: int) -> str | None:
+        """A link is kept only if the parent exists, is shallower and is not disconfirmed; else a root."""
+        parent = self.nodes.get(parent_id or "")
+        if parent is None or parent.status == STATUS_DISCONFIRMED or parent.depth >= depth:
+            return None
+        return parent.node_id
+
+    def default_parent(self, depth: int, session_id: str = "") -> str | None:
+        """The best-supported live node at the nearest shallower level (a need, else the surface feeling at
+        depth 0), this session's first: where a deeper need hangs when the Analyzer names no valid parent. ponytail: a heuristic link
+        (it can pick the wrong one of two surface needs); the Analyzer's own parent wins whenever it is valid."""
+        cands = [n for n in self.nodes.values() if n.depth < depth and not n.dormant
+                 and n.status in (STATUS_HYPOTHESIS, STATUS_CONFIRMED)]
+        cands.sort(key=lambda n: (-n.depth, n.last_session != session_id, n.status != STATUS_CONFIRMED, -len(n.supporting_spans), -n.confidence))
+        return cands[0].node_id if cands else None
 
     def forbidden_inferences(self) -> list[str]:
         """Texts the supporter must not re-propose. Feeds grounding's `denied_inference` check."""
@@ -117,10 +167,17 @@ class NeedStateMemory:
         return [n.text for n in self.nodes.values()
                 if n.dormant or n.status == STATUS_RESOLVED]
 
+    def path_strength(self, node: MemoryNode) -> float:
+        """The weakest belief on the chain from the root to this node."""
+        return min(n.confidence for n in self.chain_path(node.node_id))
+
     def terminal_candidates(self) -> list[MemoryNode]:
+        """Underlying needs (depth >= 2) still in play: confirmed first, then deepest, then the strongest
+        chain, then the most evidence."""
         live = [n for n in self.nodes.values()
-                if n.depth == 2 and n.status in (STATUS_HYPOTHESIS, STATUS_CONFIRMED) and not n.dormant]
-        return sorted(live, key=lambda n: (n.status != STATUS_CONFIRMED, -n.confidence))
+                if n.depth >= 2 and n.status in (STATUS_HYPOTHESIS, STATUS_CONFIRMED) and not n.dormant]
+        return sorted(live, key=lambda n: (n.status != STATUS_CONFIRMED, -n.depth, -self.path_strength(n),
+                                           -len(n.supporting_spans)))
 
     def best_terminal(self) -> MemoryNode | None:
         cands = self.terminal_candidates()
@@ -146,7 +203,14 @@ class NeedStateMemory:
                              "re-proposal blocked (previously disconfirmed)", session_id=session_id,
                              extra={"claim": text})
                 return None
+            if existing.status == STATUS_RESOLVED or existing.dormant:
+                return self.reinstate(existing.node_id, span_dicts[0], session_id=session_id)
+            if existing.parent_id is None and (link := self.valid_parent(parent_id, existing.depth)):
+                existing.parent_id = link
+                self._record(existing.node_id, existing.status, existing.status, f"linked under {link}",
+                             session_id=session_id)
             return self.support(existing.node_id, span_dicts[0], confidence, session_id=session_id)
+        parent_id = self.valid_parent(parent_id, depth)
         node = MemoryNode(
             node_id=self.new_node_id(), text=text, depth=depth, parent_id=parent_id,
             status=STATUS_HYPOTHESIS, confidence=float(confidence), confidence_raw=float(confidence),
@@ -154,7 +218,8 @@ class NeedStateMemory:
             first_seen_session=session_id, last_session=session_id,
         )
         self.nodes[node.node_id] = node
-        self._record(node.node_id, None, STATUS_HYPOTHESIS, "proposed", span_dicts[0], session_id)
+        self._record(node.node_id, None, STATUS_HYPOTHESIS, "proposed", span_dicts[0], session_id,
+                     extra={"parent_id": parent_id})
         return node
 
     def support(self, node_id: str, span: dict | Span, confidence: float | None = None,
@@ -169,7 +234,7 @@ class NeedStateMemory:
             node.confidence = node.confidence_raw
         node.dormant = False
         node.last_updated_at = utc_stamp()
-        node.last_session = session_id or node.last_session
+        self._seen_in(node, session_id)
         self._record(node_id, node.status, node.status, "supporting evidence added", sd, session_id)
         return node
 
@@ -186,6 +251,13 @@ class NeedStateMemory:
             node.last_updated_at = utc_stamp()
             self._record(node_id, frm, STATUS_CONFIRMED, "confirmed by explicit affirmation",
                          span if isinstance(span, dict) else span.to_dict(), session_id)
+            # rivals under the same parent lose some belief (they may still hold: needs are not exclusive)
+            for rival in (self.children(node.parent_id) if node.parent_id else []):
+                if rival.node_id != node_id and rival.status == STATUS_HYPOTHESIS:
+                    rival.confidence_raw *= self.rival_factor
+                    rival.confidence = min(rival.confidence, rival.confidence_raw)
+                    self._record(rival.node_id, rival.status, rival.status,
+                                 f"rival {node_id} confirmed: confidence lowered", session_id=session_id)
         return node
 
     def disconfirm(self, node_id: str, span: dict | Span, session_id: str = "") -> MemoryNode:
@@ -201,6 +273,11 @@ class NeedStateMemory:
         node.last_updated_at = utc_stamp()
         node.last_session = session_id or node.last_session
         self._record(node_id, frm, STATUS_DISCONFIRMED, "seeker denied the inference", sd, session_id)
+        for below in self.descendants(node_id):          # their premise was denied: out of play, kept on disk
+            if below.status in (STATUS_HYPOTHESIS, STATUS_CONFIRMED) and not below.dormant:
+                below.dormant = True
+                self._record(below.node_id, below.status, below.status,
+                             f"dormant: ancestor {node_id} was denied", session_id=session_id)
         return node
 
     def resolve(self, node_id: str, session_id: str = "", span: dict | Span | None = None) -> MemoryNode:
@@ -215,22 +292,52 @@ class NeedStateMemory:
         self._record(node_id, frm, STATUS_RESOLVED, "need acted on and reported helpful", sd, session_id)
         return node
 
+    @staticmethod
+    def _seen_in(node: MemoryNode, session_id: str) -> None:
+        if session_id and session_id != node.last_session:
+            node.sessions_seen += 1
+        node.last_session = session_id or node.last_session
+
+    def half_life(self, node: MemoryNode) -> float:
+        """Days to lose half the belief: longer once confirmed, and longer for every session that brought the
+        need up again, capped."""
+        base = self.half_life_days * (self.confirmed_hl_factor if node.status == STATUS_CONFIRMED else 1.0)
+        return min(self.max_half_life, base * self.reinforce_growth ** max(0, node.sessions_seen - 1))
+
     def decay(self, gap_days: float, session_id: str = "") -> None:
-        """Run at session start. Only unconfirmed hypotheses decay: a tested link stays tested."""
+        """Run at session start, over the gap since the last session; then prune. A denial never fades."""
         if gap_days <= 0:
             return
-        factor = 0.5 ** (float(gap_days) / self.half_life)
         for node in self.nodes.values():
-            if node.status != STATUS_HYPOTHESIS:
+            if node.status == STATUS_DISCONFIRMED:
                 continue
             before = node.confidence
-            node.confidence = node.confidence_raw * factor
+            node.confidence *= 0.5 ** (float(gap_days) / self.half_life(node))   # support restores it
             if node.confidence < self.dormant_floor and not node.dormant:
                 node.dormant = True
-                self._record(node.node_id, STATUS_HYPOTHESIS, STATUS_HYPOTHESIS,
+                self._record(node.node_id, node.status, node.status,
                              f"decayed below floor over {gap_days:.1f} days and went dormant",
                              session_id=session_id, extra={"confidence_before": before,
                                                            "confidence_after": node.confidence})
+        self.prune(session_id)
+
+    def prune(self, session_id: str = "") -> list[str]:
+        """Drop beliefs that faded below the prune floor, deepest first. A faded subtree goes whole; a node
+        still held under a faded parent is re-hung on the grandparent, so a lasting deep need outlives the
+        session's surface feeling it was first found under. Denials stay: they block re-proposal."""
+        dropped = []
+        for node in sorted(self.nodes.values(), key=lambda n: -n.depth):
+            if node.status == STATUS_DISCONFIRMED or node.confidence >= self.prune_floor:
+                continue
+            rehung = [c.node_id for c in self.children(node.node_id)]
+            for cid in rehung:
+                self.nodes[cid].parent_id = node.parent_id
+            del self.nodes[node.node_id]
+            dropped.append(node.node_id)
+            self._record(node.node_id, node.status, "pruned",
+                         f"confidence {node.confidence:.3f} below {self.prune_floor}", session_id=session_id,
+                         extra={"text": node.text, "rehung_to_parent": rehung})
+        return dropped
 
     def reinstate(self, node_id: str, span: dict | Span, session_id: str = "") -> MemoryNode:
         """A dormant or resolved concern that resurfaces comes back at reduced confidence."""
@@ -244,7 +351,7 @@ class NeedStateMemory:
         node.confidence = node.confidence_raw
         node.supporting_spans.append(sd)
         node.last_updated_at = utc_stamp()
-        node.last_session = session_id or node.last_session
+        self._seen_in(node, session_id)
         self._record(node_id, frm, STATUS_HYPOTHESIS, "resurfaced after a gap, reduced confidence", sd,
                      session_id)
         return node
@@ -282,10 +389,17 @@ class NeedStateMemory:
             {"node_id": n.node_id, "text": n.text, "confidence": round(n.confidence, 3),
              "spans": len(n.supporting_spans)}
             for n in sorted(self.nodes.values(), key=lambda n: -n.confidence)
-            if n.status == STATUS_HYPOTHESIS and not n.dormant
+            if n.status == STATUS_HYPOTHESIS and not n.dormant and n.depth >= 1     # needs, not the feeling
         ]
+        rivals = [n for n in self.terminal_candidates() if best and n.node_id != best.node_id
+                  and n.status == STATUS_HYPOTHESIS][:2]
+        known = [n for n in sorted(self.nodes.values(), key=lambda n: (n.depth, -n.confidence))
+                 if n.status in (STATUS_HYPOTHESIS, STATUS_CONFIRMED) and not n.dormant]
         return {
             "profile_id": self.profile_id,
+            "rivals": [{"node_id": n.node_id, "text": n.text, "confidence": round(n.confidence, 3)} for n in rivals],
+            "known": [{"node_id": n.node_id, "text": n.text, "depth": n.depth, "status": n.status,
+                       "parent_id": n.parent_id} for n in known],
             "best_terminal": None if best is None else {
                 "node_id": best.node_id, "text": best.text, "status": best.status,
                 "confidence": round(best.confidence, 3),
@@ -319,14 +433,25 @@ class NeedStateMemory:
             bt = b["best_terminal"]
             lines.append(f"best guess at the underlying need ({bt['status']}, confidence "
                          f"{bt['confidence']}): {bt['text']}")
-        for link in b["untested_links"][:3]:
-            lines.append(f"still untested: {link['text']} (confidence {link['confidence']})")
+            if len(b["chain"]) > 1:
+                lines.append("current chain: " + " -> ".join(f"[{c['node_id']}] {c['text']} ({c['status']})"
+                                                               for c in b["chain"]))
+        for r in b["rivals"]:
+            lines.append(f"rival explanation: [{r['node_id']}] {r['text']} (confidence {r['confidence']})")
+        rival_ids = {r["node_id"] for r in b["rivals"]}
+        for link in [u for u in b["untested_links"] if u["node_id"] not in rival_ids][:3]:
+            lines.append(f"still untested: [{link['node_id']}] {link['text']} (confidence {link['confidence']})")
         for q in b["open_questions"][:3]:
             lines.append(f"open question: {q}")
         for text, quote in list(b["forbidden_inferences"].items())[:3]:
             lines.append(f"DO NOT re-propose '{text}' - they denied it: \"{quote}\"")
         for r in b["resolved"][:2]:
             lines.append(f"already worked through: {r}")
+        shown = " ".join(lines)
+        rest = [k for k in b["known"] if f"[{k['node_id']}]" not in shown][:4]
+        if rest:     # ids the Analyzer may hang a deeper need under
+            lines.append("other needs on record: " + "; ".join(f"[{k['node_id']}] {k['text']} ({k['status']}, "
+                                                             f"depth {k['depth']})" for k in rest))
         return truncate_tokens("\n".join(lines), budget)
 
     # -- persistence -------------------------------------------------------
@@ -351,7 +476,9 @@ class NeedStateMemory:
         for t in transitions:
             if t.get("node_id") in (None, "-"):
                 continue
-            if t.get("to") in (STATUS_HYPOTHESIS, STATUS_CONFIRMED, STATUS_DISCONFIRMED, STATUS_RESOLVED):
+            if t.get("to") == "pruned":
+                state.pop(t["node_id"], None)
+            elif t.get("to") in (STATUS_HYPOTHESIS, STATUS_CONFIRMED, STATUS_DISCONFIRMED, STATUS_RESOLVED):
                 state[t["node_id"]] = t["to"]
         return state
 

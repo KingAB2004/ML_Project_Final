@@ -67,6 +67,11 @@ memory:
   min_spans_to_reopen_disconfirmed: 2
   dormant_confidence_floor: 0.15
   equivalence_overlap_min: 0.6
+  confirmed_half_life_factor: 3.0     # a confirmed need fades 3x slower than a hypothesis
+  reinforcement_half_life_growth: 1.5 # each later session that brings a need up again lengthens its half-life
+  max_half_life_days: 180.0
+  prune_confidence_floor: 0.05        # below this a node leaves the graph (kept in the log); denials never do
+  rival_confidence_factor: 0.7        # confirming one need lowers rival siblings (same parent) by this factor
 
 # Enhancement 5 (adaptive disclosure pacing) was dropped in the modified SOP. The ladder itself stays as
 # an Enhancement 2 mechanism: agents.analyzer_confidence_floor caps the rung when the Analyzer is unsure,

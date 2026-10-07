@@ -265,7 +265,7 @@ class AgentPipeline:
         else:
             text, path = draft, ("revised" if revisions else "released")
 
-        writes = self.update_memory(analyzer, session_id) if self.memory else []
+        writes = self.update_memory(analyzer, session_id, turns) if self.memory else []
         return TurnResult(text=text, permitted_rung=rung, analyzer=analyzer, strategist=strategist,
                           critic=verdict.to_dict(), path=path, revisions=revisions,
                           memory_writes=writes, restricted_reason=restricted)
@@ -275,11 +275,25 @@ class AgentPipeline:
         """Analyzer + memory write only, no reply: keeps the need-state memory for a reply that comes from
         elsewhere (memory-aware corpus generation, a fine-tuned monolithic supporter). Same writes as step()."""
         analyzer = self.analyze(turns, session_id, self.memory.render_brief())
-        return self.update_memory(analyzer, session_id)
+        return self.update_memory(analyzer, session_id, turns)
 
-    def update_memory(self, analyzer: dict, session_id: str) -> list[dict]:
-        """Only grounded, non-zero-confidence claims reach the belief state (PLAN R4)."""
+    def update_memory(self, analyzer: dict, session_id: str, turns: Sequence[dict] | None = None) -> list[dict]:
+        """Only grounded, non-zero-confidence claims reach the belief state (PLAN R4).
+
+        `confirmed` is taken only when the need was already on record before this turn AND the agreeing
+        quote is from the seeker's latest turn, i.e. said after the supporter's last reply; otherwise the
+        claim only adds evidence. A denial of a need never recorded is still recorded (proposed, then
+        disconfirmed), so its re-proposal is blocked too. `parent` hangs the need under a shallower node."""
         writes: list[dict] = []
+        latest = max((t["turn_index"] for t in turns or [] if t.get("role") == "user"), default=None)
+        # the surface feeling is the depth-0 root the needs hang under (the profile's chain starts there too)
+        feeling = analyzer.get("emotional_state") if isinstance(analyzer.get("emotional_state"), dict) else {}
+        label, fspans = (feeling.get("label") or "").strip(), feeling.get("evidence_spans") or []
+        if label and fspans and to_float(feeling.get("confidence")) > 0.0:
+            node = self.memory.propose(f"feels {label.lower()}", fspans, to_float(feeling.get("confidence")),
+                                       depth=0, session_id=session_id)
+            writes.append({"claim": f"feels {label.lower()}", "action": "proposed" if node else "blocked",
+                           "node_id": node.node_id if node else None, "kind": "feeling"})
         for need in analyzer.get("implicit_needs", []):
             if not isinstance(need, dict):
                 continue
@@ -289,18 +303,32 @@ class AgentPipeline:
             if not text or not spans or conf <= 0.0:
                 writes.append({"claim": text, "action": "refused", "why": "ungrounded or zero confidence"})
                 continue
-            hint = need.get("status_hint", "hypothesis")
+            hint = str(need.get("status_hint") or "hypothesis").strip().lower()
             depth = to_int(need.get("depth"), 1, 1, 3)
+            parent = need.get("parent")
+            parent = parent.strip() if isinstance(parent, str) else None
             existing = self.memory.find_equivalent(text)
-            if hint == "disconfirmed" and existing is not None:
-                self.memory.disconfirm(existing.node_id, spans[-1], session_id=session_id)
-                writes.append({"claim": text, "action": "disconfirmed", "node_id": existing.node_id})
+            level = existing.depth if existing is not None else depth
+            if self.memory.valid_parent(parent, level) is None:
+                parent = self.memory.default_parent(level, session_id)   # no valid parent named: hang it one level up
+            if hint == "disconfirmed":
+                node = existing or self.memory.propose(text, spans, conf, depth=depth, parent_id=parent,
+                                                       session_id=session_id)
+                if node is not None and node.status != "disconfirmed":
+                    self.memory.disconfirm(node.node_id, spans[-1], session_id=session_id)
+                    writes.append({"claim": text, "action": "disconfirmed", "node_id": node.node_id})
+                    continue
+            if hint == "resolved" and existing is not None and existing.status in ("hypothesis", "confirmed"):
+                self.memory.resolve(existing.node_id, session_id=session_id, span=spans[-1])
+                writes.append({"claim": text, "action": "resolved", "node_id": existing.node_id})
                 continue
-            if hint == "confirmed" and existing is not None:
+            agreed_now = latest is None or any(to_int((s or {}).get("turn_index"), -1, -1, 10**6) == latest
+                                               for s in spans if isinstance(s, dict))
+            if hint == "confirmed" and existing is not None and existing.status == "hypothesis" and agreed_now:
                 self.memory.confirm(existing.node_id, spans[-1], session_id=session_id)
                 writes.append({"claim": text, "action": "confirmed", "node_id": existing.node_id})
                 continue
-            node = self.memory.propose(text, spans, conf, depth=depth, session_id=session_id)
+            node = self.memory.propose(text, spans, conf, depth=depth, parent_id=parent, session_id=session_id)
             writes.append({"claim": text, "action": "proposed" if node else "blocked",
                            "node_id": node.node_id if node else None})
         return writes

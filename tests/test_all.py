@@ -32,6 +32,7 @@ import counterfactual                             # noqa: E402
 import convert_corpus                          # noqa: E402
 import dialogue                                   # noqa: E402
 import evaluate as evaluate_mod                   # noqa: E402
+import futurememory                               # noqa: E402
 import filter as filter_mod                       # noqa: E402
 import external                               # noqa: E402
 import grounding                                  # noqa: E402
@@ -521,7 +522,7 @@ def _() -> None:
     assert mem.nodes[node.node_id].confidence >= 0.85
 
 
-@check("memory.decay_touches_only_unconfirmed_hypotheses")
+@check("memory.confirmed_beliefs_fade_slower_and_faded_ones_leave_the_graph")
 def _() -> None:
     mem = memory_mod.NeedStateMemory("p000001")
     hyp = mem.propose("wants rest", [span(1, "Work has been a lot")], 0.8, depth=1)
@@ -531,16 +532,18 @@ def _() -> None:
     before_conf = mem.nodes[conf.node_id].confidence
     mem.decay(gap_days=28.0)      # two half-lives at the default 14 days
     assert abs(mem.nodes[hyp.node_id].confidence - 0.2) < 1e-6, mem.nodes[hyp.node_id].confidence
-    assert mem.nodes[conf.node_id].confidence == before_conf, "a tested link stays tested"
+    assert abs(mem.nodes[conf.node_id].confidence - before_conf * 0.5 ** (28 / 42)) < 1e-6, "3x slower"
+    mem.decay(gap_days=20.0)
+    assert mem.nodes[hyp.node_id].dormant, "a faded hypothesis leaves the brief first"
     mem.decay(gap_days=120.0)
-    assert mem.nodes[hyp.node_id].dormant, "a long-decayed hypothesis must go dormant"
+    assert hyp.node_id not in mem.nodes and conf.node_id in mem.nodes, "then leaves the graph"
 
 
 @check("memory.reinstated_concern_returns_at_reduced_confidence")
 def _() -> None:
     mem = memory_mod.NeedStateMemory("p000001")
     node = mem.propose("wants rest", [span(1, "Work has been a lot")], 0.8, depth=1)
-    mem.decay(gap_days=120.0)
+    mem.decay(gap_days=40.0)          # dormant (0.11), not yet pruned (0.05)
     mem.reinstate(node.node_id, span(3, "I haven't really told anyone"))
     n = mem.nodes[node.node_id]
     assert n.status == "hypothesis" and not n.dormant and n.reinstated_count == 1
@@ -560,6 +563,98 @@ def _() -> None:
     assert brief["open_questions"] == ["who knows how bad the week was"]
     text = mem.render_brief(brief["open_questions"])
     assert "DO NOT re-propose" in text and "open question" in text
+
+
+@check("memory.needs_form_a_checked_tree_and_a_denial_prunes_its_subtree")
+def _() -> None:
+    mem = memory_mod.NeedStateMemory("p000001")
+    feel = mem.propose("let myself down", [span(1, "Work has been a lot")], 0.7, depth=1)
+    comp = mem.propose("to feel competent", [span(3, "I haven't really told anyone")], 0.6, depth=2,
+                       parent_id=feel.node_id)
+    praise = mem.propose("praise from others", [span(1, "Work has been a lot")], 0.6, depth=2,
+                         parent_id=feel.node_id)
+    bad = mem.propose("rest", [span(1, "Work has been a lot")], 0.5, depth=1, parent_id=comp.node_id)
+    assert comp.parent_id == feel.node_id and praise.parent_id == feel.node_id
+    assert bad.parent_id is None, "a parent that is not shallower must not be linked"
+    assert mem.find_equivalent("Need for competent") is comp, "framing words must not split one need"
+    mem.confirm(comp.node_id, span(1, "Work has been a lot"))       # a second, different span
+    assert mem.nodes[comp.node_id].status == "confirmed"
+    assert mem.nodes[praise.node_id].confidence < 0.6, "a confirmed sibling lowers its rival"
+    brief = mem.brief()
+    assert brief["best_terminal"]["node_id"] == comp.node_id
+    assert [c["node_id"] for c in brief["chain"]] == [feel.node_id, comp.node_id]
+    assert "current chain" in mem.render_brief()
+    mem.disconfirm(feel.node_id, span(3, "I haven't really told anyone"))
+    assert mem.nodes[comp.node_id].dormant and mem.nodes[praise.node_id].dormant, "denied premise prunes"
+    assert mem.best_terminal() is None
+    for _ in range(40):                   # the brief stays bounded however much is stored
+        mem.propose(f"need number {_} about something", [span(1, "Work has been a lot")], 0.5, depth=2)
+    assert len(mem.render_brief()) < 4 * int(common.cfg("agents.memory_brief_token_budget", default=320)) + 200
+
+
+@check("memory.what_keeps_coming_back_lasts_and_a_faded_subtree_is_pruned_whole")
+def _() -> None:
+    mem = memory_mod.NeedStateMemory("p000001")
+    s = lambda i: span(1, "Work has been a lot") if i % 2 else span(3, "I haven't really told anyone")
+    root = mem.propose("feels drained", [s(1)], 0.7, depth=0, session_id="s1")
+    deep = mem.propose("to feel competent", [s(1)], 0.6, depth=2, parent_id=root.node_id, session_id="s1")
+    mem.confirm(deep.node_id, s(2), session_id="s1")
+    once = mem.propose("praise from others", [s(1)], 0.6, depth=2, parent_id=root.node_id, session_id="s1")
+    leaf = mem.propose("a pat on the back", [s(1)], 0.6, depth=3, parent_id=once.node_id, session_id="s1")
+    denied = mem.propose("rest", [s(1)], 0.6, depth=1, session_id="s1")
+    mem.disconfirm(denied.node_id, s(2), session_id="s1")
+    mem.support(deep.node_id, s(1), session_id="s2")              # brought up again in a later session
+    assert mem.nodes[deep.node_id].sessions_seen == 2
+    assert mem.half_life(mem.nodes[deep.node_id]) > mem.half_life(mem.nodes[once.node_id])
+    mem.decay(56, session_id="s3")
+    mem.decay(56, session_id="s4")
+    assert once.node_id not in mem.nodes and leaf.node_id not in mem.nodes, "a faded subtree goes whole"
+    assert root.node_id not in mem.nodes, "the session's surface feeling fades"
+    assert mem.nodes[deep.node_id].parent_id is None, "the lasting deep need is re-hung, not dropped"
+    assert mem.best_terminal().node_id == deep.node_id
+    assert denied.node_id in mem.nodes and mem.propose("rest", [s(1)], 0.9, session_id="s4") is None
+    assert memory_mod.NeedStateMemory.fold(mem.transitions) == mem.status_map()
+
+
+@check("agents.memory_writes_confirm_only_after_the_fact_and_record_denials")
+def _() -> None:
+    handle = echo("generator")
+    try:
+        mem = memory_mod.NeedStateMemory("p000001")
+        pipe = agents.AgentPipeline(handle, memory=mem, gate=False)
+        turns = fake_turns()
+        last = max(t["turn_index"] for t in turns if t["role"] == "user")
+        first = min(t["turn_index"] for t in turns if t["role"] == "user")
+        quote = lambda i: next(t["text"] for t in turns if t["turn_index"] == i)[:12]
+        need = lambda hint, i, text="to feel competent", depth=2, **kw: {"implicit_needs": [
+            {"text": text, "depth": depth, "confidence": 0.7, "status_hint": hint,
+             "evidence_spans": [{"turn_index": i, "quote": quote(i)}], **kw}]}
+        w = pipe.update_memory(need("hypothesis", first, text="let myself down", depth=1), "s1", turns)
+        surface = w[0]["node_id"]
+        w = pipe.update_memory(need("confirmed", last, parent="nd009"), "s1", turns)
+        assert w[0]["action"] == "proposed", "a need not on record yet cannot be confirmed"
+        assert mem.nodes[w[0]["node_id"]].parent_id == surface, "no valid parent named: hang it one level up"
+        pipe.update_memory(need("hypothesis", first), "s1", turns)
+        w = pipe.update_memory(need("confirmed", first), "s1", turns)
+        assert w[0]["action"] == "proposed", "agreement quoted from an old turn is not a confirmation"
+        w = pipe.update_memory(need("confirmed", last), "s1", turns)
+        assert w[0]["action"] == "confirmed" and mem.best_terminal().status == "confirmed"
+        w = pipe.update_memory(need("disconfirmed", last, text="praise from the boss"), "s1", turns)
+        assert w[0]["action"] == "disconfirmed", "a denial of an unrecorded need is still recorded"
+        assert "praise from the boss" in mem.forbidden_inferences()
+        feel = {"emotional_state": {"label": "Worn down", "confidence": 0.8,
+                                    "evidence_spans": [{"turn_index": first, "quote": quote(first)}]},
+                **need("hypothesis", last, text="to be noticed at work")}
+        w = pipe.update_memory(feel, "s1", turns)
+        root = mem.find_equivalent("feels worn down")
+        assert root is not None and root.depth == 0, "the surface feeling is stored as the depth-0 root"
+        assert "feels worn down" not in [u["text"] for u in mem.brief()["untested_links"]]
+        w = pipe.update_memory(need("resolved", last), "s1", turns)
+        assert w[0]["action"] == "resolved"
+        w = pipe.update_memory(need("hypothesis", last), "s2", turns)
+        assert mem.nodes[w[0]["node_id"]].reinstated_count == 1, "a resolved need that resurfaces is reinstated"
+    finally:
+        handle.release()
 
 
 @check("memory.state_is_a_fold_over_the_transition_log")
@@ -611,6 +706,27 @@ def _() -> None:
 
 
 # --------------------------------------------------------------------------- build_sft
+
+
+@check("futurememory.option_b_adds_briefs_keeps_session1_thoughts_and_builds_sft")
+def _() -> None:
+    out, sft = TMP / "futuremem", TMP / "sft_futuremem"
+    src = TMP / "futuremem_src.jsonl"
+    common.write_jsonl(src, [fake_session(), fake_session("p000001-s2", 2, gap=20.0)])
+    split = build_sft.split_assignment(["p000001"])["p000001"]
+    futurememory.replay_step(src, out, {split}, llm=echo("generator"))
+    replayed = common.read_jsonl(out / "sessions_replay.jsonl")
+    assert len(replayed) == 2 and all(t.get("memory_block") for s in replayed for t in s["turns"]
+                                      if t["role"] == "supporter" and t["meta"].get("source") != "opener_pool")
+    futurememory.annotate_step(out, llm=echo("judge"))
+    done = common.read_jsonl(out / "sessions_annotated.jsonl")
+    s1 = next(s for s in done if s["session_index"] == 1)
+    assert s1["turns"][2]["analysis"] == "worn down, minimising", "session 1 keeps its thoughts"
+    assert all(s["turns"][2]["analysis"] for s in done), "a failed re-annotation keeps the old thoughts"
+    counts = futurememory.sft_step(out, sft)
+    rows = common.read_jsonl(sft / f"with_thoughts_{split}.jsonl")
+    assert counts["with_thoughts"][split] == len(rows) == 2
+    assert not any("[memory] none." in r["input"] for r in rows), "the brief replaces the empty memory line"
 
 
 @check("build_sft.target_sequence_roundtrips_in_both_arms")

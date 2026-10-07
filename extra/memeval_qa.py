@@ -78,7 +78,7 @@ def build_memory(kind: str, llm, user: dict, pipeline_views: dict):
                     brief = mem.brief()
                     analyzer = pipe.analyze(s["turns"][: i + 1], s["session_id"],
                                             mem.render_brief(brief.get("open_questions", [])))
-                    pipe.update_memory(analyzer, s["session_id"])
+                    pipe.update_memory(analyzer, s["session_id"], s["turns"][: i + 1])
         if hasattr(mem, "ingest_session"):
             mem.ingest_session(s)
         if hasattr(mem, "update_from_session"):

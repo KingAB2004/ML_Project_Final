@@ -23,14 +23,21 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from _shared import cluster_bootstrap, out_dir, pyplot, read_jsonl, run_path, write_json
+from metrics import CRS_AFFECTIVE, CRS_NEGATIVE, RAC_MANAGEMENT, RAC_SUPPORTIVENESS, _mean_items
 
 ARMS = ("base_instruct", "reactive_baseline", "cellA_mono_ungated", "cellB_mono_gated", "cellC_dec_ungated",
         "cellD_dec_gated", "sft_with_thoughts", "sft_wo_thoughts")
 CELLS = {("mono", "off"): "cellA_mono_ungated", ("mono", "on"): "cellB_mono_gated",
          ("dec", "off"): "cellC_dec_ungated", ("dec", "on"): "cellD_dec_gated"}
-SCALES = ("success", "aels", "basic", "crs", "rac", "ip", "pri")
+JUDGED = ("success", "aels", "basic", "crs", "rac", "ip", "pri")     # files the judge writes
+# CRS and RAC mix positively and negatively worded items, so their plain item mean is not a quality score:
+# they are shown as the baseline paper's dimensions (Aff, Neg, Sup, Man; item groups in src/metrics.py).
+DIMENSIONS = {"aff": ("crs", CRS_AFFECTIVE, ()), "neg": ("crs", CRS_NEGATIVE, ()),
+              "sup": ("rac", RAC_SUPPORTIVENESS, ()), "man": ("rac", RAC_MANAGEMENT, ())}
+SCALES = ("success", "aels", "basic", "aff", "neg", "sup", "man", "ip", "pri")
 TITLES = {"success": "Success (need named) ↑", "aels": "AELS active listening ↑", "basic": "Basic qualities ↑",
-          "crs": "CRS comforting ↑", "rac": "RAC competence ↑", "ip": "Intrusiveness IP ↓",
+          "aff": "CRS Affective improvement ↑", "neg": "CRS Negative helper eval. ↓",
+          "sup": "RAC Supportiveness ↑", "man": "RAC Management ↑", "ip": "Intrusiveness IP ↓",
           "pri": "Reactance PRI (observed) ↓"}
 LEAK = re.compile(r"\*{0,2}(analysis|strategy)\*{0,2}\s*:", re.I)
 
@@ -47,12 +54,19 @@ def load_scores(run: Path) -> dict[str, dict[str, list[dict]]]:
     """arm -> scale -> parsed rows"""
     out: dict = defaultdict(dict)
     for arm in ARMS:
-        for scale in SCALES:
+        for scale in JUDGED:
             f = run / "scores" / arm / f"{scale}.jsonl"
             if f.exists():
                 rows = [r for r in read_jsonl(f) if not r.get("parse_failed")]
                 if rows:
                     out[arm][scale] = rows
+        for dim, (scale, items, reverse) in DIMENSIONS.items():      # per dialogue, 1-7 mapped to 0-1
+            rows = [{"target": r["target"], "raw": v, "normalized": (v - 1) / 6}
+                    for r in out[arm].get(scale, []) if (v := _mean_items([r], items, reverse)) is not None]
+            if rows:
+                out[arm][dim] = rows
+        for scale in ("crs", "rac"):
+            out[arm].pop(scale, None)
     return out
 
 
@@ -113,7 +127,7 @@ def main() -> None:
     tau = calib.get("tau", 0.5)
     if scored:  # a run with no judge scores (results/v1 keeps only dialogues) gets the diagnostics only
         # 1. mean score per arm and scale
-        fig, axes = plt.subplots(2, 4, figsize=(13, 5.6))
+        fig, axes = plt.subplots(2, 5, figsize=(16, 5.6))
         for ax, scale in zip(axes.flat, SCALES):
             arms = [a for a in scored if scale in scores[a]]
             for i, a in enumerate(arms):
@@ -126,8 +140,9 @@ def main() -> None:
             ax.set_title(TITLES[scale], fontsize=9)
             ax.set_ylim(0, 1.08 if scale not in ("ip", "pri") else None)
         axes.flat[-1].axis("off")
-        axes.flat[-1].text(0, 0.5, "bars: mean normalised score (0-1)\nwhiskers: 95 % CI, bootstrap over profiles\n"
-                           "IP / PRI: lower is better", fontsize=8, va="center")
+        axes.flat[-1].text(0, 0.5, "bars: mean normalised score (0-1);\nAff/Neg/Sup/Man: (1-7 Likert - 1) / 6\n"
+                           "whiskers: 95 % CI, bootstrap over profiles\nIP / PRI / Neg: lower is better", fontsize=8,
+                           va="center")
         fig.suptitle(f"Judge scores per arm ({run.name})", fontsize=10)
         fig.tight_layout()
         fig.savefig(dest / "scores_by_arm.png", dpi=150)

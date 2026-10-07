@@ -56,3 +56,6 @@
 2026-10-07T08:07:14.512744+00:00        pri: n=3140 mean=0.18700333636639369 failures=7 judge=mistralai/Mistral-Nemo-Instruct-2407
 2026-10-07T08:07:14.822036+00:00 OK   [score] 4419.0s
 2026-10-07T08:07:14.913147+00:00 RUN  [score] counterfactual.py --dialogues runs/baselines_1000/dialogues/cellB_mono_gated.jsonl --backend ollama
+2026-10-07T09:28:36.903271+00:00        PRI = -0.0023819128296740234 (95% CI -0.006905626308611384 .. 0.0022954724447261754) over 2479 seed-matched pairs on 1240 turns
+2026-10-07T09:28:37.138751+00:00 OK   [score] 4881.9s
+2026-10-07T09:28:37.206870+00:00 RUN  [eval] evaluate.py --arm cellC_dec_ungated --run-dir runs/baselines_1000 --calibration runs/baselines_1000/conformal/calibration.json --backend ollama

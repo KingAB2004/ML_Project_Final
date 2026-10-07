@@ -36,6 +36,23 @@ Built by `scripts/run_all.py --scale full --only check,corpus,sft` on the lab se
 08:15 (about 17.7 h). The step-by-step log is `dataset/full_dataset.log`; `dataset/dataset_stats.json` holds
 every number below (`python extra/dataset_stats.py`).
 
+**Data-quality evaluation (`dataset/data_quality.md`, `extra/data_quality.py`):** our corpus next to ExTES and
+ESConv in the shape of the baseline paper's Tables 2, 6 and 8.
+- **Table 8, user-description diversity: done.** 1,000 descriptions per dataset:
+
+  | | self-BLEU-2 ↓ | self-BLEU-4 ↓ | Distinct-2 ↑ | entropy (bits) ↑ | words |
+  |---|---|---|---|---|---|
+  | ours | 0.702 | 0.398 | 0.256 | 8.38 | 106 |
+  | ExTES | 0.724 | 0.450 | 0.237 | 7.80 | 26 |
+  | ESConv | 0.498 | 0.146 | 0.536 | 8.52 | 23 |
+
+  Ours is more varied than ExTES (also LLM-written) on every measure. ESConv, written by people, is the most
+  varied. Our descriptions are 4x longer, which lowers Distinct-2 for the same vocabulary.
+- **Table 2, judge scales on dialogue samples: queued first on the lab** (`sop_queue2.sh`, step 0).
+- **Table 6, ESC-RANK: not run.** InternLM2's remote code needs an older transformers. The lab runs Python 3.13,
+  so that version would have to be compiled, and the 15 GB RAM server froze trying while the other jobs ran.
+  `scripts/escrank_score.py` is ready (`ESCRANK_ENABLE=1`) for a machine with a matching Python.
+
 | Stage | Result | Time |
 |---|---|---|
 | Seeds (EmpatheticDialogues) | 1,000 released of 2,000 screened (85.5 % passed the three-step need-chain screen) | 11 min |
@@ -372,22 +389,52 @@ Figure: `extra/baseline_plots/gate_calibration.png`.
 
 ### 7.2 Scores so far (`scores/`, `extra/baseline_plots/`)
 
-| Arm | Sessions | Success | AELS listening | CRS comforting | RAC competence | IP (lower better) | PRI observed | PRI counterfactual [95 % CI] |
-|---|---|---|---|---|---|---|---|---|
-| `base_instruct` | 100 | 0.383 | 0.836 | 0.587 | 0.774 | 0.065 | 0.192 | -0.001 [-0.009, 0.007] |
-| `reactive_baseline` | 100 | **0.415** | **0.868** | **0.603** | **0.812** | 0.089 | 0.190 | 0.008 [0.000, 0.016] |
-| cell A mono ungated | 310 | 0.382 | 0.859 | 0.589 | 0.778 | 0.068 | 0.184 | -0.003 [-0.007, 0.002] |
-| cell B mono gated | 310 | 0.375 | 0.833 | **0.593** | 0.763 | **0.061** | 0.187 | running |
+The SOP's measures for the baselines and the 2 x 2:
+
+| Arm | Sessions | Success | AELS listening | IP (lower better) | PRI observed | PRI counterfactual [95 % CI] |
+|---|---|---|---|---|---|---|
+| `base_instruct` | 100 | 0.383 | 0.836 | 0.065 | 0.192 | -0.001 [-0.009, 0.007] |
+| `reactive_baseline` | 100 | **0.415** | **0.868** | 0.089 | 0.190 | 0.008 [0.000, 0.016] |
+| cell A mono ungated | 310 | 0.382 | 0.859 | 0.068 | 0.184 | -0.003 [-0.007, 0.002] |
+| cell B mono gated | 310 | 0.375 | 0.833 | **0.061** | 0.187 | running |
+
+Secondary check: did a component cost general conversation quality? These are the judge scales the
+baseline paper uses, applied here to each arm's test conversations:
+
+| Arm | Basic Avg (0-100) | Aff | Neg (lower better) | Sup | Man |
+|---|---|---|---|---|---|
+| `base_instruct` | 80.1 | 5.71 | 1.00 | 6.26 | 5.59 |
+| `reactive_baseline` | **80.9** | **5.86** | 1.00 | **6.51** | **5.84** |
+| cell A mono ungated | 80.2 | 5.73 | 1.00 | 6.29 | 5.62 |
+| cell B mono gated | 79.6 | 5.77 | 1.01 | 6.24 | 5.47 |
 
 Share of judged turns with IP > tau = 0.20 (the quantity the gate bounds): base 4.0 %, cell A 4.0 %,
 **cell B 2.3 %**.
 
-Basic qualities: 0.80-0.81 in every arm. No leaks of the hidden need (0 % in every arm). Median reply length:
+**This second table is not a dataset comparison.**
+- **In the paper:** these columns measure Table 2 (each training dataset's own dialogues) and Tables 3-4
+  (models trained on different datasets, one row per training dataset).
+- **Here:** every row is the same untuned model, with only the component changed (simulator, decomposition,
+  gate). The scales only show whether a component changed conversation quality.
+- **The dataset comparison has not been run yet** (other training datasets, or scoring our corpus itself).
+  See section 9.
+
+Columns:
+- **Basic Avg:** the six basic metrics rescaled to 0-100.
+- **Aff / Neg:** the Comforting Responses Scale's Affective improvement and Negative helper evaluation.
+- **Sup / Man:** the RAC scale's Supportiveness and Management.
+
+Aff, Neg, Sup and Man are on the 1-7 Likert scale; the item groups are in `src/metrics.py`. Earlier versions of
+this table showed "CRS" and "RAC" as one plain mean of all items. That mixed positively and negatively worded
+items, so it was not a quality score; it is replaced here. Neg sits at the floor (1.00) in every arm: the
+judge never rates a supporter as putting the seeker down, so Neg cannot separate arms.
+
+No leaks of the hidden need (0 % in every arm). Median reply length:
 26-30 words.
 
 - **The reactive seeker makes the supporter look better on every quality scale.** That simulator answers
-  each turn directly instead of withholding, so the supporter has more to work with: Success +0.03 and RAC
-  +0.04, both outside the CIs. It also gets the most intrusive score (IP 0.089, against 0.065). A
+  each turn directly instead of withholding, so the supporter has more to work with: Success +0.03, Aff +0.15,
+  Sup +0.25 and Man +0.25, Success outside the CIs. It also gets the most intrusive score (IP 0.089, against 0.065). A
   cooperative seeker lets the supporter push further, and the judge marks that as intrusive. This is the
   reason the main arms use the withholding simulator: the reactive one flatters every system.
 - **Base, untuned: Success 0.383, IP 0.065, counterfactual PRI about 0.** This is the reference every later
@@ -401,8 +448,8 @@ Basic qualities: 0.80-0.81 in every arm. No leaks of the hidden need (0 % in eve
   - Intrusive turns (IP > 0.20) drop from 4.0 % to 2.3 %, and mean IP from 0.068 to 0.061 (CIs [0.063, 0.072]
     and [0.057, 0.064] barely touch).
   - Success is unchanged (0.375 vs 0.382, CIs overlap).
-  - Active listening falls (AELS 0.859 to 0.833, outside the CIs) and RAC slightly (0.778 to 0.763); comforting
-    (CRS) is unchanged or slightly up (0.593 vs 0.589).
+  - Active listening falls (AELS 0.859 to 0.833, outside the CIs), and so does RAC Management (5.62 to 5.47);
+    Affective improvement (5.73 vs 5.77) and Supportiveness (6.29 vs 6.24) barely move.
   - Replies are shorter (median 25 words, against 30), and part of the AELS drop may be that, because a
     reworded or fallback reply is plainer.
 - **The gate fires much more on the test profiles than calibration predicted.** Only 53.5 % of turns pass
@@ -489,16 +536,22 @@ are added to the same plot).
 
 ## 9. Still running or queued on the lab RTX 3060
 
-The queue is `scripts/sop_queue.sh`; each step resumes where it stopped. Estimates use this run's actual
-pace, about 2x faster than the earlier estimate.
+The queue is now `scripts/sop_queue2.sh`, which replaced the rest of `sop_queue.sh` on 7 Oct after the
+need-state memory fix. Each step resumes where it stopped.
 
 | Step | What it adds | Expected |
 |---|---|---|
-| Rest of section 7: cell B counterfactual PRI, cells C, D, report | the 2 x 2: does decomposition or the gate lower IP / PRI without costing Success? | about 7 Oct night to 8 Oct morning |
-| `mem_none`, `mem_summary`, `mem_dense`, `mem_event` | the controls for section 8: does need-state memory beat no memory and the three standard memories? | about 6 h each |
-| `memory_eval --judge`, `memory_calibration` | transition recall, abstention on ambiguous profiles, calibration of the memory's confidence (Brier, ECE, AUROC) | after the memory arms |
-| ES-MemEval QA | memory question answering on real multi-session data, per memory type | about 6 h |
-| alpha sweep (Outcome 3) | gate at alpha 0.05 and 0.20 on the test profiles, next to cell D at 0.10 | about 7-8 h |
+| Rest of section 7: cells C, D, report (already running) | the 2 x 2: does decomposition or the gate lower IP / PRI without costing Success? | about 5-6 am Thu 8 Oct |
+| alpha sweep (Outcome 3), same code as cells A-D | gate at alpha 0.05 and 0.20 on the test profiles, next to cell D at 0.10 | about 5 pm Thu |
+| fixed need-state memory installed; all five memory arms in `runs/memory_1000_v2` | does need-state memory (now linked, with real confirm / deny / resolve) beat no memory and the three standard memories? `runs/memory_1000` keeps the flat-memory run of section 8 | about 2 am Sat 10 Oct |
+| `memory_eval --judge`, `memory_calibration` | transition recall, abstention on ambiguous profiles, calibration of the memory's confidence (Brier, ECE, AUROC) | with the memory arms |
+| test evaluation of the fine-tuned Qwen2.5-3B and Qwen3-4B | the missing test rows of section 6 | about 11 am Sat |
+| ES-MemEval QA | memory question answering on real multi-session data, per memory type | about 5 pm Sat |
+
+**Not scheduled:** the dataset comparison in the paper's sense:
+- scoring our corpus dialogues on Basic / Aff / Neg / Sup / Man (the paper's Table 2);
+- fine-tuning one base model on other datasets (ESConv, ExTES) next to ours (Tables 3-4; `src/convert_corpus.py`
+  and the `corpus_<name>` arms exist but have not been run).
 
 The memory-calibration table is produced only by the lab run (the Ollama judge). A local run without
 `--backend` uses the echo stub and is meaningless; `scripts/collect_results.sh` leaves it out.
