@@ -13,20 +13,6 @@ open-weight models, with five enhancements over the COCOON framework.
 | Depth ladder | L0-L3 cap used by the Strategist and the `overreaching_depth` check (part of E2, not a pacing policy) | `src/pacing.py` |
 | Evaluation | Arm runner, instruments, statistics, guarded reporting | `src/evaluate.py`, `src/judge.py`, `src/report.py` |
 
-## Design rules that the code enforces, not just documents
-
-1. **Every stage reads files and writes files.** A stage is one script; rerunning it costs only that stage.
-2. **One model resident at a time.** `llm.LLM` raises `ResidencyError` on a second distinct model. Several
-   conversational roles share one resident model through `LLM.view(role)`.
-3. **Structured output augments, never replaces, raw history.** Every agent and judge prompt contains the
-   verbatim turns.
-4. **Nothing enters belief state ungrounded.** `grounding.validate_span` gates every memory write.
-5. **Resumable.** Stages skip ids already present in their output file.
-6. **No proprietary API anywhere.** There is no code path that can call one.
-
-> Scope: `modified_SOP_12340340_12340370.pdf`, which has **four** enhancements. Enhancement 5 (adaptive
-> disclosure pacing) and its readiness value, privileged teacher and distillation stage have been removed;
-> see `CHANGES.md`. The disclosure ladder itself remains, because Enhancement 2 caps depth with it.
 
 ## Setup
 
@@ -121,58 +107,5 @@ python human_eval/agreement.py --run runs/<id> --metric ip
 python src/report.py --run runs/<id>
 ```
 
-Scoring is always a separate pass from generation: the judge is a different model and must not be co-resident
-with the generator.
 
-## What the report refuses to print
 
-`src/report.py` fails rather than footnoting when a cell has no sample size, when the judge model equals the
-supporter's or the simulator's, when an out-of-distribution result is described as a guarantee, and it marks
-any IP/PRI headline that has no judge-human agreement figure yet.
-
-## Comparing against other corpora (the baseline paper's Tables 3 and 4)
-
-Their comparison fine-tunes one base model on each corpus and scores every resulting supporter on the same
-profiles. That is reproduced here as arms, not as a bespoke script:
-
-```
-python src/convert_corpus.py --set esconv --raw data/raw/esconv.json   # -> data/sft/corpus_esconv_*.jsonl
-python src/train.py --arm corpus_esconv --out runs/<id>                # one adapter per corpus
-# put the adapter paths into configs/arms.yaml -> adapters:
-python src/evaluate.py --arm corpus_esconv --arm corpus_ours --run-dir runs/<id>
-```
-
-`--train` in `scripts/run_all.py` does the convert-and-train steps for every corpus whose raw file is
-present. The report then prints a **Training-corpus comparison** table with the same columns as the paper:
-SR, Basic Avg (the six basic metrics rescaled to 0-100), and the four scale dimensions Aff / Neg / Sup / Man,
-for our profiles and for the ExTES profiles.
-
-Two honest asymmetries are printed with it: corpora other than ours carry no Analysis/Strategy annotation,
-so their adapters train response-only (the same condition as our `w/o thoughts` arm); and the item groupings
-behind Aff/Neg/Sup/Man are ours, listed in `src/metrics.py`, because the published instruments define items,
-not groupings.
-
-## Corpus size
-
-COCOON reports **3.5k dialogues at 18.82 average turns** (their Table 1, Chinese, single-session). Nothing in
-this code caps corpus size - the only limits are config values, and every stage resumes, so raising them and
-rerunning costs only the new records:
-
-| Knob | Default | Effect |
-|---|---|---|
-| `corpus.n_profiles_target` | 1000 | profiles attempted; ~1000 x 3 sessions x ~0.65 filter survival ~= 2k sessions (sized to one 12 GB GPU; 2000 gives ~3.9k) |
-| `corpus.sessions_per_profile` | [2, 4] | sessions per linked sequence |
-| `corpus.turns_per_session` | [8, 12] | supporter turns, so 16-24 total turns per session |
-| `eval.n_dialogues_per_arm` | 150 | evaluation only; does not touch corpus size |
-
-Seed supply is not the constraint either: EmpatheticDialogues has ~19.5k unique situations, and `seeds.py`
-pulls `2 x target` candidates before screening. The real constraint is generation time - roughly 3-5k output
-tokens per session, so the default ~3k generated sessions is ~10-15M output tokens plus judging.
-
-## Reused from the upstream COCOON repository
-
-`reference_cocoon/` holds the five upstream files that are worth keeping as reference: the Chinese proactive
-speaker prompt (the behavioural spec for our English simulator), the English reactive speaker prompt (our
-reactive baseline), and the AELS / Comforting-Responses / RAC scale prompts, which are cross-checked against
-our own implementations in `prompts/`. No upstream Python is used: it assumes GPT-4o, hardcodes internal
-cluster URLs and author-absolute paths, and is Chinese-first.
