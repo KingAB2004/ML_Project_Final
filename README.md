@@ -75,37 +75,6 @@ the annotation ablation (`sft_with_thoughts` vs `sft_wo_thoughts`), the 2x2 of d
 on the internal and both external sets. `src/report.py` then writes `reports/results.md` with the per-arm
 table, the 2x2 main effects and interaction, the risk-coverage frontier, and paired-bootstrap CIs.
 
-## Order of work
-
-```
-python tests/test_all.py                                     # component checks, echo backend
-python scripts/fetch_data.py --self-check                    # download-parsing checks, no network
-python scripts/fetch_data.py --all --map                     # datasets into data/raw + data/external
-python scripts/fetch_data.py --models                        # weights (large; Mistral-Nemo is gated)
-
-python src/seeds.py     --limit 100                          # pilot first: gate G1 decides the route
-python src/profiles.py   --limit 100 --split
-python src/dialogue.py  --limit 100
-python src/sessions.py  --limit 100
-python src/sessions.py  --check                              # temporal integrity
-python src/filter.py
-python src/annotate.py
-
-python src/build_sft.py --arm with_thoughts
-python src/build_sft.py --arm wo_thoughts
-python src/train.py     --arm with_thoughts                  # needs a GPU
-
-python src/evaluate.py  --arm cellC_dec_ungated --limit 30    # ungated dialogues for calibration
-python src/calibrate.py --dialogues runs/<id>/dialogues/cellC_dec_ungated.jsonl
-python src/evaluate.py  --arm cellD_dec_gated --run-dir runs/<id>
-
-python src/metrics.py        --dialogues runs/<id>/dialogues/cellD_dec_gated.jsonl
-python src/counterfactual.py --dialogues runs/<id>/dialogues/cellD_dec_gated.jsonl
-
-python human_eval/sample.py    --run runs/<id> --metric ip    # then two people fill the sheets
-python human_eval/agreement.py --run runs/<id> --metric ip
-python src/report.py --run runs/<id>
-```
 
 
 
