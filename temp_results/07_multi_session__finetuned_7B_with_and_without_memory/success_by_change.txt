@@ -1,0 +1,9 @@
+Success by change
+=================
+system                                                    intensified   resolved      displaced     none         
+--------------------------------------------------------  ------------  ------------  ------------  -------------
+fine-tuned 7B (with thoughts), no memory                  0.374 (n=95)  0.377 (n=77)  0.364 (n=38)  -            
+fine-tuned 7B (with thoughts) + need-state memory (tree)  -             -             -             -            
+untuned 7B, four agents + need-state memory (flat)        0.382 (n=95)  0.381 (n=77)  0.373 (n=38)  -            
+cell A: untuned, one call, gate off                       -             -             -             0.372 (n=210)
+

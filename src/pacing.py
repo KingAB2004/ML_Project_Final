@@ -30,18 +30,12 @@ def at_most(rung: str) -> list[str]:
 
 
 def cap(a: str, b: str) -> str:
-    """The stricter of two rungs."""
+
     return a if RUNG_INDEX.get(a, 0) <= RUNG_INDEX.get(b, 0) else b
 
 
 def permitted_rung(analyzer_confidence: float = 1.0, memory_brief: dict | None = None,
                    confidence_floor: float | None = None, ceiling: str = "L3") -> tuple[str, str]:
-    """Highest rung the supporter may use this turn, and why it was restricted.
-
-    Two caps, both from Enhancement 2 and 4 rather than from a pacing policy:
-      1. low Analyzer confidence restricts to exploratory moves - uncertainty must produce gentleness;
-      2. L3 additionally requires a CONFIRMED terminal need in memory, never a mere hypothesis.
-    """
     floor = float(cfg("agents.analyzer_confidence_floor", default=0.45)
                   if confidence_floor is None else confidence_floor)
     rung = ceiling if ceiling in RUNG_INDEX else "L3"

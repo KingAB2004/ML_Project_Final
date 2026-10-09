@@ -1,0 +1,19 @@
+Usable information in the thoughts, all sizes including Qwen3-4B (epoch-2 adapters)
+====================================================================================
+size        turns       bits/turn [95% CI] bits/token   PVI<0  NLL with  NLL w/o loss cut
+0.5B         2608     8.91 [8.49, 9.34]        0.238   17.9%     0.727    0.891    18.5%
+3B           2608     7.36 [7.02, 7.72]        0.196   17.3%     0.571    0.707    19.2%
+7B           2608     3.31 [3.01, 3.62]        0.088   32.9%     0.434    0.495    12.4%
+Qwen3-4B     2608     7.72 [7.41, 8.05]        0.206   15.5%     0.565    0.708    20.2%
+
+Qwen3-4B split by session (teacher-forced on corpus sessions)
+session   turns  NLL with  NLL w/o bits added
+1           889     0.583    0.728       7.59
+2           838     0.549    0.697       8.20
+3           571     0.568    0.700       7.31
+4           310     0.556    0.696       7.55
+
+Qwen3-4B by ladder rung: L0 0.71 bits (n=4), L1 6.86 bits (n=1160), L2 8.43 bits (n=1444)
+
+Adapters: with thoughts = best epoch 2 (val 0.669); without thoughts = epoch 2 checkpoint (val 0.697), epoch 3 not trained.
+Source: runs/scaling/extra/pvi/ (python extra/pvi.py --sizes Qwen3-4B, 27 min on the RTX 4060).

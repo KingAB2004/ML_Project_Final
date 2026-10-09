@@ -1,12 +1,5 @@
 """Conformal risk control for the critic gate (PLAN Sec. 10.4).
 
-The SOP asks for an intrusiveness *error budget* rather than a tuned confidence threshold: calibrate a
-nonconformity score against the independent judge's Intrusiveness Penalty on a held-out split, then obtain
-a distribution-free bound on the fraction of released turns that exceed a tolerance. That is risk control,
-not prediction-set coverage, so this module selects a threshold by bounding a monotone risk curve.
-
-Definitions
------------
 tolerance tau : a turn is a violation when the judge's IP_norm > tau
 score s       : cheap in-pipeline scalar from the Critic (its own IP estimate + grounding violation mass)
 gate          : release when s <= lambda
@@ -14,9 +7,6 @@ risk R(lambda): fraction of calibration turns that would be released at lambda A
 lambda_hat    : the LARGEST lambda whose upper confidence bound on R satisfies UCB(R) <= alpha
                 (largest, because among safe thresholds the loosest preserves the most utility)
 
-Scope: the bound holds only for turns exchangeable with the calibration split - same generator, same
-profile distribution. Out-of-distribution arms report the empirical violation rate as a measurement, never
-as a guarantee. `distribution_id` carries that fact into every downstream artifact.
 """
 from __future__ import annotations
 
@@ -26,9 +16,6 @@ from pathlib import Path
 from typing import Sequence
 
 from common import cfg, read_json, write_json
-
-
-# --------------------------------------------------------------------------- bounds
 
 
 def hoeffding_ucb(r_hat: float, n: int, delta: float) -> float:
@@ -50,10 +37,7 @@ def _binom_cdf(k: int, n: int, p: float) -> float:
 
 
 def bentkus_ucb(r_hat: float, n: int, delta: float) -> float:
-    """Smallest p whose Bentkus p-value drops below delta, found by bisection.
 
-    Tighter than Hoeffding for small empirical risk, which is the regime this gate operates in.
-    """
     if n <= 0:
         return 1.0
     k = math.ceil(n * r_hat)
@@ -82,8 +66,6 @@ def risk_ucb(r_hat: float, n: int, delta: float, bound: str = "hb") -> float:
     return min(hoeffding_ucb(r_hat, n, delta), bentkus_ucb(r_hat, n, delta))
 
 
-# --------------------------------------------------------------------------- nonconformity score
-
 
 def nonconformity(ip_pred: float, violation_mass: float, weights: dict | None = None) -> float:
     """s = w1 * critic IP estimate + w2 * grounding violation mass, both already in [0,1]."""
@@ -91,8 +73,6 @@ def nonconformity(ip_pred: float, violation_mass: float, weights: dict | None = 
     s = w.get("ip_pred", 0.7) * float(ip_pred) + w.get("violation_mass", 0.3) * float(violation_mass)
     return max(0.0, min(1.0, s))
 
-
-# --------------------------------------------------------------------------- calibration
 
 
 @dataclass
@@ -127,7 +107,6 @@ class Calibration:
 
 def risk_curve(scores: Sequence[float], violations: Sequence[bool], lambdas: Sequence[float],
                delta: float, bound: str = "hb") -> list[dict]:
-    """Empirical risk and its UCB at each lambda. R is non-decreasing in lambda by construction."""
     n = len(scores)
     if n == 0 or n != len(violations):
         raise ValueError("scores and violations must be the same non-zero length")
@@ -154,12 +133,6 @@ def default_grid(steps: int | None = None) -> list[float]:
 def calibrate(scores: Sequence[float], ip_norms: Sequence[float], alpha: float | None = None,
               tau: float | None = None, delta: float | None = None, bound: str = "hb",
               distribution_id: str = "own_generator_v1", provenance: dict | None = None) -> Calibration:
-    """Select lambda_hat = largest lambda with UCB(R(lambda)) <= alpha.
-
-    When no lambda qualifies the gate is vacuous at this budget: the strictest lambda is returned and
-    `vacuous` is set, so the report can state plainly that the pipeline cannot meet the budget instead of
-    quietly loosening alpha.
-    """
     alpha = float(cfg("conformal.alpha", default=0.10) if alpha is None else alpha)
     tau = float(cfg("conformal.tau", default=0.50) if tau is None else tau)
     delta = float(cfg("conformal.delta", default=0.10) if delta is None else delta)
@@ -178,7 +151,6 @@ def calibrate(scores: Sequence[float], ip_norms: Sequence[float], alpha: float |
 
 def empirical_violation_rate(ip_norms: Sequence[float], released: Sequence[bool],
                              tau: float | None = None) -> dict:
-    """Measured violation rate among released turns. The only honest number for out-of-distribution arms."""
     tau = float(cfg("conformal.tau", default=0.50) if tau is None else tau)
     rel = [ip for ip, r in zip(ip_norms, released) if r]
     if not rel:
@@ -192,7 +164,6 @@ def empirical_violation_rate(ip_norms: Sequence[float], released: Sequence[bool]
 
 def sweep_alphas(scores: Sequence[float], ip_norms: Sequence[float],
                  alphas: Sequence[float] = (0.05, 0.10, 0.20), **kw) -> list[dict]:
-    """The risk-coverage frontier: one calibration per budget."""
     out = []
     for a in alphas:
         cal = calibrate(scores, ip_norms, alpha=a, **kw)
@@ -203,3 +174,5 @@ def sweep_alphas(scores: Sequence[float], ip_norms: Sequence[float],
                         "risk_ucb": match["risk_ucb"]})
         out.append(row)
     return out
+
+#alpha is error bound willing to accept

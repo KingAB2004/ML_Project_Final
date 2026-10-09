@@ -31,26 +31,27 @@ SECOND_PERSON = {"i": "you", "i'm": "you're", "im": "you're", "i've": "you've", 
 
 
 def second_person(text: str) -> str:
-    # The verb changes only after "I" ("the week was" stays as it is).
     text = re.sub(r"\bI am\b", "you are", re.sub(r"\bI was\b", "you were", text, flags=re.I), flags=re.I)
+    
     return re.sub(r"[A-Za-z']+", lambda m: SECOND_PERSON.get(m.group().lower(), m.group()), text)
 
 
-def reflective_fallback(turns: Sequence[dict]) -> str:
-    """Templated L0 reflection. No new inference, no question, no model call - so it cannot itself fail.
 
-    Reflects the first clause of the seeker's last turn in the second person. v1 echoed the whole turn
-    verbatim ("It sounds like ... Thanks for checking in!"), which read as parroting.
-    """
+def reflective_fallback(turns: Sequence[dict]) -> str:
     us = user_turns(turns)
     if not us:
         return "I'm here whenever you feel like talking."
+    
     first = re.split(r"(?<=[.!?])\s+|\s+(?:but|and|so)\s+", us[-1].get("text", "").strip())[0]
+    
     words = first.rstrip(".!?,;").split()[:18]
+    
     if len(words) < 3:
         return "I'm here, and there's no rush. Say as much or as little as you like."
+    # second_person(" ".join(words hmm fice it 
     echo = second_person(" ".join(words))
     return FALLBACK_TEMPLATE.format(echo=echo[0].lower() + echo[1:] + ".")
+
 
 
 def valid_item_scores(raw: Any, items: Sequence[int] = range(1, 8)) -> dict[str, float] | None:
@@ -61,9 +62,8 @@ def valid_item_scores(raw: Any, items: Sequence[int] = range(1, 8)) -> dict[str,
     if any(not 1.0 <= scores.get(str(i), -1.0) <= 7.0 for i in items):
         return None
     return {str(i): scores[str(i)] for i in items}
+#fall bakks snad hchecks 
 
-
-# --------------------------------------------------------------------------- critic + gate
 
 
 @dataclass
@@ -72,7 +72,7 @@ class CriticVerdict:
     item_scores: dict = field(default_factory=dict)
     grounding_violations: list[dict] = field(default_factory=list)
     nonconformity: float = 0.0
-    decision: str = "release"          # release | revise | fallback
+    decision: str = "release"          # release  revise fllback
     feedback: str = ""
     revision_index: int = 0
     draft_rung: str = "L0"
@@ -112,7 +112,6 @@ class Critic:
         out = self.llm.structured(prompt, required=("item_scores",))
         scores = valid_item_scores(out.get("item_scores"))
         if scores is None and not out.get("parse_failed"):
-            # Off-scale or missing items (v1: the template's example zeros copied back): ask once more.
             out = self.llm.structured(f"{prompt}\n\nYour previous item_scores were invalid. Give every item "
                                       f"1-7 an integer score from 1 to 7.", required=("item_scores",))
             scores = valid_item_scores(out.get("item_scores"))
@@ -122,7 +121,7 @@ class Critic:
         if scores:
             verdict.ip_pred = normalize_scale(sum(scores.values()) / len(scores))
         else:
-            verdict.ip_pred = 1.0  # unparseable critic output is treated as maximally risky
+            verdict.ip_pred = 1.0  
         verdict.draft_rung = out.get("draft_rung", "L0")
         verdict.feedback = out.get("feedback", "") or ""
 
@@ -140,8 +139,7 @@ class Critic:
             if not (isinstance(cat, str) and cat in grounding.CATEGORY_WEIGHTS) or report.has(cat):
                 continue
             if cat == "denied_inference" and not forbidden:
-                # A denial that was never recorded cannot be re-proposed. In v1 the critic model reported
-                # this hard-veto category 326 times with nothing denied, forcing 72% of cell B to fallback.
+                # this hard-veto category 326 times with nothing denied
                 continue
             report.violations.append(grounding.Violation(cat, "reported by the critic model"))
         verdict.grounding_violations = [v.to_dict() for v in report.violations]
@@ -152,16 +150,13 @@ class Critic:
 
     def _decide(self, verdict: CriticVerdict, revision_index: int, report: grounding.GroundingReport) -> str:
         if not self.gate:
-            # Ungated arm: the critic is advisory, everything is released, and that is the point of the cell.
+
             return "release"
         released = (self.calibration.releases(verdict.nonconformity) if self.calibration
                     else verdict.nonconformity <= 0.5)
         if released and not report.has("denied_inference"):
             return "release"
         return "revise" if revision_index < self.max_revisions else "fallback"
-
-
-# --------------------------------------------------------------------------- the pipeline
 
 
 @dataclass
@@ -171,7 +166,7 @@ class TurnResult:
     analyzer: dict
     strategist: dict
     critic: dict
-    path: str                      # released | revised | fallback
+    path: str                      # rel , rev fall  
     revisions: int
     memory_writes: list[dict] = field(default_factory=list)
     restricted_reason: str = ""
@@ -181,13 +176,10 @@ class TurnResult:
 
 
 class AgentPipeline:
-    """Analyzer -> Strategist -> Generator -> Critic -> gate, with memory wired in."""
 
     def __init__(self, llm, memory: NeedStateMemory | None = None,
                  calibration: Calibration | None = None, gate: bool = True,
                  views: dict | None = None):
-        # Per-role views over ONE resident model, so each agent keeps its own sampling temperature
-        # (parsed roles cold, the generator warmer) without loading a second set of weights.
         views = views or {}
         self.llm = llm
         self.analyzer_llm = views.get("analyzer", llm)
@@ -200,7 +192,6 @@ class AgentPipeline:
         self.generator_tpl = read_prompt("agent_generator.md")
         self.max_revisions = int(cfg("agents.max_revisions", default=2))
 
-    # -- individual agents -------------------------------------------------
     def analyze(self, turns: Sequence[dict], session_id: str, memory_block: str) -> dict:
         prompt = fill(self.analyzer_tpl, memory_block=memory_block,
                       history=render_transcript(turns, numbered=True))
@@ -230,7 +221,8 @@ class AgentPipeline:
                       revision_note=revision_note)
         return fresh_turn(self.generator_llm.chat, prompt, turns, "supporter", use_cache=not revision_note)
 
-    # -- one full turn -----------------------------------------------------
+    
+    
     def step(self, turns: Sequence[dict], session_id: str = "", phase: str = "listening",
              session_index: int = 1, gap_days: float = 0.0) -> TurnResult:
         brief = self.memory.brief() if self.memory else {}
@@ -270,20 +262,13 @@ class AgentPipeline:
                           critic=verdict.to_dict(), path=path, revisions=revisions,
                           memory_writes=writes, restricted_reason=restricted)
 
-    # -- memory writes -----------------------------------------------------
+    
+    
     def observe(self, turns: Sequence[dict], session_id: str = "") -> list[dict]:
-        """Analyzer + memory write only, no reply: keeps the need-state memory for a reply that comes from
-        elsewhere (memory-aware corpus generation, a fine-tuned monolithic supporter). Same writes as step()."""
         analyzer = self.analyze(turns, session_id, self.memory.render_brief())
         return self.update_memory(analyzer, session_id, turns)
 
     def update_memory(self, analyzer: dict, session_id: str, turns: Sequence[dict] | None = None) -> list[dict]:
-        """Only grounded, non-zero-confidence claims reach the belief state (PLAN R4).
-
-        `confirmed` is taken only when the need was already on record before this turn AND the agreeing
-        quote is from the seeker's latest turn, i.e. said after the supporter's last reply; otherwise the
-        claim only adds evidence. A denial of a need never recorded is still recorded (proposed, then
-        disconfirmed), so its re-proposal is blocked too. `parent` hangs the need under a shallower node."""
         writes: list[dict] = []
         latest = max((t["turn_index"] for t in turns or [] if t.get("role") == "user"), default=None)
         # the surface feeling is the depth-0 root the needs hang under (the profile's chain starts there too)

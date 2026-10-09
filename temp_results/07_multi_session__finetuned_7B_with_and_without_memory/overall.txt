@@ -1,0 +1,11 @@
+100 test people, 2-4 linked sessions each
+=========================================
+system                                                    sessions  Success [95% CI]      AELS                  IP                    PRI observed        
+--------------------------------------------------------  --------  --------------------  --------------------  --------------------  --------------------
+fine-tuned 7B (with thoughts), no memory                  310       0.380 [0.369, 0.392]  0.843 [0.837, 0.849]  0.090 [0.084, 0.096]  0.252 [0.228, 0.278]
+fine-tuned 7B (with thoughts) + need-state memory (tree)  14        pending               pending               pending               pending             
+untuned 7B, four agents + need-state memory (flat)        310       0.381 [0.367, 0.395]  pending               0.095 [0.089, 0.102]  0.213 [0.194, 0.236]
+cell A: untuned, one call, gate off                       310       0.382 [0.373, 0.392]  0.859 [0.851, 0.867]  0.068 [0.063, 0.072]  0.184 [0.167, 0.202]
+
+- Fine-tuned runs and the untuned memory run: the person changes between sessions and the corrective seeker; cell A: same need, proactive seeker.
+- Cell A's memory was never written, so it is effectively no memory.

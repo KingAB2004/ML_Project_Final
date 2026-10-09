@@ -1,0 +1,9 @@
+Success by session
+==================
+system                                                    1              2              3             4           
+--------------------------------------------------------  -------------  -------------  ------------  ------------
+fine-tuned 7B (with thoughts), no memory                  0.395 (n=100)  0.372 (n=100)  0.376 (n=75)  0.371 (n=35)
+fine-tuned 7B (with thoughts) + need-state memory (tree)  -              -              -             -           
+untuned 7B, four agents + need-state memory (flat)        0.382 (n=100)  0.377 (n=100)  0.382 (n=75)  0.386 (n=35)
+cell A: untuned, one call, gate off                       0.402 (n=100)  0.373 (n=100)  0.367 (n=75)  0.381 (n=35)
+

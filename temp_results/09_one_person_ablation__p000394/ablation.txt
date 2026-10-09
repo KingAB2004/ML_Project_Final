@@ -1,0 +1,17 @@
+Test person p000394: Success on the judge's 1-7 scale per session
+=================================================================
+system                                              S1  S2  S3  S4  AELS (S1)
+--------------------------------------------------  --  --  --  --  ---------
+untuned 7B, one call (base_instruct)                3               0.82     
+untuned 7B, reactive seeker (reactive_baseline)     3               0.80     
+fine-tuned 0.5B, with thoughts                      3               0.82     
+fine-tuned 0.5B, without thoughts                   3               0.82     
+fine-tuned 7B, with thoughts                        4               0.97     
+fine-tuned 7B, without thoughts                     3               0.78     
+cell A: untuned, one call, gate off                 3   3   4   4   0.82     
+cell B: untuned, one call, gate on                  3   3   3   4   0.97     
+cell C: untuned, four agents, gate off              3   3   3   3   0.90     
+untuned 7B, four agents + need-state memory (flat)  3   4   3   5   -        
+fine-tuned 7B (with thoughts), no memory            3   3   3   3   0.83     
+
+- Single-session systems have no S2-S4.

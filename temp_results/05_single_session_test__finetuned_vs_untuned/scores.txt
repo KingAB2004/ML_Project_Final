@@ -1,0 +1,17 @@
+100 test people, one session each, no memory, no gate
+=====================================================
+supporter                                        sessions  Success [95% CI]      AELS                  IP (lower better)     PRI observed (lower better)
+-----------------------------------------------  --------  --------------------  --------------------  --------------------  ---------------------------
+untuned 7B, one call (base_instruct)             100       0.383 [0.368, 0.400]  0.836 [0.821, 0.848]  0.065 [0.057, 0.073]  0.192 [0.169, 0.218]       
+untuned 7B, reactive seeker (reactive_baseline)  100       0.415 [0.398, 0.433]  0.868 [0.856, 0.879]  0.089 [0.081, 0.097]  0.190 [0.174, 0.209]       
+fine-tuned 0.5B, with thoughts                   100       0.397 [0.382, 0.412]  0.843 [0.835, 0.852]  0.103 [0.094, 0.111]  0.244 [0.219, 0.271]       
+fine-tuned 0.5B, without thoughts                100       0.395 [0.378, 0.413]  0.841 [0.832, 0.849]  0.081 [0.074, 0.089]  0.233 [0.204, 0.265]       
+fine-tuned 3B, with thoughts                     pending   pending               pending               pending               pending                    
+fine-tuned 3B, without thoughts                  pending   pending               pending               pending               pending                    
+fine-tuned 7B, with thoughts                     100       0.415 [0.397, 0.435]  0.849 [0.838, 0.859]  0.091 [0.084, 0.098]  0.241 [0.211, 0.273]       
+fine-tuned 7B, without thoughts                  100       0.392 [0.373, 0.412]  0.842 [0.832, 0.852]  0.083 [0.076, 0.092]  0.223 [0.197, 0.253]       
+fine-tuned Qwen3-4B, with thoughts               pending   pending               pending               pending               pending                    
+fine-tuned Qwen3-4B, without thoughts            pending   pending               pending               pending               pending                    
+
+- CIs: bootstrap over people.
+- 'pending' = not run or not scored yet.

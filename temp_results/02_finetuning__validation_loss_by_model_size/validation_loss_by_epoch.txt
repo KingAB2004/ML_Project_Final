@@ -1,0 +1,15 @@
+Validation loss per epoch (QLoRA r32, 18,821 train / 2,608 val examples)
+========================================================================
+model         arm            epoch 1  epoch 2  epoch 3  best 
+------------  -------------  -------  -------  -------  -----
+Qwen2.5-0.5B  with_thoughts  0.893    0.842    0.876    0.842
+Qwen2.5-0.5B  wo_thoughts    0.917    0.876    0.957    0.876
+Qwen2.5-3B    with_thoughts  0.715    0.687    0.752    0.687
+Qwen2.5-3B    wo_thoughts    0.718    0.696    0.828    0.696
+Qwen2.5-7B    with_thoughts  0.629    0.612    0.704    0.612
+Qwen2.5-7B    wo_thoughts    0.514    0.489    0.592    0.489
+Qwen3-4B      with_thoughts  0.698    0.669    0.742    0.669
+Qwen3-4B      wo_thoughts    0.725    0.697    -        0.697
+
+- Best checkpoint was epoch 2 for every Qwen2.5 run; epoch 3 overfits.
+- Qwen3-4B rows fill in as its training finishes ('-' = epoch not reached yet).

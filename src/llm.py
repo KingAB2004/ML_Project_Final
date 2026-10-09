@@ -1,18 +1,4 @@
-"""The only module that loads weights or samples tokens (PLAN Sec. 5).
 
-Three capabilities and no more: load one model at a time, batch chat, structured output with repair.
-Plus a deterministic on-disk cache so a crashed stage is cheap to resume.
-
-Backends
---------
-echo          : no GPU, deterministic stubs. Used by tests and by --dry-run on every stage.
-ollama        : a local Ollama server over HTTP. Standard library only, no Python dependency.
-transformers  : HF Transformers with 4-bit quantization. Imported lazily.
-vllm          : vLLM offline batch. Imported lazily.
-
-Residency (PLAN R2): at most one *distinct* model may be resident. The four agent roles all map to the
-same base model id, so they share one residency; the judge does not, so scoring must run as its own pass.
-"""
 from __future__ import annotations
 
 import json
@@ -37,8 +23,6 @@ Messages = list[dict]
 _RESIDENT: "LLM | None" = None
 _LOG_LOCK = threading.Lock()
 
-# Backends that are a server and can take concurrent requests. In-process transformers/vLLM engines are
-# not thread-safe, so they always run serially.
 PARALLEL_BACKENDS = ("ollama", "echo")
 
 

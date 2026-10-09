@@ -1,13 +1,6 @@
-"""The typed grounding contract (PLAN Sec. 10.1). Built before the agents, on purpose.
-
-Two rules from the SOP:
-  (1) structured output augments, never replaces, raw dialogue history - enforced by the agents' prompts
+"""structured output augments, never replaces, raw dialogue history - enforced by the agents' prompts
       and checked here only insofar as spans must point at real user turns;
-  (2) nothing enters belief state ungrounded - enforced here, and memory.py refuses any write whose claim
-      did not pass.
-
-The decisive category is `denied_inference`: re-proposing an inference the user has already denied. It has
-no counterpart in factual grounding and carries the highest gate weight.
+nothing enters belief state ungrounded - enforced here, and memory.py refuses any write whose clai       did not pass.
 """
 from __future__ import annotations
 
@@ -28,8 +21,6 @@ CATEGORY_WEIGHTS: dict[str, float] = {
 
 RUNG_ORDER = {"L0": 0, "L1": 1, "L2": 2, "L3": 3}
 
-# Cheap lexical cues. Deliberately crude: the mechanical checks must not call a model (PLAN 10.1), and a
-# cue that over-fires costs a revision, while a model call on every turn costs the project's compute.
 ADVICE_CUES = (
     "you should", "you could try", "have you tried", "why don't you", "what you need to do",
     "i'd suggest", "i would suggest", "my advice", "try to", "you need to",
@@ -38,8 +29,6 @@ ASSERTION_CUES = ("you feel", "you're feeling", "you are feeling", "you're angry
                   "you're afraid", "what you really want", "deep down you")
 HEDGES = ("maybe", "perhaps", "it sounds like", "i might be wrong", "i wonder if", "could it be",
           "i could be off", "correct me")
-# A hedge alone is not depth - "it sounds like a heavy week" is still a reflection. Depth appears when the
-# hedge introduces an inference about wanting, needing or causation.
 INFERENCE_MARKERS = ("want", "need", "because", "underneath", "really about", "afraid", "resent",
                      "unseen", "matter", "avoid", "protect")
 
@@ -70,7 +59,6 @@ class GroundingReport:
         return not self.violations
 
     def mass(self) -> float:
-        """Total violation weight, capped at 1.0, used as part of the conformal nonconformity score."""
         return min(1.0, sum(v.weight for v in self.violations))
 
     def has(self, category: str) -> bool:
@@ -85,15 +73,7 @@ class GroundingReport:
         }
 
 
-# --------------------------------------------------------------------------- span validation
-
-
 def validate_span(span: Span | dict, turns: Sequence[dict]) -> tuple[bool, str]:
-    """A span is valid only if its quote appears verbatim in the user turn it cites.
-
-    Offsets are repaired when absent (-1) and rejected when present but wrong; a fabricated or
-    paraphrased quote fails. This is the single gate every belief write passes through.
-    """
     sp = span if isinstance(span, Span) else Span.from_dict(span)
     if not sp.quote or not sp.quote.strip():
         return False, "empty quote"
@@ -122,8 +102,6 @@ def validated_spans(spans: Iterable[Span | dict], turns: Sequence[dict]) -> tupl
             continue
         ok, why = validate_span(sp, turns)
         if not ok and sp.quote and sp.quote.strip():
-            # Missing or wrong turn number (v1: 465 quotes cited a supporter turn). Grounding means the
-            # words are the SEEKER's, verbatim: cite the latest seeker turn that contains them, if any.
             idx = next((t["turn_index"] for t in reversed(turns) if t.get("role") == "user"
                         and locate_span(t.get("text", ""), sp.quote)), None)
             if idx is not None:
@@ -139,11 +117,6 @@ def validated_spans(spans: Iterable[Span | dict], turns: Sequence[dict]) -> tupl
 
 
 def zero_unsupported_claims(analyzer_out: dict, turns: Sequence[dict], session_id: str = "") -> dict:
-    """Every Analyzer claim keeps only validated spans; a claim left with none drops to confidence 0.
-
-    Returns the analyzer dict with a `grounding_report` attached. Claims at confidence 0 are still visible
-    to the Strategist (so it can see what was thrown out) but memory.py will refuse to write them.
-    """
     report = GroundingReport()
 
     def fix(claim: dict) -> dict:
@@ -170,19 +143,11 @@ def zero_unsupported_claims(analyzer_out: dict, turns: Sequence[dict], session_i
     return analyzer_out
 
 
-# --------------------------------------------------------------------------- draft checks
-
-
 def _lower(text: str) -> str:
     return re.sub(r"\s+", " ", text.lower())
 
 
 def classify_rung(draft: str, terminal_need_terms: Sequence[str] = ()) -> str:
-    """Crude rung classifier for the mechanical depth check.
-
-    The Critic also reports a rung from the model side; disagreement between the two is resolved toward
-    the deeper rung, because over-estimating depth is the safe error here.
-    """
     low = _lower(draft)
     names_need = any(term and term in low for term in (t.lower() for t in terminal_need_terms))
     hedged = any(h in low for h in HEDGES)
@@ -211,7 +176,6 @@ def check_draft(
     terminal_need_terms: Sequence[str] = (),
     critic_rung: str | None = None,
 ) -> GroundingReport:
-    """Mechanical checks on a drafted supporter turn. No model calls."""
     report = GroundingReport()
     low = _lower(draft)
 
@@ -244,7 +208,6 @@ def check_draft(
 
 
 def check_fabricated_facts(draft: str, turns: Sequence[dict], candidate_facts: Sequence[str]) -> list[Violation]:
-    """A claimed life fact must appear verbatim in some user turn."""
     said = " ".join(t.get("text", "") for t in turns if t.get("role") == "user").lower()
     out = []
     for fact in candidate_facts:
@@ -255,7 +218,6 @@ def check_fabricated_facts(draft: str, turns: Sequence[dict], candidate_facts: S
 
 
 def _overlaps(haystack_low: str, phrase: str, min_ratio: float = 0.6) -> bool:
-    """True when most content words of `phrase` appear in the text. Substring match is too brittle."""
     words = [w for w in re.findall(r"\b\w{4,}\b", phrase.lower())]
     if not words:
         return phrase.lower() in haystack_low

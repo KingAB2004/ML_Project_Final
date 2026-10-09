@@ -1,17 +1,4 @@
-"""Fit the conformal critic gate on a held-out split (PLAN Sec. 10.4).
 
-Two passes, because the critic and the judge are different models and only one may be resident:
-  pass 1 - critic scores every calibration turn -> nonconformity s
-  pass 2 - judge scores the same turns on IP    -> violation labels (IP_norm > tau)
-then the risk curve is built and lambda_hat selected as the largest lambda whose upper confidence bound on
-risk stays within the budget alpha.
-
-Calibration turns must come from held-out profiles of the SAME generator and profile distribution the gate
-will run on; `--distribution-id` records which, and every arm that runs elsewhere reports an empirical
-violation rate instead of a guarantee.
-
-  python src/calibrate.py --dialogues runs/<id>/dialogues/cellC_dec_ungated.jsonl --alpha 0.1 --backend echo
-"""
 from __future__ import annotations
 
 import argparse
@@ -26,7 +13,6 @@ from metrics import sample_turn_indices
 
 
 def critic_scores(dialogues: list[dict], backend: str | None, limit: int) -> list[dict]:
-    """Pass 1: the cheap in-pipeline score, exactly as it is computed at decision time."""
     llm = LLM("critic", backend=backend)
     try:
         critic = Critic(llm, calibration=None, gate=False)
@@ -58,7 +44,6 @@ def critic_scores(dialogues: list[dict], backend: str | None, limit: int) -> lis
 
 
 def judge_ip(dialogues: list[dict], rows: list[dict], backend: str | None) -> list[dict]:
-    """Pass 2: the independent judge supplies the labels the gate is calibrated against."""
     by_session = {s["session_id"]: s for s in dialogues}
     judge = Judge(backend=backend)
     try:
