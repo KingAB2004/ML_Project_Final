@@ -203,10 +203,10 @@ def table() -> None:
 
     lines += ["", "## Dialogue quality, ESC-RANK (paper Table 6)", "",
               "ESC-RANK scores each dialogue 0-4 per dimension; shown x 25 as in the paper (its ceiling 75 = every "
-              "dialogue at 3). Same scorer as the paper, so these rows would be the most directly comparable. Not run on 7 Oct: "
-              "ESC-RANK's InternLM2 code needs an older transformers than the lab's Python 3.13 installs from wheels, "
-              "and the 15 GB RAM server could not build it alongside the running jobs (`scripts/escrank_score.py`, "
-              "ESCRANK_ENABLE=1).", "",
+              "dialogue at 3). Same scorer as the paper, so these rows are the most directly comparable. Run 18-20 Oct on "
+              "10.10.10.104 (`scripts/escrank_score.py` in its own venv: transformers 4.41, sentencepiece 0.2.0, "
+              "protobuf); Inf answers longer than the 8-token budget were re-asked with 16 tokens (`--fill-missing`). "
+              "Hum sits near 50 for all three corpora, far below the paper's ExTES / COCOON rows.", "",
               "| Dataset | source | n | Flu | Div | Emp | Inf | Hum | Skil |", "|---|---|---|---|---|---|---|---|---|"]
     for w in SETS:
         r = esc[w]

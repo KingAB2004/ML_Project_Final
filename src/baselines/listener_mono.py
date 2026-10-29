@@ -19,8 +19,11 @@ class MonolithicListener:
     """Same step() contract as AgentPipeline, so evaluate.py does not branch on architecture."""
 
     def __init__(self, llm, memory=None, calibration: Calibration | None = None, gate: bool = False,
-                 memory_writer=None):
+                 memory_writer=None, steer: dict | None = None):
         self.llm = llm
+        # Activation steering of the reply (src/steering.py): steer_vector / steer_layer / steer_coef, passed to
+        # every supporter generation; they are part of the cache key, so steered and plain replies never mix.
+        self.steer = steer or {}
         self.memory = memory
         # An AgentPipeline over the same memory whose observe() writes it (arm switch memory_writer). Without one
         # this arm only reads the memory, and a need-state brief never gets past "first session".
@@ -37,7 +40,7 @@ class MonolithicListener:
         if not parts["response"]:
             parts = parse_target(self.llm.chat(
                 f"{prompt}\n\nYour previous answer had no reply for the person. Put 1 to 3 sentences "
-                f"inside <response></response>.", system=SUPPORTER_SYSTEM, use_cache=False))
+                f"inside <response></response>.", system=SUPPORTER_SYSTEM, use_cache=False, **self.steer))
         return parts
 
     def step(self, turns: Sequence[dict], session_id: str = "", phase: str = "listening",
@@ -51,7 +54,8 @@ class MonolithicListener:
         prompt = render_input(list(turns), upto_index=max(t["turn_index"] for t in turns) + 1,
                               memory_block=memory_block,
                               gap_statement=gap_statement(gap_days, session_index) if session_index > 1 else "")
-        parts = self._reply(fresh_turn(self.llm.chat, prompt, turns, "supporter", system=SUPPORTER_SYSTEM),
+        parts = self._reply(fresh_turn(self.llm.chat, prompt, turns, "supporter", system=SUPPORTER_SYSTEM,
+                                       **self.steer),
                             prompt)
         draft = parts["response"]
 
@@ -68,7 +72,7 @@ class MonolithicListener:
                 revisions += 1
                 revise_prompt = (f"{prompt}\n\nYour previous reply was rejected as too intrusive "
                                  f"({verdict.feedback}). Rewrite it shallower, at or below {rung}.")
-                parts = self._reply(self.llm.chat(revise_prompt, system=SUPPORTER_SYSTEM, use_cache=False),
+                parts = self._reply(self.llm.chat(revise_prompt, system=SUPPORTER_SYSTEM, use_cache=False, **self.steer),
                                     revise_prompt)
                 draft = parts["response"]
                 if not draft:

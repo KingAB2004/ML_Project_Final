@@ -1,18 +1,4 @@
-"""gaps are log-uniform over 1 day to 8 weeks, 
-  the profile is advanced under a named transition (resolved / intensified / displaced)
- chain node ids stay stable across sessions; only a displaced concern introduces new ids.
 
---memory (Option C, memory-aware corpus): a need-state memory per profile is kept across its sessions exactly as
-the evaluation's mem_needstate arm keeps it (the base Analyzer writes after every supporter turn, unconfirmed
-beliefs decay over the gap). Session 1 is reused from --source and only replayed to build the memory; sessions
-2+ are regenerated with the brief in the generator prompt. Every supporter turn stores the brief it was written
-under, which build_sft puts in the training input. Writes a separate corpus (data/corpus_mem/), never the old one.
-
---replay (cheap Option C): no generation. An existing corpus (annotated or not) is run through the memory in session
-order, with decay and pruning over each gap, and every supporter turn gets the brief it would have been written
-under. Only the base Analyzer runs. The targets stay as generated from the profile, not from the brief, so this
-teaches the model where continuity can come from but not how a brief-conditioned reply reads; --memory does both.
-"""
 from __future__ import annotations
 
 import argparse
@@ -92,8 +78,7 @@ def advance_profile(llm: LLM, profile: dict, prev_session: dict, gap_days: float
     # max_tokens: the advanced profile is as long as the original one
     out = llm.structured(prompt, required=("need_chain",), max_tokens=1024)
     if not valid_chain(out.get("need_chain")):
-        # v3: 5 of 103 follow-ups came back with a 1- or 2-node chain, so the "terminal need" (Success's
-        # ground truth) silently became a shallower node, and later sessions inherited it. Ask once more.
+
         out = llm.structured(f"{prompt}\n\nYour need_chain must have exactly three nodes (depth 0, 1, 2), "
                              f"each with non-empty text.", required=("need_chain",), max_tokens=1024)
     chain_ok = valid_chain(out.get("need_chain"))

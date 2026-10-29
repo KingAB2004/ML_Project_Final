@@ -23,7 +23,6 @@ from llm import LLM, pmap
 PROBLEM_TYPES_PATH = DATA / "raw" / "problem_types.json"
 SEEDS_PATH = DATA / "seeds" / "seeds.jsonl"
 
-# ESConv's problem-type taxonomy. Stored as a file so the classifier and the stratifier cannot disagree.
 DEFAULT_PROBLEM_TYPES = [
     "ongoing depression", "job crisis", "problems with friends", "academic pressure", "breakup with partner",
     "conflicts with parents", "sleep problems", "appearance anxiety", "school bullying", "issues with children",
@@ -43,10 +42,7 @@ def ensure_problem_types() -> list[str]:
 
 
 def load_empathetic_dialogues(limit: int | None = None) -> list[dict]:
-    """Situations from EmpatheticDialogues. Falls back to a local JSONL export when datasets is absent.
 
-
-    """
     local = DATA / "raw" / "empatheticdialogues.jsonl"
     rows: list[dict] = []
     if local.exists():
@@ -176,7 +172,7 @@ def build(route: str = "seeded", limit: int | None = None, backend: str | None =
 
 
 def stratify(rows: list[dict], target: int) -> list[dict]:
-    """Balance across problem types, then across emotion labels inside a type."""
+
     by_type: dict[str, list[dict]] = {}
     for r in rows:
         by_type.setdefault(r["problem_type"], []).append(r)

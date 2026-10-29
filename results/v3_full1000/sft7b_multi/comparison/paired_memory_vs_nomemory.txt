@@ -1,0 +1,8 @@
+Fine-tuned 7B: need-state memory vs no memory, paired by person and session number (Success, 0-1)
+===============================================================================================
+all sessions  pairs=310  memory - no memory = +0.013  95% CI [-0.000, +0.026]  better 73 / worse 56 / same 181
+session 1     pairs=100  memory - no memory = -0.017  95% CI [-0.038, +0.007]  better 16 / worse 26 / same 58
+sessions 2-4  pairs=210  memory - no memory = +0.028  95% CI [+0.011, +0.045]  better 57 / worse 30 / same 123
+
+- Pairs: same test person, same session number; bootstrap over people.
+- The fine-tuned model never saw a memory brief in training: this is zero-shot use of the brief.

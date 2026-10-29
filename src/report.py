@@ -191,7 +191,8 @@ def build(run_dir: Path, out_path: Path | None = None) -> str:
     corpus_rows = []
     for arm, data in collected.items():
         summary = data.get("summary") or {}
-        if not arm.startswith("corpus_"):
+        # our corpus on our profiles is the sft_* arms themselves (no duplicate corpus_ours run)
+        if not (arm.startswith("corpus_") or arm in ("sft_with_thoughts", "sft_wo_thoughts")):
             continue
         basic = data["metrics"].get("basic", {})
         crs = data["metrics"].get("crs", {})

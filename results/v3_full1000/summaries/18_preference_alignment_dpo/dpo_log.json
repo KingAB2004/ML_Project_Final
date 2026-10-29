@@ -1,0 +1,32 @@
+{
+  "beta": 0.1,
+  "lr": 2e-05,
+  "pairs_train": 437,
+  "pairs_val": 23,
+  "reference": "runs/full_1000/adapter_with_thoughts",
+  "log": [
+    {
+      "step": 0,
+      "val_pref_acc": 0.0,
+      "val_margin": 0.0
+    },
+    {
+      "step": 160,
+      "train_loss": 0.6868648637086153,
+      "val_pref_acc": 0.782608695652174,
+      "val_margin": 0.0788068309750246
+    },
+    {
+      "step": 320,
+      "train_loss": 0.6781055590137839,
+      "val_pref_acc": 0.5217391304347826,
+      "val_margin": 0.11624523102427306
+    },
+    {
+      "step": 437,
+      "train_loss": 0.6713963029586478,
+      "val_pref_acc": 0.5217391304347826,
+      "val_margin": 0.13876265199961263
+    }
+  ]
+}

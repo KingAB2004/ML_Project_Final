@@ -38,6 +38,9 @@ def main() -> None:
     ap.add_argument("--set", required=True)
     ap.add_argument("--dialogues", default=None)
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--fill-missing", action="store_true",
+                    help="re-score only the dimensions whose answer had no digit, with a longer answer budget "
+                         "(Inf's answer, 'The suggection effectiveness score is N', does not fit in 8 tokens)")
     args = ap.parse_args()
     if not os.environ.get("ESCRANK_ENABLE"):
         # skipped on the lab (7 Oct): its InternLM2 code needs an older transformers than Python 3.13 can install
@@ -50,8 +53,11 @@ def main() -> None:
     done = {json.loads(l)["session_id"] for l in open(out)} if out.exists() else set()
     sessions = [json.loads(l) for l in open(src)][: args.limit]
     todo = [s for s in sessions if s["session_id"] not in done]
-    print(f"{args.set}: {len(todo)} of {len(sessions)} dialogues to score", flush=True)
-    if not todo:
+    scored = [json.loads(l) for l in open(out)] if args.fill_missing else []
+    missing = [(r, i) for r in scored for i, dim in enumerate(OUR_NAMES) if r.get(dim) is None]
+    print(f"{args.set}: {len(todo)} of {len(sessions)} dialogues to score, {len(missing)} missing answers to fill",
+          flush=True)
+    if not todo and not missing:
         return
 
     import torch
@@ -67,16 +73,30 @@ def main() -> None:
     for key in ADAPTER_KEYS[1:]:
         model.load_adapter(f"{ADAPTERS}/{key}_en", adapter_name=key)
 
+    def ask(i: int, dialogue: str, budget: int) -> str:
+        model.set_adapter(ADAPTER_KEYS[i])
+        prompt = (prompt_EN[i] + "Dialogue between user and AI assistant: \n" + dialogue.strip() + "\n"
+                  + "Based on the rules, give your " + DIMENSIONS[i] + " score (The number only) to the Dialogue.")
+        with torch.no_grad():
+            return model.chat(tok, prompt, do_sample=False, history=[], max_new_tokens=budget)[0]
+
+    if missing:
+        by_id = {s["session_id"]: s for s in sessions}
+        for r, i in missing:
+            response = ask(i, dialogue_text(by_id[r["session_id"]]), 16)
+            r[OUR_NAMES[i]] = next((int(c) for c in response if c in "01234"), None)
+            r[f"{OUR_NAMES[i]}_raw"] = response
+        with open(out, "w", encoding="utf-8") as fh:
+            fh.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in scored)
+        print(f"  {args.set}: filled, {sum(r.get(OUR_NAMES[i]) is not None for r, i in missing)} of {len(missing)} "
+              f"now have a score", flush=True)
+
     with open(out, "a", encoding="utf-8") as fh:
         for n, s in enumerate(todo, 1):
             row = {"session_id": s["session_id"]}
             dialogue = dialogue_text(s)
             for i, dim in enumerate(DIMENSIONS):
-                model.set_adapter(ADAPTER_KEYS[i])
-                prompt = (prompt_EN[i] + "Dialogue between user and AI assistant: \n" + dialogue.strip() + "\n"
-                          + "Based on the rules, give your " + dim + " score (The number only) to the Dialogue.")
-                with torch.no_grad():
-                    response, _ = model.chat(tok, prompt, do_sample=False, history=[], max_new_tokens=8)
+                response = ask(i, dialogue, 8)
                 row[OUR_NAMES[i]] = next((int(c) for c in response if c in "01234"), None)
                 row[f"{OUR_NAMES[i]}_raw"] = response
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")

@@ -1,0 +1,62 @@
+Judge-judge agreement: do the headline numbers depend on which open model judges them? (CPU only)
+
+== ip
+arm  n both  Mistral mean  Llama mean  Spearman rho (per item)
+cellA_mono_ungated  1240  0.068  0.363  0.360
+cellB_mono_gated  1240  0.061  0.316  0.397
+cellC_dec_ungated  1240  0.087  0.408  0.327
+cellD_dec_gated  1240  0.072  0.357  0.328
+mem_none  1240  0.098  0.391  0.310
+mem_needstate  1240  0.116  0.392  0.280
+steer_mono_L12_c0  1240  0.085  0.427  0.439
+steer_mono_L12_c0.2  1240  0.076  0.379  0.456
+sft_dec_gated_mem  1240  0.096  0.472  0.241
+pooled: 11160 items, Spearman rho 0.364; arm ranking Kendall tau 0.556 over 9 arms
+
+== pri
+arm  n both  Mistral mean  Llama mean  Spearman rho (per item)
+cellA_mono_ungated  3097  0.184  0.402  0.625
+cellB_mono_gated  3147  0.187  0.434  0.599
+cellC_dec_ungated  3128  0.203  0.446  0.596
+cellD_dec_gated  3075  0.193  0.460  0.561
+mem_none  3111  0.257  0.437  0.668
+mem_needstate  3066  0.261  0.439  0.630
+steer_mono_L12_c0  3097  0.203  0.443  0.675
+steer_mono_L12_c0.2  3097  0.213  0.452  0.660
+sft_dec_gated_mem  3115  0.244  0.498  0.611
+pooled: 27933 items, Spearman rho 0.627; arm ranking Kendall tau 0.278 over 9 arms
+
+== success
+arm  n both  Mistral mean  Llama mean  Spearman rho (per item)
+cellA_mono_ungated  310  0.382  0.047  0.267
+cellB_mono_gated  310  0.375  0.049  0.184
+cellC_dec_ungated  310  0.379  0.042  0.130
+cellD_dec_gated  310  0.369  0.048  0.235
+mem_none  310  0.376  0.053  0.232
+mem_needstate  310  0.371  0.033  0.121
+steer_mono_L12_c0  310  0.405  0.085  0.172
+steer_mono_L12_c0.2  310  0.404  0.062  0.158
+sft_dec_gated_mem  310  0.380  0.062  0.175
+pooled: 2790 items, Spearman rho 0.197; arm ranking Kendall tau 0.528 over 9 arms
+
+== key contrasts: difference under each judge (same sign = the conclusion does not hang on the judge;
+   'near 0' = one of the two differences is under 0.005, too small to have a sign)
+contrast  scale  Mistral  Llama  agree
+gate, one call (B - A)  ip  -0.007  -0.047  yes
+gate, one call (B - A)  pri  +0.003  +0.032  near 0
+gate, one call (B - A)  success  -0.006  +0.002  near 0
+gate, four agents (D - C)  ip  -0.015  -0.050  yes
+gate, four agents (D - C)  pri  -0.010  +0.014  NO
+gate, four agents (D - C)  success  -0.010  +0.005  NO
+decomposition, ungated (C - A)  ip  +0.020  +0.044  yes
+decomposition, ungated (C - A)  pri  +0.019  +0.044  yes
+decomposition, ungated (C - A)  success  -0.003  -0.005  near 0
+need-state memory (needstate - none)  ip  +0.017  +0.000  near 0
+need-state memory (needstate - none)  pri  +0.004  +0.001  near 0
+need-state memory (needstate - none)  success  -0.005  -0.019  yes
+steering (c0.2 - c0)  ip  -0.008  -0.049  yes
+steering (c0.2 - c0)  pri  +0.011  +0.009  yes
+steering (c0.2 - c0)  success  -0.001  -0.023  near 0
+fine-tuned Generator (step 12 - D)  ip  +0.024  +0.114  yes
+fine-tuned Generator (step 12 - D)  pri  +0.051  +0.037  yes
+fine-tuned Generator (step 12 - D)  success  +0.010  +0.014  yes

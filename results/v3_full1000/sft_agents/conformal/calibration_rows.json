@@ -1,0 +1,3608 @@
+[
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.455,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s1",
+    "turn_index": 8,
+    "score": 0.43666666666666665,
+    "ip_pred": 0.4523809523809524,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.30952380952380953,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.23809523809523805,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s2",
+    "turn_index": 8,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.4333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.82,
+    "ip_pred": 1.0,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.5666666666666667,
+    "ip_pred": 0.38095238095238093,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s3",
+    "turn_index": 14,
+    "score": 0.7333333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s3",
+    "turn_index": 22,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s4",
+    "turn_index": 2,
+    "score": 0.33666666666666667,
+    "ip_pred": 0.30952380952380953,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.0,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s4",
+    "turn_index": 12,
+    "score": 0.455,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s4",
+    "turn_index": 14,
+    "score": 0.515,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000663-sft_calib_dec_ungated-s4",
+    "turn_index": 20,
+    "score": 0.47,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.365,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.365,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.5,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.43666666666666665,
+    "ip_pred": 0.4523809523809524,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.23809523809523805,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s1",
+    "turn_index": 22,
+    "score": 0.665,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.16666666666666666,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.455,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s2",
+    "turn_index": 8,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.2619047619047619,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.5033333333333332,
+    "ip_pred": 0.5476190476190476,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.2619047619047619,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.6033333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.5,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s3",
+    "turn_index": 10,
+    "score": 0.5316666666666666,
+    "ip_pred": 0.5238095238095238,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.28571428571428575,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.47,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.4761904761904762,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000714-sft_calib_dec_ungated-s3",
+    "turn_index": 16,
+    "score": 0.665,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s1",
+    "turn_index": 8,
+    "score": 0.365,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.455,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.8,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.365,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.21428571428571427,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s2",
+    "turn_index": 8,
+    "score": 0.11666666666666665,
+    "ip_pred": 0.16666666666666666,
+    "violations": [],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.5666666666666667,
+    "ip_pred": 0.38095238095238093,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.44999999999999996,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.16666666666666666,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s3",
+    "turn_index": 14,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000028-sft_calib_dec_ungated-s3",
+    "turn_index": 22,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000368-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.82,
+    "ip_pred": 1.0,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000368-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.4333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000368-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000368-sft_calib_dec_ungated-s1",
+    "turn_index": 20,
+    "score": 0.05,
+    "ip_pred": 0.07142857142857144,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000368-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000368-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000368-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000368-sft_calib_dec_ungated-s2",
+    "turn_index": 22,
+    "score": 0.5533333333333333,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s1",
+    "turn_index": 8,
+    "score": 0.5366666666666666,
+    "ip_pred": 0.5952380952380952,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.505,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.16666666666666666,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s2",
+    "turn_index": 8,
+    "score": 0.0,
+    "ip_pred": 0.0,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.4333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.41500000000000004,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.21428571428571427,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s3",
+    "turn_index": 14,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000609-sft_calib_dec_ungated-s3",
+    "turn_index": 22,
+    "score": 0.6816666666666668,
+    "ip_pred": 0.7380952380952381,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.665,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.6883333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.23809523809523805,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.2866666666666666,
+    "ip_pred": 0.23809523809523805,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.2619047619047619,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s1",
+    "turn_index": 22,
+    "score": 0.35,
+    "ip_pred": 0.07142857142857144,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.4333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.6483333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s2",
+    "turn_index": 18,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.21428571428571427,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.30333333333333334,
+    "ip_pred": 0.2619047619047619,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s3",
+    "turn_index": 10,
+    "score": 0.505,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000318-sft_calib_dec_ungated-s3",
+    "turn_index": 16,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s1",
+    "turn_index": 8,
+    "score": 0.5,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.6816666666666668,
+    "ip_pred": 0.7380952380952381,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.11666666666666665,
+    "ip_pred": 0.16666666666666666,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s2",
+    "turn_index": 16,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.23809523809523805,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.82,
+    "ip_pred": 1.0,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.6816666666666668,
+    "ip_pred": 0.7380952380952381,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s3",
+    "turn_index": 14,
+    "score": 0.2533333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s3",
+    "turn_index": 22,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s4",
+    "turn_index": 2,
+    "score": 0.82,
+    "ip_pred": 1.0,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s4",
+    "turn_index": 10,
+    "score": 0.11666666666666665,
+    "ip_pred": 0.16666666666666666,
+    "violations": [],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s4",
+    "turn_index": 12,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000416-sft_calib_dec_ungated-s4",
+    "turn_index": 16,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000461-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.44999999999999996,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000461-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.016666666666666656,
+    "ip_pred": 0.023809523809523798,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000461-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.2533333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000461-sft_calib_dec_ungated-s1",
+    "turn_index": 20,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.23809523809523805,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000461-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000461-sft_calib_dec_ungated-s2",
+    "turn_index": 8,
+    "score": 0.505,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000461-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.82,
+    "ip_pred": 1.0,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000461-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.6483333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.44999999999999996,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.515,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.21428571428571427,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.605,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.21428571428571427,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s1",
+    "turn_index": 22,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s2",
+    "turn_index": 8,
+    "score": 0.7333333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsupported_state_attribution",
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.2619047619047619,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.6483333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.37,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s3",
+    "turn_index": 10,
+    "score": 0.42,
+    "ip_pred": 0.4285714285714286,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.2619047619047619,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.42,
+    "ip_pred": 0.4285714285714286,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000429-sft_calib_dec_ungated-s3",
+    "turn_index": 18,
+    "score": 0.665,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.82,
+    "ip_pred": 1.0,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s1",
+    "turn_index": 8,
+    "score": 0.6483333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.6033333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.2,
+    "ip_pred": 0.28571428571428575,
+    "violations": [],
+    "ip_norm": 0.28571428571428575,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.28571428571428575,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s2",
+    "turn_index": 18,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.37,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s3",
+    "turn_index": 14,
+    "score": 0.515,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s3",
+    "turn_index": 20,
+    "score": 0.6883333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s4",
+    "turn_index": 2,
+    "score": 0.82,
+    "ip_pred": 1.0,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s4",
+    "turn_index": 10,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s4",
+    "turn_index": 12,
+    "score": 0.42,
+    "ip_pred": 0.4285714285714286,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000881-sft_calib_dec_ungated-s4",
+    "turn_index": 16,
+    "score": 0.47,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.23809523809523805,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.4333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.28571428571428575,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.5983333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s1",
+    "turn_index": 18,
+    "score": 0.5366666666666666,
+    "ip_pred": 0.5952380952380952,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.44999999999999996,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.6883333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.2619047619047619,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.5533333333333333,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s2",
+    "turn_index": 22,
+    "score": 0.7333333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.37,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s3",
+    "turn_index": 10,
+    "score": 0.6366666666666667,
+    "ip_pred": 0.7380952380952381,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.6816666666666668,
+    "ip_pred": 0.7380952380952381,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s3",
+    "turn_index": 18,
+    "score": 0.755,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s4",
+    "turn_index": 2,
+    "score": 0.0,
+    "ip_pred": 0.0,
+    "violations": [],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s4",
+    "turn_index": 12,
+    "score": 0.5716666666666667,
+    "ip_pred": 0.4523809523809524,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s4",
+    "turn_index": 14,
+    "score": 0.2533333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000490-sft_calib_dec_ungated-s4",
+    "turn_index": 20,
+    "score": 0.665,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000108-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000108-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000108-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.6483333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000108-sft_calib_dec_ungated-s1",
+    "turn_index": 18,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000108-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000108-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000108-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000108-sft_calib_dec_ungated-s2",
+    "turn_index": 20,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.40333333333333327,
+    "ip_pred": 0.4047619047619047,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.47,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.6816666666666668,
+    "ip_pred": 0.7380952380952381,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s1",
+    "turn_index": 18,
+    "score": 0.6483333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.40333333333333327,
+    "ip_pred": 0.4047619047619047,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s2",
+    "turn_index": 16,
+    "score": 0.44999999999999996,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.41500000000000004,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s3",
+    "turn_index": 8,
+    "score": 0.2866666666666666,
+    "ip_pred": 0.23809523809523805,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.2619047619047619,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s3",
+    "turn_index": 10,
+    "score": 0.6883333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000570-sft_calib_dec_ungated-s3",
+    "turn_index": 14,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.5833333333333333,
+    "ip_pred": 0.4047619047619047,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.4047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.16666666666666666,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.365,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s1",
+    "turn_index": 18,
+    "score": 0.6483333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.16666666666666666,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.30333333333333334,
+    "ip_pred": 0.2619047619047619,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.40333333333333327,
+    "ip_pred": 0.4047619047619047,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s2",
+    "turn_index": 16,
+    "score": 0.5983333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.5166666666666666,
+    "ip_pred": 0.30952380952380953,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s3",
+    "turn_index": 10,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000590-sft_calib_dec_ungated-s3",
+    "turn_index": 18,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.37,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.7333333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.5714285714285715,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s1",
+    "turn_index": 22,
+    "score": 0.665,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.016666666666666656,
+    "ip_pred": 0.023809523809523798,
+    "violations": [],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s2",
+    "turn_index": 8,
+    "score": 0.25,
+    "ip_pred": 0.35714285714285715,
+    "violations": [],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.42,
+    "ip_pred": 0.4285714285714286,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.23809523809523805,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.6333333333333333,
+    "ip_pred": 0.4761904761904762,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s3",
+    "turn_index": 14,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s3",
+    "turn_index": 22,
+    "score": 0.03333333333333335,
+    "ip_pred": 0.04761904761904764,
+    "violations": [],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s4",
+    "turn_index": 2,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s4",
+    "turn_index": 10,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s4",
+    "turn_index": 12,
+    "score": 0.2533333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000849-sft_calib_dec_ungated-s4",
+    "turn_index": 16,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.2533333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s1",
+    "turn_index": 20,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s2",
+    "turn_index": 20,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.37,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s3",
+    "turn_index": 10,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.21428571428571427,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.48666666666666664,
+    "ip_pred": 0.5238095238095238,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s3",
+    "turn_index": 16,
+    "score": 0.5366666666666666,
+    "ip_pred": 0.5952380952380952,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s4",
+    "turn_index": 2,
+    "score": 0.3866666666666666,
+    "ip_pred": 0.38095238095238093,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s4",
+    "turn_index": 10,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s4",
+    "turn_index": 12,
+    "score": 0.5366666666666666,
+    "ip_pred": 0.5952380952380952,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000622-sft_calib_dec_ungated-s4",
+    "turn_index": 16,
+    "score": 0.37,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.44999999999999996,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.7333333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.5816666666666667,
+    "ip_pred": 0.5952380952380952,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s1",
+    "turn_index": 22,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s2",
+    "turn_index": 8,
+    "score": 0.7499999999999999,
+    "ip_pred": 0.6428571428571428,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.6483333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.665,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.5816666666666667,
+    "ip_pred": 0.5952380952380952,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s3",
+    "turn_index": 10,
+    "score": 0.7333333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsupported_state_attribution",
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.6816666666666668,
+    "ip_pred": 0.7380952380952381,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.16666666666666666,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000084-sft_calib_dec_ungated-s3",
+    "turn_index": 18,
+    "score": 0.5983333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000999-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.3816666666666667,
+    "ip_pred": 0.30952380952380953,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000999-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.52,
+    "ip_pred": 0.5714285714285715,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000999-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.3866666666666666,
+    "ip_pred": 0.38095238095238093,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000999-sft_calib_dec_ungated-s1",
+    "turn_index": 20,
+    "score": 0.40333333333333327,
+    "ip_pred": 0.4047619047619047,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000999-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.41500000000000004,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000999-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.5983333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000999-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.7166666666666666,
+    "ip_pred": 0.5952380952380952,
+    "violations": [
+      "unsupported_state_attribution",
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000999-sft_calib_dec_ungated-s2",
+    "turn_index": 20,
+    "score": 0.7166666666666666,
+    "ip_pred": 0.5952380952380952,
+    "violations": [
+      "unsupported_state_attribution",
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.5983333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.21428571428571427,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s1",
+    "turn_index": 16,
+    "score": 0.05,
+    "ip_pred": 0.07142857142857144,
+    "violations": [],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.82,
+    "ip_pred": 1.0,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s2",
+    "turn_index": 8,
+    "score": 0.515,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.05,
+    "ip_pred": 0.07142857142857144,
+    "violations": [],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.16666666666666663,
+    "ip_pred": 0.23809523809523805,
+    "violations": [],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.5,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsupported_state_attribution",
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s3",
+    "turn_index": 14,
+    "score": 0.7333333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsupported_state_attribution",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000571-sft_calib_dec_ungated-s3",
+    "turn_index": 20,
+    "score": 0.37,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.6816666666666668,
+    "ip_pred": 0.7380952380952381,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.4333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.38095238095238093,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.6483333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s1",
+    "turn_index": 16,
+    "score": 0.6149999999999999,
+    "ip_pred": 0.6428571428571428,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.21428571428571427,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.82,
+    "ip_pred": 1.0,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.37,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.21428571428571427,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s2",
+    "turn_index": 18,
+    "score": 0.6033333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.82,
+    "ip_pred": 1.0,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.4523809523809524,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.7333333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsupported_state_attribution",
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.2619047619047619,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s3",
+    "turn_index": 14,
+    "score": 0.7166666666666666,
+    "ip_pred": 0.5952380952380952,
+    "violations": [
+      "unsupported_state_attribution",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s3",
+    "turn_index": 20,
+    "score": 0.6033333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.14285714285714288,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s4",
+    "turn_index": 2,
+    "score": 0.3866666666666666,
+    "ip_pred": 0.38095238095238093,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s4",
+    "turn_index": 10,
+    "score": 0.455,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.30952380952380953,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s4",
+    "turn_index": 12,
+    "score": 0.47,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000773-sft_calib_dec_ungated-s4",
+    "turn_index": 18,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.7499999999999999,
+    "ip_pred": 0.6428571428571428,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.16666666666666666,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.6883333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s1",
+    "turn_index": 18,
+    "score": 0.6883333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.2619047619047619,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s2",
+    "turn_index": 16,
+    "score": 0.2683333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.2619047619047619,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.43833333333333335,
+    "ip_pred": 0.2619047619047619,
+    "violations": [
+      "unsolicited_advice",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s3",
+    "turn_index": 10,
+    "score": 0.48666666666666664,
+    "ip_pred": 0.5238095238095238,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.665,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000679-sft_calib_dec_ungated-s3",
+    "turn_index": 16,
+    "score": 0.665,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 1.0,
+    "ip_pred": 1.0,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.5983333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.5866666666666667,
+    "ip_pred": 0.6666666666666666,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s1",
+    "turn_index": 20,
+    "score": 0.5866666666666667,
+    "ip_pred": 0.6666666666666666,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.32,
+    "ip_pred": 0.28571428571428575,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s2",
+    "turn_index": 8,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s2",
+    "turn_index": 10,
+    "score": 0.7333333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.5366666666666666,
+    "ip_pred": 0.5952380952380952,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.1333333333333333,
+    "ip_pred": 0.19047619047619047,
+    "violations": [],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s3",
+    "turn_index": 10,
+    "score": 0.18333333333333332,
+    "ip_pred": 0.2619047619047619,
+    "violations": [],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000667-sft_calib_dec_ungated-s3",
+    "turn_index": 18,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000820-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.19047619047619047,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000820-sft_calib_dec_ungated-s1",
+    "turn_index": 10,
+    "score": 0.6316666666666666,
+    "ip_pred": 0.6666666666666666,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.23809523809523805,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000820-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.5699999999999998,
+    "ip_pred": 0.6428571428571428,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000820-sft_calib_dec_ungated-s1",
+    "turn_index": 16,
+    "score": 0.605,
+    "ip_pred": 0.5,
+    "violations": [
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.23809523809523805,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000820-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000820-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000820-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.15,
+    "ip_pred": 0.21428571428571427,
+    "violations": [],
+    "ip_norm": 0.023809523809523798,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000820-sft_calib_dec_ungated-s2",
+    "turn_index": 22,
+    "score": 0.27,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.04761904761904764,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.40333333333333327,
+    "ip_pred": 0.4047619047619047,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.42,
+    "ip_pred": 0.4285714285714286,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.40333333333333327,
+    "ip_pred": 0.4047619047619047,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s1",
+    "turn_index": 22,
+    "score": 0.6816666666666668,
+    "ip_pred": 0.7380952380952381,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.21428571428571427,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s2",
+    "turn_index": 2,
+    "score": 0.42,
+    "ip_pred": 0.4285714285714286,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.23809523809523805,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s2",
+    "turn_index": 12,
+    "score": 0.47,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s2",
+    "turn_index": 14,
+    "score": 0.6483333333333334,
+    "ip_pred": 0.6904761904761906,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s2",
+    "turn_index": 20,
+    "score": 0.47,
+    "ip_pred": 0.5,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.2619047619047619,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s3",
+    "turn_index": 2,
+    "score": 0.55,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth",
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.11904761904761903,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s3",
+    "turn_index": 12,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s3",
+    "turn_index": 14,
+    "score": 0.37,
+    "ip_pred": 0.35714285714285715,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000965-sft_calib_dec_ungated-s3",
+    "turn_index": 20,
+    "score": 0.44999999999999996,
+    "ip_pred": 0.21428571428571427,
+    "violations": [
+      "unsupported_state_attribution",
+      "overreaching_depth"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000737-sft_calib_dec_ungated-s1",
+    "turn_index": 2,
+    "score": 0.5983333333333334,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.09523809523809523,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000737-sft_calib_dec_ungated-s1",
+    "turn_index": 12,
+    "score": 0.5533333333333333,
+    "ip_pred": 0.6190476190476191,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000737-sft_calib_dec_ungated-s1",
+    "turn_index": 14,
+    "score": 0.6149999999999999,
+    "ip_pred": 0.6428571428571428,
+    "violations": [
+      "unsolicited_advice",
+      "stale_reference"
+    ],
+    "ip_norm": 0.21428571428571427,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  },
+  {
+    "session_id": "p000737-sft_calib_dec_ungated-s1",
+    "turn_index": 20,
+    "score": 0.62,
+    "ip_pred": 0.7142857142857143,
+    "violations": [
+      "unsolicited_advice"
+    ],
+    "ip_norm": 0.07142857142857144,
+    "ip_parse_failed": false,
+    "judge_model": "mistralai/Mistral-Nemo-Instruct-2407"
+  }
+]

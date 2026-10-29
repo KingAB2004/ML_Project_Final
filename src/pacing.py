@@ -1,15 +1,3 @@
-"""The disclosure ladder (PLAN Sec. 13.1), kept because Enhancement 2 is built on it.
-
-The modified SOP drops Enhancement 5 (adaptive disclosure pacing): there is no readiness value, no
-privileged teacher and no distillation here any more. What remains is the graded ladder itself, which E2
-needs in two places:
-
-  - the Strategist's allowed rungs, restricted to exploratory moves when Analyzer confidence is low;
-  - the Critic's `overreaching_depth` grounding check on the drafted turn.
-
-Enforcing depth in the prompt alone does not work - models drift upward the moment they think they have
-figured the person out - so the cap is computed here and checked again in grounding.check_draft.
-"""
 from __future__ import annotations
 
 from common import cfg

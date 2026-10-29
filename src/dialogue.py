@@ -71,9 +71,7 @@ def simulator_system(profile: dict, session_context: str = "", reactive: bool = 
 
 
 def rung_schedule(turn_number: int, total_turns: int) -> str:
-    """Corpus-generation pacing curriculum: shallow early, deeper only late.
 
-    """
     frac = turn_number / max(1, total_turns)
     if frac < 0.3:
         return "L0"
@@ -87,10 +85,7 @@ def rung_schedule(turn_number: int, total_turns: int) -> str:
 def generate_session(profile: dict, session_id: str, gen: LLM, sim: LLM, n_supporter_turns: int,
                      session_context: str = "", memory_block: str = "", reactive: bool = False,
                      opener: str | None = None, memory_fn: Callable[[list[dict]], str] | None = None) -> dict:
-    """One session. `gen` and `sim` may be the same LLM handle (they share a model by design).
 
-    memory_fn(turns) -> the memory brief for this turn (memory-aware corpus, sessions.py --memory). The brief is
-    stored on the turn so build_sft trains on exactly the block the generator saw."""
     rng = rng_for(session_id, "dialogue")
     openers = cfg("corpus.openers", default=["Hey - how are things with you today?"])
     turns: list[dict] = []

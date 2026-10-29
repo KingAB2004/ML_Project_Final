@@ -1,0 +1,206 @@
+SOP RESULTS MAP
+===============
+
+Every promise made in the SOP (modified_SOP_12340340_12340370.pdf), where it is asked for, what we did, the
+headline result, and where the files are. Studies added on top of the SOP are in EXTRA_STUDIES.txt (same folder).
+
+Paths are relative to the repository root (COCCON_NEW/).
+  R/ = results/v3_full1000/            (raw outputs: dialogues, judge scores, calibration, memory files, plots)
+  S/ = results/v3_full1000/summaries/  (short written results: tables + notes; same files as temp_results/)
+Scores: judge Mistral-Nemo-12B, 0-1. IP = intrusiveness of a supporter turn, PRI = resistance in the seeker's next
+turn (higher = worse for both); Success = the supporter identified the underlying need (higher = better).
+95% CIs are bootstrap over people. "Holm" = the difference survives the multiple-comparison correction
+(S/23_multiple_comparisons). Test set: 100 held-out people, 2-4 linked sessions each (310 sessions per arm).
+Status on 23 October 2026.
+
+
+---------------------------------------------------------------------------------------------------------------------
+1. Corpus construction
+   SOP:     III-A Enhancement 1 ("reimplement a data construction pipeline ... profile construction over the emotion,
+            feeling, need and memory dimensions ... two-stage dialogue generation ... quality filtering using the
+            Active-Empathic Listening Scale, and fine-grained turn annotation"); "seed situations from
+            EmpatheticDialogues ... report which of the two routes produced the released corpus"; "linked session
+            sequences separated by explicit time gaps"; IV-A "Our proposed corpus".
+   Done:    full pipeline in src/ (seeds.py, profiles.py, dialogue.py, sessions.py, filter.py, annotate.py);
+            1,000 EmpatheticDialogues-seeded profiles, 2,369 linked sessions with sampled time gaps, 21,429 annotated
+            supporter turns (Analysis + Strategy per turn).
+   Result:  the seeding route is EmpatheticDialogues; 85.5 % of screened seeds passed the need-chain screen; no
+            LLM-synthesized fallback was needed.
+   Where:   R/dataset/  ·  S/01_dataset_quality__ours_vs_ExTES_vs_ESConv/  ·  R/../README.md section 1
+   Status:  done
+
+2. Corpus quality against ExTES and ESConv
+   SOP:     Expected outcome 1 (the corpus); IV-A (ESConv and ExTES as comparison corpora); the original paper's
+            corpus tables reproduced with the same instruments.
+   Done:    Mistral judge on the basic metrics + CRS / RAC scales, and ESC-RANK (the original paper's own scorer),
+            on 200 of our dialogues, 100 ExTES, 100 ESConv.
+   Result:  the judge saturates (basic-metric average 80.5 ours, 81.8 ExTES, 78.9 ESConv). ESC-RANK separates them: ours Div 64.9, Inf 56.9,
+            Skil 65.1 - below ExTES (74.0, 70.2, 74.0), above ESConv (54.8, 54.5, 67.5); Hum ~50 for all three.
+   Where:   R/dataset/data_quality.md  ·  R/dataset/escrank/  ·  S/01_*
+   Status:  done
+
+3. Fine-tuning an open model on the corpus
+   SOP:     III-E ("Fine-Tuning on Open-Source Models"); IV-B (QLoRA on one 12 GB GPU).
+   Done:    QLoRA on Qwen2.5 0.5B / 3B / 7B, each with and without the Analysis + Strategy thoughts in the target.
+   Result:  best validation loss falls with size (with thoughts 0.842 / 0.687 / 0.612); loss ~ N^-0.11 (with
+            thoughts), N^-0.19 (without).
+   Where:   R/training/  ·  R/analyses/scaling/  ·  S/02_finetuning__validation_loss_by_model_size/
+   Status:  done
+
+4. Reproduce the direction of the published annotation ablation
+   SOP:     Expected outcome 1 ("aim to reproduce the direction of the published annotation ablation").
+   Done:    with- vs without-thoughts models on the test people; usable information (PVI) the thoughts carry about
+            the reply; how the LoRA update uses its rank.
+   Result:  the thoughts carry 8.9 / 7.4 / 3.3 bits per reply (0.5B / 3B / 7B). On the 7B they add Success +0.023
+            [0.000, 0.047]; on the 0.5B they add IP +0.021 [0.011, 0.032]. Compare the direction with the
+            published ablation table in the report; the gain on Success comes with a cost in intrusiveness.
+   Where:   R/test_eval/  ·  R/analyses/pvi/  ·  R/analyses/lora_geometry/  ·  S/03_*, S/04_*, S/05_*, S/09_*
+   Status:  done
+
+5. Attempt to beat reactive baselines on Success
+   SOP:     Expected outcome 1 ("attempt to beat reactive baselines on Success Rate"); IV-A ("ExTES serves as the
+            strongest reactive baseline").
+   Done:    (a) the untuned listener with our proactive seeker vs with a reactive seeker; (b) our-corpus model vs
+            the ExTES-trained model (the strongest reactive baseline), on our people and on ExTES people.
+   Result:  NOT beaten. (a) the proactive seeker lowers IP (-0.024, Holm) and Success (-0.032, not Holm).
+            (b) on our people the ExTES model has higher Success (+0.037 [-0.002, +0.073], not significant) and
+            the same IP (+0.004, n.s.); on ExTES people it has higher Success (+0.063, Holm), same IP. All four cells
+            judged on one machine (our-people cell re-judged; the first, cross-machine version showed a spurious
+            IP +0.026).
+   Where:   R/baselines_1000/ (base_instruct, reactive_baseline)  ·  R/corpus_extes/  ·  S/06_*, S/16_*, S/23_*
+   Status:  done
+
+6. The 2 x 2 ablation: decomposition x gate
+   SOP:     III-B ("cross the two - decomposed versus monolithic listener, gated versus ungated critic - and report
+            all four cells on Success Rate and Intrusiveness Penalty"); Expected outcome 2.
+   Done:    cells A (one call), B (one call + gate), C (four agents), D (four agents + gate), untuned 7B.
+   Result:  the gate lowers IP with four agents (D - C -0.015, Holm), and with one call only before correction
+            (B - A -0.007). Decomposition RAISES IP (C - A +0.020, D - B +0.012, Holm). No Success differences.
+            I.e. "the gate carries the effect while decomposition alone contributes nothing" - here decomposition
+            even costs intrusiveness.
+   Where:   R/baselines_1000/  ·  S/06_architecture_and_gate__2x2_cells/  ·  S/23_*
+   Status:  done
+
+7. The conformal gate and the scope of its guarantee
+   SOP:     III-B ("expose an intrusiveness error budget alpha ... distribution-free bound on the fraction of released
+            turns exceeding the tolerance"; "Scope of the guarantee ... the cross-corpus arms ... report the empirical
+            violation rate as a measured quantity").
+   Done:    calibration (alpha 0.10, tau 0.20, delta 0.10) on held-out calibration people; realised violation rate
+            (released AND IP > tau, share of all turns) in and out of distribution.
+   Result:  cell D 0.046 [0.034, 0.059] and cell D on ExTES people 0.022 [0.007, 0.040], both under alpha - but on
+            ExTES people only because 65 % of turns fall back to the template. Step 12 (fine-tuned Generator)
+            0.091 [0.074, 0.112]: the upper bound passes alpha.
+   Where:   R/baselines_1000/conformal/  ·  R/sft_agents/conformal/  ·  S/17_gate_violation_rate/
+   Status:  done
+
+8. Four agents with evidence-grounded contracts; the fine-tuned Generator inside them
+   SOP:     III-B (Analyzer / Strategist / Generator / Critic, "every inference ... supporting quotes and a
+            confidence score", "strategies are meant to be restricted to exploratory moves" at low confidence).
+   Done:    pipeline in src/agents.py, src/grounding.py, src/pacing.py; step 12 = the fine-tuned 7B as Generator,
+            gate recalibrated for it, need-state memory.
+   Result:  step 12 IP 0.096 vs cell D 0.072 (Holm) and PRI +0.051 (Holm), Success equal - BUT step 12 ran on
+            transformers and cell D on Ollama, and the backend alone adds +0.017 IP, so most of the gap may be the
+            backend, not fine-tuning.
+   Where:   R/sft_agents/  ·  S/20_step12_finetuned_generator/  ·  R/architecture_diagrams/, S/12_*
+   Status:  done
+
+9. Turn-level metrics IP and PRI, with counterfactual attribution
+   SOP:     III-C Enhancement 3 (IP, PRI; "replace the supporter turn with a neutral reflective control ...
+            PRI = r1 - r0 ... reported with a confidence interval").
+   Done:    IP on 4 sampled turns per session, PRI on the seeker's next turn, counterfactual PRI with seed-matched
+            factual vs control replays, for every arm.
+   Result:  counterfactual PRI: cell C +0.010 [0.005, 0.015], step 12 +0.014 [0.011, 0.018], cell D -0.004 (n.s.),
+            DPO -0.000 (n.s.) vs its SFT control +0.005 [0.002, 0.008]. Examples of the turns that provoked most
+            resistance in S/22.
+   Where:   scores/ inside every run folder in R/ (ip.jsonl, pri.jsonl, pri_rollouts.jsonl, pri_summary.json)
+   Status:  done
+
+10. The three judge controls
+   SOP:     III-C ("the resistance level would be withheld from the judge prompt; the judge would be a different open
+            model from the one used for generation and role-play; and a stratified subsample would be rated by the
+            team").
+   Done:    control 1 and 2 in src/judge.py (every score records its context_redactions; the judge must not share a
+            model with supporter or simulator). Control 3 (team ratings) not done.
+   Where:   src/judge.py  ·  human_eval/ (sampler, rating forms, agreement script - ready)
+   Status:  controls 1-2 done; control 3 NOT DONE (needs human raters)
+
+11. Judge reliability check / judge-human agreement
+   SOP:     Expected outcome 3 ("a planned judge reliability check"); "report every headline number with the
+            judge-human agreement measured on its stratified subsample".
+   Done:    judge-human: not done. Added instead (not a substitute): a second judge from another family
+            (Llama-3.1-8B) on 9 key arms, and a check of the judge's serving machine - see EXTRA_STUDIES.txt E6, E7.
+   Status:  judge-human NOT DONE
+
+12. The critic's recovery-versus-cost curve
+   SOP:     Expected outcome 3 ("map the critic's recovery-versus-cost curve").
+   Done:    offline curves over every threshold from the calibration drafts (untuned and fine-tuned Generator), and
+            the realised cost / benefit in the 2 x 2.
+   Result:  at the calibrated threshold: untuned cost 27 % (drafts stopped), recovery 38 % (intrusive drafts
+            stopped); fine-tuned cost 53 %, recovery 57 %. Only weakly better than random stopping.
+   Where:   R/analyses/gate_recovery_vs_cost/  ·  S/14_gate_recovery_vs_cost/
+   Status:  done
+
+13. Need-state memory against the memory baselines
+   SOP:     III-D Enhancement 4 ("comparing against session-isolated baseline, flat running-summary memory, dense
+            retrieval, and the event-level baseline ... report Success Rate (need identification) rather than merely
+            recall"); Expected outcome 4.
+   Done:    no memory / flat summary / dense retrieval / need-state, untuned 7B, four agents, profiles advancing
+            between sessions. The event-level arm was dropped by decision.
+   Result:  no Success differences (0.36-0.38). Memory raises IP (need-state +0.017, dense +0.018; not Holm; the
+            second judge does not reproduce the need-state rise). Need-state confirmed needs are real 91 % of the
+            time, its confidence separates real from false needs only weakly (AUROC 0.60). Limits: transition
+            recall is unusable (the no-memory arm scores 0.80), the seeker never denies a guess (0 denials), so
+            re-proposal of denied inferences is untested.
+   Where:   R/memory_v2/  ·  R/memory_1000/  ·  S/08_*, S/13_memory_comparison__untuned_4_arms/
+   Status:  done (event-level arm dropped)
+
+14. Memory on data we did not generate
+   SOP:     III-D / IV ("on ExTES user profiles, and on ES-MemEval, so that memory is tested on data we did not
+            generate"); Expected outcome 4.
+   Done:    ES-MemEval: done. ExTES user profiles: not run (decision).
+   Result:  ES-MemEval need-state 0.619.
+   Where:   R/memeval/  ·  S/13_*
+   Status:  ES-MemEval done; ExTES-profile memory NOT RUN (decision)
+
+15. Fine-tuned 7B with and without memory
+   SOP:     Expected outcome 4 (memory evaluated with Success, not just recall).
+   Done:    the fine-tuned 7B over 2-4 sessions with and without the need-state brief; every 7B system side by side.
+   Result:  with memory Success 0.394 vs 0.380 without (sessions 2-4 gain most); IP the same (0.092 vs 0.090).
+   Where:   R/sft7b_multi/  ·  S/07_*, S/11_multi_session__all_7B_systems/
+   Status:  done
+
+16. Psychological scales implemented for English, with their item wording
+   SOP:     IV ("AELS, the Comforting Responses Scale, and the RAC Scale ... implement them ourselves for English with
+            open judge models, and report the item wording").
+   Done:    prompts/scale_aels.md, scale_crs.md, scale_rac.md, scale_basic.md, scale_success.md, metric_ip.md,
+            metric_pri.md (item wording as used); scored for every arm.
+   Where:   prompts/  ·  scores/ in every run folder (aels, crs, rac, basic, success)
+   Status:  done
+
+17. Release prompts, configurations and hyperparameters; document substitutions
+   SOP:     Appendix ("release all prompts, model configurations, quantization settings, and hyperparameters";
+            "fully document these substitutions along with their underlying rationale").
+   Done:    prompts/, configs/ (models.yaml, default.yaml, arms.yaml) in the repository; substitutions written up
+            with measured effects where they could move a result.
+   Where:   prompts/  ·  configs/  ·  R/reports_lab/substitutions.md
+   Status:  done
+
+
+---------------------------------------------------------------------------------------------------------------------
+NOT DONE (all of it, in one place)
+  - Judge-human agreement on a stratified subsample (items 10, 11): needs 2-3 human raters; human_eval/ is ready.
+  - Memory on ExTES user profiles (item 14): not run by decision.
+  - Event-level memory baseline (item 13): dropped by decision.
+
+KNOWN LIMITATIONS TO STATE IN THE REPORT
+  - Backend confound: transformers vs Ollama moves IP by +0.017 (step 12 vs cell D is affected).
+  - Judge serving machine: the same Mistral weights on Ollama 0.35 (lab) vs 0.18 (10.10.10.104) shift session-level
+    scales a lot and turn-level IP a little (cell A 0.068 vs 0.079). Compare arms judged on the same machine: the
+    psychology probes were all re-judged on 10.10.10.104 and the ExTES-vs-ours cell on our people re-judged there
+    too; memory arms and ExTES cells were judged on 10.10.10.104, the 2 x 2, step 12, steering and DPO on the lab
+    (S/25_judge_machine_check).
+  - Most arms are unpaired (session seeds include the arm name); steering and DPO comparisons are paired.
+  - The gate is safe out of distribution only by falling back on 65 % of turns; step 12's violation bound passes
+    alpha.
+  - Transition recall and denial handling in the memory evaluation could not be tested (item 13).
+  - Qwen sometimes drifts into Chinese (at most ~1 % of turns, < 3 % of counterfactual rollout replies; S/22).

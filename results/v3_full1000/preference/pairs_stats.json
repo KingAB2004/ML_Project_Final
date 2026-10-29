@@ -1,0 +1,12 @@
+{
+  "contexts": 1200,
+  "pairs": 460,
+  "skipped": {
+    "unparsed": 0,
+    "small gap": 626,
+    "length": 114
+  },
+  "mean_ip_chosen": 0.08266045548654245,
+  "mean_ip_rejected": 0.32474120082815733,
+  "ranker": "qwen2.5:7b-instruct"
+}

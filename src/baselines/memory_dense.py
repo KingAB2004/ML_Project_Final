@@ -1,9 +1,4 @@
-"""Dense retrieval over past turns: top-k by similarity to the latest turn.
 
-The central comparison for E4: similarity retrieval answers "what looks like now", while the need-state
-brief answers "what do we still not know". Embeddings are optional - a bag-of-words cosine stands in when
-sentence-transformers is unavailable, and the report must say which was used.
-"""
 from __future__ import annotations
 
 import math

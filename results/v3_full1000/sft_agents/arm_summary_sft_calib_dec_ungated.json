@@ -1,0 +1,14 @@
+{
+  "arm": "sft_calib_dec_ungated",
+  "supporter": "sft_with_thoughts",
+  "adapter": "runs/full_1000/adapter_with_thoughts",
+  "supporter_base": null,
+  "sessions_written": 94,
+  "profiles": 30,
+  "dialogues_path": "runs/sft_agents/dialogues/sft_calib_dec_ungated.jsonl",
+  "gate": false,
+  "calibrated": false,
+  "memory": "needstate",
+  "architecture": "decomposed",
+  "in_distribution": true
+}

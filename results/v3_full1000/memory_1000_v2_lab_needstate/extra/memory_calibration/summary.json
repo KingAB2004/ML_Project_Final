@@ -1,0 +1,194 @@
+{
+  "pooled": {
+    "n": 749,
+    "base_rate": 0.9038718291054739,
+    "logloss": 0.6130317272797807,
+    "auroc": 0.6597940259313967,
+    "brier": 0.16657965540909872,
+    "reliability": 0.08128559689913577,
+    "resolution": 0.003737315274475889,
+    "uncertainty": 0.08688754565499887,
+    "within_bin": 0.002143828129439973,
+    "ece": 0.1783734098742928,
+    "curve": [
+      {
+        "bin": 0,
+        "n": 26,
+        "mean_confidence": 0.05242077339095945,
+        "observed": 0.8076923076923077
+      },
+      {
+        "bin": 1,
+        "n": 37,
+        "mean_confidence": 0.13799943892912372,
+        "observed": 0.8918918918918919
+      },
+      {
+        "bin": 2,
+        "n": 13,
+        "mean_confidence": 0.23867188136171286,
+        "observed": 1.0
+      },
+      {
+        "bin": 3,
+        "n": 20,
+        "mean_confidence": 0.3582314946508458,
+        "observed": 0.9
+      },
+      {
+        "bin": 4,
+        "n": 32,
+        "mean_confidence": 0.4489813059859109,
+        "observed": 0.84375
+      },
+      {
+        "bin": 5,
+        "n": 54,
+        "mean_confidence": 0.5732582735154929,
+        "observed": 0.7962962962962963
+      },
+      {
+        "bin": 6,
+        "n": 92,
+        "mean_confidence": 0.6820226821250349,
+        "observed": 0.8369565217391305
+      },
+      {
+        "bin": 7,
+        "n": 24,
+        "mean_confidence": 0.7636559479595441,
+        "observed": 0.875
+      },
+      {
+        "bin": 8,
+        "n": 176,
+        "mean_confidence": 0.8138381101409448,
+        "observed": 0.8920454545454546
+      },
+      {
+        "bin": 9,
+        "n": 275,
+        "mean_confidence": 0.9346521703715226,
+        "observed": 0.9709090909090909
+      }
+    ],
+    "by_status": {
+      "confirmed": {
+        "n": 116,
+        "p_real": 0.9741379310344828
+      },
+      "disconfirmed": {
+        "n": 5,
+        "p_real": 0.8
+      },
+      "hypothesis": {
+        "n": 628,
+        "p_real": 0.89171974522293
+      }
+    }
+  },
+  "arms": {
+    "mem_needstate": {
+      "n": 749,
+      "base_rate": 0.9038718291054739,
+      "logloss": 0.6130317272797807,
+      "auroc": 0.6597940259313967,
+      "brier": 0.16657965540909872,
+      "reliability": 0.08128559689913577,
+      "resolution": 0.003737315274475889,
+      "uncertainty": 0.08688754565499887,
+      "within_bin": 0.002143828129439973,
+      "ece": 0.1783734098742928,
+      "curve": [
+        {
+          "bin": 0,
+          "n": 26,
+          "mean_confidence": 0.05242077339095945,
+          "observed": 0.8076923076923077
+        },
+        {
+          "bin": 1,
+          "n": 37,
+          "mean_confidence": 0.13799943892912372,
+          "observed": 0.8918918918918919
+        },
+        {
+          "bin": 2,
+          "n": 13,
+          "mean_confidence": 0.23867188136171286,
+          "observed": 1.0
+        },
+        {
+          "bin": 3,
+          "n": 20,
+          "mean_confidence": 0.3582314946508458,
+          "observed": 0.9
+        },
+        {
+          "bin": 4,
+          "n": 32,
+          "mean_confidence": 0.4489813059859109,
+          "observed": 0.84375
+        },
+        {
+          "bin": 5,
+          "n": 54,
+          "mean_confidence": 0.5732582735154929,
+          "observed": 0.7962962962962963
+        },
+        {
+          "bin": 6,
+          "n": 92,
+          "mean_confidence": 0.6820226821250349,
+          "observed": 0.8369565217391305
+        },
+        {
+          "bin": 7,
+          "n": 24,
+          "mean_confidence": 0.7636559479595441,
+          "observed": 0.875
+        },
+        {
+          "bin": 8,
+          "n": 176,
+          "mean_confidence": 0.8138381101409448,
+          "observed": 0.8920454545454546
+        },
+        {
+          "bin": 9,
+          "n": 275,
+          "mean_confidence": 0.9346521703715226,
+          "observed": 0.9709090909090909
+        }
+      ],
+      "by_status": {
+        "confirmed": {
+          "n": 116,
+          "p_real": 0.9741379310344828
+        },
+        "disconfirmed": {
+          "n": 5,
+          "p_real": 0.8
+        },
+        "hypothesis": {
+          "n": 628,
+          "p_real": 0.89171974522293
+        }
+      }
+    }
+  },
+  "recalibration": {
+    "brier_raw": 0.16657965540909872,
+    "brier_recalibrated": 0.0868865766555736,
+    "logloss_raw": 0.6130317272797807,
+    "logloss_recalibrated": 0.3136998522462448,
+    "coefficients_full_data": {
+      "intercept": 1.3536,
+      "logit_confidence": 0.3114,
+      "log1p_support": 0.5481,
+      "log1p_contra": 2.1233,
+      "depth": -0.3628,
+      "dormant": 1.1345
+    }
+  }
+}

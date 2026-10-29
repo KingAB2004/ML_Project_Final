@@ -1,4 +1,3 @@
-"""Flat running summary: prose regenerated each session. Isolates whether structure beats prose."""
 from __future__ import annotations
 
 from typing import Sequence

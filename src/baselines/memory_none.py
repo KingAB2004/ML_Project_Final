@@ -1,4 +1,3 @@
-"""Session-isolated memory: no cross-session state at all. Isolates the value of having any memory."""
 from __future__ import annotations
 
 from typing import Sequence
@@ -29,6 +28,12 @@ class NoMemory:
         return []
 
     def find_equivalent(self, text: str, include_closed: bool = True):
+        return None
+
+    def valid_parent(self, parent_id: str | None, depth: int) -> str | None:
+        return None
+
+    def default_parent(self, depth: int, session_id: str = "") -> str | None:
         return None
 
     def propose(self, *_a, **_k):

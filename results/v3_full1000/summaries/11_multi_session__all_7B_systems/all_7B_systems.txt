@@ -1,0 +1,64 @@
+All 7B systems: fine-tuned multi-session with / without memory, fine-tuned single-session with / without thoughts, untuned one call, 2 x 2 cells A-D
+====================================================================================================================================================
+
+Overall (100 test people; Success, AELS higher better; IP, PRI lower better; CIs: bootstrap over people)
+system                                           sessions  Success [95% CI]      AELS                  IP                    PRI observed          PRI counterfactual [95% CI]
+-----------------------------------------------  --------  --------------------  --------------------  --------------------  --------------------  ---------------------------
+fine-tuned 7B, with thoughts, no memory          310       0.380 [0.369, 0.391]  0.843 [0.837, 0.849]  0.090 [0.084, 0.096]  0.252 [0.229, 0.275]  +0.011 [+0.006, +0.017]    
+fine-tuned 7B, with thoughts + memory            310       0.394 [0.383, 0.405]  0.835 [0.830, 0.841]  0.092 [0.086, 0.098]  0.255 [0.234, 0.276]  +0.012 [+0.006, +0.017]    
+fine-tuned 7B, with thoughts, single session     100       0.415 [0.397, 0.433]  0.849 [0.838, 0.859]  0.091 [0.083, 0.097]  0.241 [0.214, 0.273]  +0.018 [+0.008, +0.029]    
+fine-tuned 7B, without thoughts, single session  100       0.392 [0.375, 0.410]  0.842 [0.832, 0.853]  0.083 [0.076, 0.092]  0.223 [0.197, 0.254]  +0.010 [+0.001, +0.020]    
+untuned 7B, one call (base_instruct)             100       0.383 [0.368, 0.402]  0.836 [0.822, 0.848]  0.065 [0.057, 0.073]  0.192 [0.169, 0.218]  -0.001 [-0.009, +0.007]    
+cell A: untuned, one call, gate off              310       0.382 [0.373, 0.392]  0.859 [0.851, 0.868]  0.068 [0.063, 0.072]  0.184 [0.166, 0.201]  -0.003 [-0.007, +0.002]    
+cell B: untuned, one call, gate on               310       0.375 [0.365, 0.386]  0.833 [0.825, 0.840]  0.061 [0.057, 0.064]  0.187 [0.171, 0.204]  -0.002 [-0.007, +0.002]    
+cell C: untuned, four agents, gate off           310       0.379 [0.368, 0.392]  0.849 [0.841, 0.857]  0.087 [0.081, 0.093]  0.203 [0.183, 0.226]  +0.010 [+0.005, +0.015]    
+cell D: untuned, four agents, gate on            310       0.369 [0.359, 0.380]  0.833 [0.826, 0.840]  pending               pending               pending                    
+
+Success (0-1, higher better) by session with the same person (n = sessions for Success, judged turns for IP / PRI)
+system                                           S1             S2             S3            S4          
+-----------------------------------------------  -------------  -------------  ------------  ------------
+fine-tuned 7B, with thoughts, no memory          0.395 (n=100)  0.372 (n=100)  0.376 (n=75)  0.371 (n=35)
+fine-tuned 7B, with thoughts + memory            0.378 (n=100)  0.408 (n=100)  0.387 (n=75)  0.410 (n=35)
+fine-tuned 7B, with thoughts, single session     0.415 (n=100)  -              -             -           
+fine-tuned 7B, without thoughts, single session  0.392 (n=100)  -              -             -           
+untuned 7B, one call (base_instruct)             0.383 (n=100)  -              -             -           
+cell A: untuned, one call, gate off              0.402 (n=100)  0.373 (n=100)  0.367 (n=75)  0.381 (n=35)
+cell B: untuned, one call, gate on               0.377 (n=100)  0.373 (n=100)  0.373 (n=75)  0.381 (n=35)
+cell C: untuned, four agents, gate off           0.377 (n=100)  0.392 (n=100)  0.371 (n=75)  0.367 (n=35)
+cell D: untuned, four agents, gate on            0.372 (n=100)  0.377 (n=100)  0.351 (n=75)  0.381 (n=35)
+
+IP (0-1, lower better) by session with the same person (n = sessions for Success, judged turns for IP / PRI)
+system                                           S1             S2             S3             S4           
+-----------------------------------------------  -------------  -------------  -------------  -------------
+fine-tuned 7B, with thoughts, no memory          0.087 (n=400)  0.089 (n=400)  0.090 (n=300)  0.097 (n=140)
+fine-tuned 7B, with thoughts + memory            0.096 (n=400)  0.088 (n=400)  0.093 (n=300)  0.093 (n=140)
+fine-tuned 7B, with thoughts, single session     0.091 (n=400)  -              -              -            
+fine-tuned 7B, without thoughts, single session  0.083 (n=400)  -              -              -            
+untuned 7B, one call (base_instruct)             0.065 (n=400)  -              -              -            
+cell A: untuned, one call, gate off              0.069 (n=400)  0.070 (n=400)  0.066 (n=300)  0.060 (n=140)
+cell B: untuned, one call, gate on               0.065 (n=400)  0.058 (n=400)  0.056 (n=300)  0.063 (n=140)
+cell C: untuned, four agents, gate off           0.099 (n=400)  0.083 (n=400)  0.086 (n=300)  0.068 (n=140)
+cell D: untuned, four agents, gate on            pending        pending        pending        pending      
+
+PRI observed (0-1, lower better) by session with the same person (n = sessions for Success, judged turns for IP / PRI)
+system                                           S1              S2              S3             S4           
+-----------------------------------------------  --------------  --------------  -------------  -------------
+fine-tuned 7B, with thoughts, no memory          0.227 (n=982)   0.237 (n=986)   0.280 (n=753)  0.305 (n=338)
+fine-tuned 7B, with thoughts + memory            0.253 (n=994)   0.241 (n=982)   0.257 (n=746)  0.293 (n=353)
+fine-tuned 7B, with thoughts, single session     0.241 (n=1000)  -               -              -            
+fine-tuned 7B, without thoughts, single session  0.223 (n=1011)  -               -              -            
+untuned 7B, one call (base_instruct)             0.192 (n=995)   -               -              -            
+cell A: untuned, one call, gate off              0.184 (n=1006)  0.185 (n=988)   0.184 (n=756)  0.180 (n=343)
+cell B: untuned, one call, gate on               0.186 (n=1024)  0.184 (n=1007)  0.181 (n=760)  0.215 (n=349)
+cell C: untuned, four agents, gate off           0.223 (n=998)   0.192 (n=1000)  0.207 (n=768)  0.171 (n=355)
+cell D: untuned, four agents, gate on            pending         pending         pending        pending      
+
+Notes
+- Fine-tuned multi-session arms: one call, gate off; the person changes between sessions (resolved / intensified /
+  displaced), corrective seeker. Memory arm: the base Analyzer writes the need-state tree; the brief goes in the prompt.
+- Cells A-D: the person keeps the same need across sessions, proactive seeker. Cross-group gaps mix system and setup.
+- Single-session arms (S1 only, 100 sessions, proactive seeker, no memory): fine-tuned 7B with / without thoughts, base_instruct.
+  With vs without thoughts is the clean comparison here: same adapter training, same people, same seeker.
+- Cells A/B never wrote memory (one-call supporter has no Analyzer). Cells C/D had the flat need-state memory.
+- The fine-tuned model was trained with '[memory] none.' and never saw a brief: the memory arm is zero-shot use.
+- 'pending': not judged yet.

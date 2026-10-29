@@ -1,0 +1,27 @@
+Step 12: the fine-tuned Generator inside the four-agent gated pipeline, against cell D (same pipeline, untuned
+Generator) and the fine-tuned one-call model with memory (sft7b_multi_mem). 100 test people, 2-4 sessions each.
+By-person bootstrap 95% CIs; the arms use different session seeds, so differences are unpaired.
+BACKEND CAVEAT: step 12 ran on transformers (nf4), cells C and D on Ollama (Q4 GGUF). The backend alone moves IP: the
+untuned one-call listener scores 0.085 on transformers (steer_mono_L12_c0) against 0.068 on Ollama (cell A), +0.017.
+So most of step 12's IP gap to cell D may be the backend, not the fine-tuned Generator; no untuned four-agent gated arm
+was run on transformers to separate the two.
+
+    python scripts/step12_compare.py --out temp_results/20_step12_finetuned_generator
+
+
+arm  sessions  IP  PRI  Success  counterfactual PRI [95% CI]  fallback  words
+sft_dec_gated_mem  310  0.096  0.244  0.380  +0.0144 [+0.0108, +0.0182]  0.016  26.852
+cellD_dec_gated  310  0.072  0.193  0.369  -0.0037 [-0.0084, +0.0010]  0.162  21.677
+cellC_dec_ungated  310  0.087  0.203  0.379  +0.0098 [+0.0046, +0.0150]  0.000  23.241
+sft7b_multi_mem  310  0.092  0.254  0.394  +0.0116 [+0.0059, +0.0175]  0.000  27.992
+
+differences (step 12 - other), by-person bootstrap 95% CI
+   sft_dec_gated_mem - cellD_dec_gated  ip       +0.024 [+0.016, +0.031]
+   sft_dec_gated_mem - cellD_dec_gated  pri      +0.051 [+0.022, +0.079]
+   sft_dec_gated_mem - cellD_dec_gated  success  +0.010 [-0.006, +0.025]
+   sft_dec_gated_mem - cellC_dec_ungated  ip       +0.009 [+0.000, +0.017]
+   sft_dec_gated_mem - cellC_dec_ungated  pri      +0.042 [+0.012, +0.071]
+   sft_dec_gated_mem - cellC_dec_ungated  success  +0.001 [-0.016, +0.016]
+   sft_dec_gated_mem - sft7b_multi_mem  ip       +0.004 [-0.004, +0.012]
+   sft_dec_gated_mem - sft7b_multi_mem  pri      -0.009 [-0.041, +0.019]
+   sft_dec_gated_mem - sft7b_multi_mem  success  -0.014 [-0.030, +0.002]

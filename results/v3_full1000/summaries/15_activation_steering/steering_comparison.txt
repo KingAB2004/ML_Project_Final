@@ -1,0 +1,32 @@
+Activation steering: the comparison approach to our pipeline.
+
+arm  sessions  IP  PRI  Success  counterfactual PRI [95% CI]  fallback  words
+steer_mono_L12_c0  310  0.085  0.203  0.405  -0.0007 [-0.0037, +0.0023]  0.000  31.814
+steer_mono_L12_c0.2  310  0.076  0.213  0.404  +0.0019 [-0.0012, +0.0051]  0.000  27.533
+cellA_mono_ungated  310  0.068  0.184  0.382  -0.0027 [-0.0071, +0.0019]  0.000  30.177
+cellB_mono_gated  310  0.061  0.187  0.375  -0.0024 [-0.0069, +0.0023]  0.096  25.871
+cellC_dec_ungated  310  0.087  0.203  0.379  +0.0098 [+0.0046, +0.0150]  0.000  23.241
+cellD_dec_gated  310  0.072  0.193  0.369  -0.0037 [-0.0084, +0.0010]  0.162  21.677
+sft_dec_gated_mem  310  0.096  0.244  0.380  +0.0144 [+0.0108, +0.0182]  0.016  26.852
+
+differences, by-person bootstrap 95% CI (b - a)
+   steer_mono_L12_c0.2 - steer_mono_L12_c0  ip       -0.008 [-0.017, +0.000]
+   steer_mono_L12_c0.2 - steer_mono_L12_c0  pri      +0.011 [-0.020, +0.040]
+   steer_mono_L12_c0.2 - steer_mono_L12_c0  success  -0.001 [-0.018, +0.016]
+   cellA_mono_ungated - steer_mono_L12_c0.2  ip       -0.009 [-0.016, -0.002]
+   cellA_mono_ungated - steer_mono_L12_c0.2  pri      -0.030 [-0.057, -0.004]
+   cellA_mono_ungated - steer_mono_L12_c0.2  success  -0.022 [-0.040, -0.005]
+   cellB_mono_gated - steer_mono_L12_c0.2  ip       -0.016 [-0.022, -0.009]
+   cellB_mono_gated - steer_mono_L12_c0.2  pri      -0.027 [-0.054, -0.001]
+   cellB_mono_gated - steer_mono_L12_c0.2  success  -0.028 [-0.047, -0.012]
+   cellC_dec_ungated - steer_mono_L12_c0.2  ip       +0.011 [+0.002, +0.019]
+   cellC_dec_ungated - steer_mono_L12_c0.2  pri      -0.010 [-0.041, +0.017]
+   cellC_dec_ungated - steer_mono_L12_c0.2  success  -0.025 [-0.044, -0.006]
+   cellD_dec_gated - steer_mono_L12_c0.2  ip       -0.004 [-0.012, +0.003]
+   cellD_dec_gated - steer_mono_L12_c0.2  pri      -0.020 [-0.049, +0.007]
+   cellD_dec_gated - steer_mono_L12_c0.2  success  -0.034 [-0.052, -0.016]
+   sft_dec_gated_mem - steer_mono_L12_c0.2  ip       +0.020 [+0.011, +0.028]
+   sft_dec_gated_mem - steer_mono_L12_c0.2  pri      +0.031 [+0.001, +0.060]
+   sft_dec_gated_mem - steer_mono_L12_c0.2  success  -0.024 [-0.043, -0.007]
+
+Steering and its control run on the transformers backend (nf4); cells A-D ran on Ollama, so compare steering with its own control first. Cells and step 12 use different people seeds, so those comparisons are unpaired.

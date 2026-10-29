@@ -1,13 +1,4 @@
-"""Enhancement 2: the four agents, the revision loop, and the gated release (PLAN Sec. 10.2, 10.4, 15).
 
-Decomposition is infrastructure; the contract and the gate are the claim. So the interesting code here is
-not the four prompts - it is that every boundary writes an inspectable artifact, that no belief is written
-without a validated span, and that release is decided by a calibrated risk threshold rather than a
-hand-tuned confidence number.
-
-All four roles are the SAME resident base model with different system prompts and temperatures. They run
-sequentially: a 12 GB card cannot hold four models, and the report says so rather than implying concurrency.
-"""
 from __future__ import annotations
 
 import json
@@ -20,7 +11,8 @@ from common import (cfg, fill, fresh_turn, normalize_scale, read_prompt, render_
                     user_turns)
 from conformal import Calibration, nonconformity
 from memory import NeedStateMemory
-from pacing import at_most, permitted_rung
+from build_sft import SUPPORTER_SYSTEM, parse_target, render_input
+from pacing import LADDER_DESCRIPTION, at_most, permitted_rung
 
 FALLBACK_TEMPLATE = ("It sounds like {echo} That's worth sitting with. I'm here if you want to say more "
                      "about it.")
@@ -216,6 +208,15 @@ class AgentPipeline:
 
     def generate(self, turns: Sequence[dict], plan: str, permitted_rung: str, memory_block: str,
                  revision_note: str = "") -> str:
+        if getattr(self.generator_llm, "use_adapter", False):
+            # Fine-tuned supporter: its trained input (build_sft.render_input) with the Strategist's plan
+            # appended as guidance, and only the <response> part kept, so thoughts never reach the seeker.
+            prompt = (render_input(list(turns), max(t["turn_index"] for t in turns) + 1, memory_block=memory_block)
+                      + f"\n\nPlan for this turn: {plan}\nDo not go deeper than {permitted_rung} "
+                        f"({LADDER_DESCRIPTION.get(permitted_rung, '')}).\n{revision_note}").rstrip()
+            raw = fresh_turn(self.generator_llm.chat, prompt, turns, "supporter", system=SUPPORTER_SYSTEM,
+                             use_cache=not revision_note)
+            return parse_target(raw)["response"] or reflective_fallback(turns)
         prompt = fill(self.generator_tpl, plan=plan, permitted_rung=permitted_rung,
                       memory_block=memory_block, history=render_transcript(turns, numbered=True),
                       revision_note=revision_note)

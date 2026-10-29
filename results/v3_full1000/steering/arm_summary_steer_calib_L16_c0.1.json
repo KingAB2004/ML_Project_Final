@@ -1,0 +1,19 @@
+{
+  "arm": "steer_calib_L16_c0.1",
+  "supporter": "sft_with_thoughts",
+  "adapter": null,
+  "supporter_base": null,
+  "sessions_written": 63,
+  "profiles": 20,
+  "dialogues_path": "runs/steering/dialogues/steer_calib_L16_c0.1.jsonl",
+  "gate": false,
+  "calibrated": false,
+  "memory": "needstate",
+  "architecture": "monolithic",
+  "in_distribution": true,
+  "steer": {
+    "steer_vector": "runs/steering/steering_vectors.pt",
+    "steer_layer": 16,
+    "steer_coef": 0.1
+  }
+}

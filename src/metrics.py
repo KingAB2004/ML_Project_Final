@@ -1,15 +1,4 @@
-"""Enhancement 3 - turn-level psychological metrics (PLAN Sec. 11).
 
-IP scores a SUPPORTER turn for overstepping readiness. PRI scores the SEEKER's next turn for resistance
-aroused by the preceding supporter move; `counterfactual.py` supplies its attribution.
-
-The three validity controls are enforced here and in judge.py, not left to discipline:
-  1. the scripted resistance level is never in a judge prompt (judge.ALLOWED_INFO / NEVER_SHOWN);
-  2. the judge model must differ from the supporter and the simulator (judge.assert_judge_separate);
-  3. a stratified subsample goes to human raters (human_eval/) and its agreement travels with every number.
-
-  python src/metrics.py --dialogues runs/<id>/dialogues/arm.jsonl --scale ip --backend echo
-"""
 from __future__ import annotations
 
 import argparse
@@ -180,9 +169,10 @@ def aggregate(rows: Sequence[dict], scale: str) -> dict:
     return out
 
 
-def run(dialogues_path: Path, out_dir: Path, scales: Sequence[str], backend: str | None = None) -> dict:
+def run(dialogues_path: Path, out_dir: Path, scales: Sequence[str], backend: str | None = None,
+        judge_role: str = "judge") -> dict:
     sessions = read_jsonl(dialogues_path)
-    judge = Judge(backend=backend)
+    judge = Judge(backend=backend, role=judge_role)
     summary = {}
     try:
         for scale in scales:
@@ -210,11 +200,13 @@ def main() -> None:
     ap.add_argument("--scale", action="append", default=None,
                     choices=["aels", "crs", "rac", "basic", "success", "ip", "pri"])
     ap.add_argument("--backend", default=None)
+    ap.add_argument("--judge-role", default="judge",
+                    help="models.yaml role of the judge; judge_fallback = the second judge (scripts/judge_agreement.py)")
     args = ap.parse_args()
     dialogues = Path(args.dialogues)
     out_dir = Path(args.out) if args.out else dialogues.parent.parent / "scores" / dialogues.stem
     scales = args.scale or ["success", "aels", "crs", "rac", "basic", "ip", "pri"]
-    summary = run(dialogues, out_dir, scales, args.backend)
+    summary = run(dialogues, out_dir, scales, args.backend, args.judge_role)
     for scale, agg in summary.items():
         print(f"{scale}: n={agg['n']} mean={agg['mean_normalized']} "
               f"failures={agg['parse_failures']} judge={agg['judge_model']}")

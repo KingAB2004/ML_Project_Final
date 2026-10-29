@@ -1,0 +1,8 @@
+Usable information the annotated thoughts carry about the reply (validation turns)
+==================================================================================
+size  turns  bits per turn [95% CI]  PVI < 0  reply NLL with thoughts  without
+----  -----  ----------------------  -------  -----------------------  -------
+0.5B  2608   8.91 [8.49, 9.34]       17.9%    0.727                    0.891  
+3B    2608   7.36 [7.02, 7.72]       17.3%    0.571                    0.707  
+7B    2608   3.31 [3.01, 3.62]       32.9%    0.434                    0.495  
+

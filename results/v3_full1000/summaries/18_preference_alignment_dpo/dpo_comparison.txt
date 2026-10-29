@@ -1,0 +1,54 @@
+Preference alignment (DPO): the third comparison approach to our pipeline.
+
+pairs: {
+  "contexts": 1200,
+  "pairs": 460,
+  "skipped": {
+    "unparsed": 0,
+    "small gap": 626,
+    "length": 114
+  },
+  "mean_ip_chosen": 0.08266045548654245,
+  "mean_ip_rejected": 0.32474120082815733,
+  "ranker": "qwen2.5:7b-instruct"
+}
+DPO held-out preference accuracy by step: [(0, 0.0), (160, 0.783), (320, 0.522), (437, 0.522)]
+
+arm  sessions  IP  PRI  Success  counterfactual PRI [95% CI]  fallback  words
+pref_mono_sft  310  0.088  0.212  0.377  +0.0050 [+0.0015, +0.0083]  0.000  27.998
+pref_mono_dpo  310  0.061  0.211  0.387  -0.0003 [-0.0034, +0.0028]  0.000  23.238
+steer_mono_L12_c0.2  310  0.076  0.213  0.404  +0.0019 [-0.0012, +0.0051]  0.000  27.533
+steer_mono_L12_c0  310  0.085  0.203  0.405  -0.0007 [-0.0037, +0.0023]  0.000  31.814
+cellA_mono_ungated  310  0.068  0.184  0.382  -0.0027 [-0.0071, +0.0019]  0.000  30.177
+cellB_mono_gated  310  0.061  0.187  0.375  -0.0024 [-0.0069, +0.0023]  0.096  25.871
+cellC_dec_ungated  310  0.087  0.203  0.379  +0.0098 [+0.0046, +0.0150]  0.000  23.241
+cellD_dec_gated  310  0.072  0.193  0.369  -0.0037 [-0.0084, +0.0010]  0.162  21.677
+sft_dec_gated_mem  310  0.096  0.244  0.380  +0.0144 [+0.0108, +0.0182]  0.016  26.852
+
+differences, by-person bootstrap 95% CI (b - a)
+   pref_mono_dpo - pref_mono_sft  ip       -0.027 [-0.034, -0.020]
+   pref_mono_dpo - pref_mono_sft  pri      -0.001 [-0.031, +0.031]
+   pref_mono_dpo - pref_mono_sft  success  +0.009 [-0.007, +0.026]
+   pref_mono_dpo - steer_mono_L12_c0.2  ip       -0.016 [-0.023, -0.008]
+   pref_mono_dpo - steer_mono_L12_c0.2  pri      -0.002 [-0.034, +0.028]
+   pref_mono_dpo - steer_mono_L12_c0.2  success  -0.017 [-0.037, +0.002]
+   pref_mono_dpo - steer_mono_L12_c0  ip       -0.024 [-0.031, -0.016]
+   pref_mono_dpo - steer_mono_L12_c0  pri      +0.009 [-0.023, +0.040]
+   pref_mono_dpo - steer_mono_L12_c0  success  -0.018 [-0.035, -0.001]
+   pref_mono_dpo - cellA_mono_ungated  ip       -0.007 [-0.013, -0.001]
+   pref_mono_dpo - cellA_mono_ungated  pri      +0.028 [-0.000, +0.057]
+   pref_mono_dpo - cellA_mono_ungated  success  +0.005 [-0.011, +0.021]
+   pref_mono_dpo - cellB_mono_gated  ip       +0.000 [-0.005, +0.006]
+   pref_mono_dpo - cellB_mono_gated  pri      +0.025 [-0.003, +0.054]
+   pref_mono_dpo - cellB_mono_gated  success  +0.011 [-0.005, +0.028]
+   pref_mono_dpo - cellC_dec_ungated  ip       -0.027 [-0.034, -0.019]
+   pref_mono_dpo - cellC_dec_ungated  pri      +0.008 [-0.022, +0.039]
+   pref_mono_dpo - cellC_dec_ungated  success  +0.008 [-0.010, +0.025]
+   pref_mono_dpo - cellD_dec_gated  ip       -0.011 [-0.018, -0.005]
+   pref_mono_dpo - cellD_dec_gated  pri      +0.018 [-0.011, +0.049]
+   pref_mono_dpo - cellD_dec_gated  success  +0.017 [+0.000, +0.033]
+   pref_mono_dpo - sft_dec_gated_mem  ip       -0.035 [-0.043, -0.028]
+   pref_mono_dpo - sft_dec_gated_mem  pri      -0.033 [-0.064, -0.000]
+   pref_mono_dpo - sft_dec_gated_mem  success  +0.007 [-0.011, +0.024]
+
+SFT and DPO share people and session seeds (paired). Steering ran on the same backend but other seeds; cells A-D ran on Ollama, step 12 with four agents - those comparisons are unpaired.

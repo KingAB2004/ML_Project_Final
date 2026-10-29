@@ -7,7 +7,6 @@
 #   1.  baselines + 2 x 2: gate calibration, base_instruct, reactive_baseline, cellA-D    (Outcomes 1-2)
 #   2b. memory baselines: none / summary / dense / event, then the memory metrics         (Outcome 4)
 #   3.  ES-MemEval question answering per memory type                                    (Outcome 4)
-#   4.  alpha sweep: the gate at alpha 0.05 and 0.20 on item 1's calibration (0.10 = cellD) (Outcome 3)
 #   (ExTES of scripts/base_queue.sh is not scheduled)
 #   (setsid nohup ./scripts/sop_queue.sh > sop_queue.log 2>&1 &)
 cd "$(dirname "$0")/.."
@@ -45,17 +44,7 @@ run python extra/memory_calibration.py --run $M "${B[@]}"
 echo "=== 3. ES-MemEval $(date)"
 run python extra/memeval_qa.py --run runs/memeval "${B[@]}"
 
-echo "=== 4. alpha sweep $(date)"
 R=runs/baselines_1000
-for a in 0.05 0.2; do
-    run python src/calibrate.py --dialogues $R/dialogues/calib_dec_ungated.jsonl \
-        --out $R/conformal/calibration_alpha_$a.json --alpha $a "${B[@]}"
-done
-for pair in "gate_alpha_005 0.05" "gate_alpha_020 0.2"; do
-    set -- $pair
-    run python src/evaluate.py --arm $1 --run-dir $R "${B[@]}" --calibration $R/conformal/calibration_alpha_$2.json
-    run python src/metrics.py --dialogues $R/dialogues/$1.jsonl "${B[@]}" --scale success --scale ip --scale pri
-done
 run python src/report.py --run $R
 
 echo "=== SOP queue complete $(date)"

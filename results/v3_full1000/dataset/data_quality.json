@@ -26,14 +26,77 @@
     }
   },
   "table2": {
-    "ours": null,
-    "extes": null,
-    "esconv": null
+    "ours": {
+      "fluency": 83.3,
+      "diversity": 67.2,
+      "empathy": 83.3,
+      "information": 83.2,
+      "humanoid": 83.3,
+      "skillfulness": 83.0,
+      "basic_avg": 80.5,
+      "aff": 5.724,
+      "neg": 1.0,
+      "sup": 6.25625,
+      "man": 5.572857142857143,
+      "n": 200
+    },
+    "extes": {
+      "fluency": 83.3,
+      "diversity": 73.2,
+      "empathy": 84.2,
+      "information": 83.3,
+      "humanoid": 83.3,
+      "skillfulness": 83.3,
+      "basic_avg": 81.8,
+      "aff": 5.984,
+      "neg": 1.0,
+      "sup": 6.73875,
+      "man": 6.067142857142857,
+      "n": 100
+    },
+    "esconv": {
+      "fluency": 82.7,
+      "diversity": 66.0,
+      "empathy": 79.0,
+      "information": 81.2,
+      "humanoid": 83.0,
+      "skillfulness": 81.5,
+      "basic_avg": 78.9,
+      "aff": 5.88,
+      "neg": 1.0,
+      "sup": 6.27875,
+      "man": 5.631428571428571,
+      "n": 100
+    }
   },
   "table6": {
-    "ours": null,
-    "extes": null,
-    "esconv": null
+    "ours": {
+      "fluency": 75.0,
+      "diversity": 64.875,
+      "empathy": 75.0,
+      "information": 56.875,
+      "humanoid": 49.875,
+      "skillfulness": 65.125,
+      "n": 200
+    },
+    "extes": {
+      "fluency": 75.0,
+      "diversity": 74.0,
+      "empathy": 75.0,
+      "information": 70.25,
+      "humanoid": 49.25,
+      "skillfulness": 74.0,
+      "n": 100
+    },
+    "esconv": {
+      "fluency": 71.0,
+      "diversity": 54.75,
+      "empathy": 74.75,
+      "information": 54.50000000000001,
+      "humanoid": 50.24999999999999,
+      "skillfulness": 67.5,
+      "n": 100
+    }
   },
   "paper": {
     "table2": {

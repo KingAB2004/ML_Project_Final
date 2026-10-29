@@ -1,9 +1,3 @@
-"""Event-level memory in the style of the strong simple baseline the SOP names (reference [9]).
-
-Atomic events with timestamps, retrieved by recency and relevance. Structurally simple on purpose: if this
-matches the need-state memory, the honest conclusion is that the inference-chain structure did not pay, and
-the report says so.
-"""
 from __future__ import annotations
 
 import math

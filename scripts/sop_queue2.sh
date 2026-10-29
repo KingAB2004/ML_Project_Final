@@ -2,7 +2,6 @@
 # Lab server (RTX 3060): replaces the rest of scripts/sop_queue.sh after the need-state memory fix (7 Oct).
 # Waits for the running baselines + 2 x 2 (run_all.py) to finish, then:
 #   0.  data quality FIRST: our corpus vs ExTES / ESConv on the paper's Tables 2 (judge), 6 (ESC-RANK), 8
-#   4.  alpha sweep at 0.05 / 0.20 on the same code as cells A-D, so the sweep and cell D (alpha 0.10) match
 #   --  installs the fixed memory code staged in ~/memfix_stage (linked needs, real confirm / deny / resolve)
 #   2.  all five memory arms on the fixed code, in a new run dir (runs/memory_1000 keeps the flat-memory run)
 #       + memory metrics (judge) + memory calibration
@@ -36,18 +35,8 @@ for set in ours extes esconv; do      # Table 6: ESC-RANK, the paper's scorer (o
 done
 run python extra/data_quality.py table
 
-echo "=== 4. alpha sweep $(date)"
-R=runs/baselines_1000
-for a in 0.05 0.2; do
-    run python src/calibrate.py --dialogues $R/dialogues/calib_dec_ungated.jsonl \
-        --out $R/conformal/calibration_alpha_$a.json --alpha $a "${B[@]}"
-done
-for pair in "gate_alpha_005 0.05" "gate_alpha_020 0.2"; do
-    set -- $pair
-    run python src/evaluate.py --arm $1 --run-dir $R "${B[@]}" --calibration $R/conformal/calibration_alpha_$2.json
-    run python src/metrics.py --dialogues $R/dialogues/$1.jsonl "${B[@]}" --scale success --scale ip --scale pri
-done
-run python src/report.py --run $R
+echo "=== report for the baselines + 2 x 2 $(date)"
+run python src/report.py --run runs/baselines_1000
 
 echo "=== installing the fixed memory code from $STAGE $(date)"
 for f in src/memory.py src/agents.py prompts/agent_analyzer.md extra/memeval_qa.py; do

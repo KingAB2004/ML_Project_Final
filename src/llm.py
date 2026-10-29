@@ -1,6 +1,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 import threading
@@ -229,12 +230,6 @@ def ollama_payload(spec: dict, system: str | None, messages: Messages, over: dic
 
 
 class OllamaBackend:
-    """Talks to a local Ollama server. Nothing proprietary, nothing to pip install.
-
-    Residency is the server's business, but the project's one-model rule still applies: `release()` sends
-    keep_alive=0 so the weights are dropped before the next role is loaded, which is what keeps a 12 GB
-    card from holding the generator and the judge at once.
-    """
 
     name = "ollama"
 
@@ -324,7 +319,9 @@ class TransformersBackend:  # pragma: no cover - requires GPU
         # An adapter that is loaded but disabled gives the base model back without a second load.
         adapter_ctx = (model.disable_adapter() if (not use_adapter and hasattr(model, "disable_adapter"))
                        else contextlib.nullcontext())
-        with torch.no_grad(), adapter_ctx:
+        steer_ctx = (self._steer(model, over["steer_vector"], int(over["steer_layer"]), float(over["steer_coef"]))
+                     if over.get("steer_coef") else contextlib.nullcontext())
+        with torch.no_grad(), adapter_ctx, steer_ctx:
             out = model.generate(
                 **enc,
                 do_sample=temp > 0,
@@ -335,8 +332,34 @@ class TransformersBackend:  # pragma: no cover - requires GPU
             )
         return tok.decode(out[0][enc["input_ids"].shape[1]:], skip_special_tokens=True).strip()
 
+    @contextlib.contextmanager
+    def _steer(self, model, path: str, layer: int, coef: float):
+        """Activation steering (src/steering.py): while generating, add coef * |h| * unit(v) to the residual
+        stream after decoder layer `layer` (hidden_states index, 1 = first layer's output), at every position.
+        |h| is the mean residual norm at that layer, so coef is a fraction of the typical activation size."""
+        import torch
 
-class VLLMBackend:  # pragma: no cover - requires GPU
+        if not hasattr(self, "_steer_cache"):
+            self._steer_cache = {}
+        if path not in self._steer_cache:
+            self._steer_cache[path] = torch.load(path)
+        saved = self._steer_cache[path]
+        v = saved["vectors"][layer]
+        add = coef * float(saved["resid_norm"][layer]) * v / v.norm()
+
+        def hook(_module, _inputs, out):
+            h = out[0] if isinstance(out, tuple) else out
+            h = h + add.to(h.device, h.dtype)
+            return (h,) + tuple(out[1:]) if isinstance(out, tuple) else h
+
+        handle = model.get_decoder().layers[layer - 1].register_forward_hook(hook)
+        try:
+            yield
+        finally:
+            handle.remove()
+
+
+class VLLMBackend:
     name = "vllm"
 
     def __init__(self, spec: dict):
@@ -384,7 +407,6 @@ BACKENDS = {"echo": EchoBackend, "ollama": OllamaBackend, "transformers": Transf
             "vllm": VLLMBackend}
 
 
-# --------------------------------------------------------------------------- the LLM handle
 
 
 @dataclass
@@ -431,6 +453,9 @@ class LLM:
             for attr in ("model", "tuned"):          # tuned: a second, smaller base (adapter_base)
                 if getattr(self.backend, attr, None) is not None:
                     delattr(self.backend, attr)
+            import gc
+
+            gc.collect()                             # module cycles keep the weights alive until collected
             torch.cuda.empty_cache()
         except Exception:
             pass
@@ -519,7 +544,7 @@ class RoleView:
     """A second role served by an already-resident model.
 
     The four agent roles, the corpus generator and the user simulator all map to one base model, so they
-    must not each load weights. A view reuses the parent LLM's backend and cache, swaps in that role's
+    must not each load weights. A view reuses the parent LLM's backend and cache,  swaps in that role's
     sampling parameters, and turns the supporter adapter off for roles that are not the supporter.
     """
 

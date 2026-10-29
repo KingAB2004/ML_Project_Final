@@ -62,7 +62,7 @@ def leakage_problems(session: dict) -> list[str]:
 
 
 def language_problems(turns: list[dict]) -> list[str]:
-    """Per turn, not per transcript: one Chinese turn among ten English ones must still be caught."""
+
     ratio_min = float(cfg("filter.ascii_ratio_min", default=0.90))
     if not any((t.get("text") or "").strip() for t in turns):
         return ["no text at all"]

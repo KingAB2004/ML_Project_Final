@@ -1,0 +1,14 @@
+What each way of lowering intrusiveness costs per supporter turn. (CPU only)
+
+system | model calls per turn (mean, max) | words per reply | IP | Success | vs | IP drop | extra calls | IP drop per extra call
+cell A: one call, ungated | 1.00 (1) | 30.2 | 0.068 | 0.382
+cell B: one call + gate | 3.33 (6) | 25.9 | 0.061 | 0.375 | cell A | +0.007 | +2.33 | +0.0030
+cell C: four agents, ungated | 4.00 (4) | 23.2 | 0.087 | 0.379 | cell A | -0.020 | +3.00 | -0.0066
+cell D: four agents + gate | 5.36 (8) | 21.7 | 0.072 | 0.369 | cell A | -0.005 | +4.36 | -0.0011
+step 12: four agents + gate, fine-tuned Generator | 4.32 (8) | 26.9 | 0.096 | 0.380 | cell A | -0.028 | +3.32 | -0.0086
+steering control: one call (transformers) | 1.00 (1) | 31.8 | 0.085 | 0.405
+steering: one call + vector | 1.00 (1) | 27.5 | 0.076 | 0.404 | steering control | +0.008 | +0.00 | no extra call
+SFT control: fine-tuned one call | 1.00 (1) | 28.0 | 0.088 | 0.377
+DPO: fine-tuned one call after DPO | 1.00 (1) | 23.2 | 0.061 | 0.387 | SFT control | +0.027 | +0.00 | no extra call
+
+IP drop > 0 means less intrusive than the baseline. Cells A-D ran on Ollama, with cell A as their baseline. Step 12, steering and DPO ran on transformers: steering and DPO are compared with their own controls; step 12 with cell A, so its row mixes the backend change with the fine-tuned Generator.

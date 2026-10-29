@@ -1,0 +1,14 @@
+{
+  "arm": "corpus_extes_extes_profiles",
+  "supporter": "corpus_extes",
+  "adapter": "runs/corpus_extes/adapter_corpus_extes",
+  "supporter_base": null,
+  "sessions_written": 100,
+  "profiles": 100,
+  "dialogues_path": "runs/corpus_extes/dialogues/corpus_extes_extes_profiles.jsonl",
+  "gate": false,
+  "calibrated": false,
+  "memory": "none",
+  "architecture": "monolithic",
+  "in_distribution": false
+}

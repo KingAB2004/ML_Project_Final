@@ -1,0 +1,194 @@
+{
+  "pooled": {
+    "n": 785,
+    "base_rate": 0.9031847133757962,
+    "logloss": 0.5365988149752162,
+    "auroc": 0.600484373840101,
+    "brier": 0.16196312416733177,
+    "reliability": 0.0763477749406131,
+    "resolution": 0.0025382149173741987,
+    "uncertainty": 0.08744208690007707,
+    "within_bin": 0.0007114772440158235,
+    "ece": 0.1672456245292224,
+    "curve": [
+      {
+        "bin": 0,
+        "n": 29,
+        "mean_confidence": 0.06129599885786383,
+        "observed": 0.8275862068965517
+      },
+      {
+        "bin": 1,
+        "n": 26,
+        "mean_confidence": 0.13995511478667003,
+        "observed": 0.8846153846153846
+      },
+      {
+        "bin": 2,
+        "n": 16,
+        "mean_confidence": 0.24956614250372378,
+        "observed": 0.9375
+      },
+      {
+        "bin": 3,
+        "n": 19,
+        "mean_confidence": 0.360906956971324,
+        "observed": 0.7368421052631579
+      },
+      {
+        "bin": 4,
+        "n": 41,
+        "mean_confidence": 0.4504510483472925,
+        "observed": 0.926829268292683
+      },
+      {
+        "bin": 5,
+        "n": 45,
+        "mean_confidence": 0.5737242643179042,
+        "observed": 0.8888888888888888
+      },
+      {
+        "bin": 6,
+        "n": 71,
+        "mean_confidence": 0.680116419776442,
+        "observed": 0.8028169014084507
+      },
+      {
+        "bin": 7,
+        "n": 41,
+        "mean_confidence": 0.7449358308110499,
+        "observed": 0.975609756097561
+      },
+      {
+        "bin": 8,
+        "n": 202,
+        "mean_confidence": 0.8260257090801784,
+        "observed": 0.900990099009901
+      },
+      {
+        "bin": 9,
+        "n": 295,
+        "mean_confidence": 0.9202425910257392,
+        "observed": 0.9355932203389831
+      }
+    ],
+    "by_status": {
+      "confirmed": {
+        "n": 140,
+        "p_real": 0.9142857142857143
+      },
+      "disconfirmed": {
+        "n": 3,
+        "p_real": 0.6666666666666666
+      },
+      "hypothesis": {
+        "n": 642,
+        "p_real": 0.9018691588785047
+      }
+    }
+  },
+  "arms": {
+    "mem_needstate": {
+      "n": 785,
+      "base_rate": 0.9031847133757962,
+      "logloss": 0.5365988149752162,
+      "auroc": 0.600484373840101,
+      "brier": 0.16196312416733177,
+      "reliability": 0.0763477749406131,
+      "resolution": 0.0025382149173741987,
+      "uncertainty": 0.08744208690007707,
+      "within_bin": 0.0007114772440158235,
+      "ece": 0.1672456245292224,
+      "curve": [
+        {
+          "bin": 0,
+          "n": 29,
+          "mean_confidence": 0.06129599885786383,
+          "observed": 0.8275862068965517
+        },
+        {
+          "bin": 1,
+          "n": 26,
+          "mean_confidence": 0.13995511478667003,
+          "observed": 0.8846153846153846
+        },
+        {
+          "bin": 2,
+          "n": 16,
+          "mean_confidence": 0.24956614250372378,
+          "observed": 0.9375
+        },
+        {
+          "bin": 3,
+          "n": 19,
+          "mean_confidence": 0.360906956971324,
+          "observed": 0.7368421052631579
+        },
+        {
+          "bin": 4,
+          "n": 41,
+          "mean_confidence": 0.4504510483472925,
+          "observed": 0.926829268292683
+        },
+        {
+          "bin": 5,
+          "n": 45,
+          "mean_confidence": 0.5737242643179042,
+          "observed": 0.8888888888888888
+        },
+        {
+          "bin": 6,
+          "n": 71,
+          "mean_confidence": 0.680116419776442,
+          "observed": 0.8028169014084507
+        },
+        {
+          "bin": 7,
+          "n": 41,
+          "mean_confidence": 0.7449358308110499,
+          "observed": 0.975609756097561
+        },
+        {
+          "bin": 8,
+          "n": 202,
+          "mean_confidence": 0.8260257090801784,
+          "observed": 0.900990099009901
+        },
+        {
+          "bin": 9,
+          "n": 295,
+          "mean_confidence": 0.9202425910257392,
+          "observed": 0.9355932203389831
+        }
+      ],
+      "by_status": {
+        "confirmed": {
+          "n": 140,
+          "p_real": 0.9142857142857143
+        },
+        "disconfirmed": {
+          "n": 3,
+          "p_real": 0.6666666666666666
+        },
+        "hypothesis": {
+          "n": 642,
+          "p_real": 0.9018691588785047
+        }
+      }
+    }
+  },
+  "recalibration": {
+    "brier_raw": 0.16196312416733177,
+    "brier_recalibrated": 0.08778034035492209,
+    "logloss_raw": 0.5365988149752162,
+    "logloss_recalibrated": 0.3182560369296449,
+    "coefficients_full_data": {
+      "intercept": 2.0524,
+      "logit_confidence": 0.2286,
+      "log1p_support": 0.2992,
+      "log1p_contra": -0.1445,
+      "depth": -0.464,
+      "dormant": 0.6282
+    }
+  }
+}

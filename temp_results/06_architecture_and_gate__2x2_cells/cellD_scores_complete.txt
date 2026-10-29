@@ -1,0 +1,8 @@
+Cell D (four agents + gate, untuned 7B) - IP / PRI / counterfactual PRI scored on the lab (finished Oct 9-10, retrieved Oct 14).
+Scores 0-1, Mistral-Nemo judge, 100 test people, 310 sessions. Cell C (same pipeline, gate off) for comparison.
+
+success  cell C    0.379 (n=310)   cell D    0.369 (n=310)
+ip       cell C   0.087 (n=1240)   cell D   0.072 (n=1240)
+pri      cell C   0.203 (n=3128)   cell D   0.193 (n=3075)
+counterfactual PRI cellC_dec_ungated: +0.0098 [+0.0046, +0.0150] over 2477 seed-matched pairs
+counterfactual PRI cellD_dec_gated: -0.0037 [-0.0084, +0.0010] over 2473 seed-matched pairs

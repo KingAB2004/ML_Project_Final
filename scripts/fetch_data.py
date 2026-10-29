@@ -1,25 +1,4 @@
-"""Download every external input and put it where the pipeline expects it.
 
-  python scripts/fetch_data.py --all                 # datasets only
-  python scripts/fetch_data.py --all --map           # datasets, then map the external profile sets
-  python scripts/fetch_data.py --models              # model weights too (large; Mistral is gated)
-  python scripts/fetch_data.py --ed --force          # re-fetch one item
-  python scripts/fetch_data.py --self-check          # parsing checks, no network
-
-What lands where:
-
-  data/raw/empatheticdialogues.jsonl   one object per conversation: conv_id, situation, emotion
-  data/raw/problem_types.json          ESConv problem-type taxonomy (from the data when present)
-  data/raw/esconv.json                 ESConv, as downloaded
-  data/raw/extes.json                  ExTES.json out of the repo's ExTES.zip
-  data/raw/es_memeval.json             ES-MemEval's EvoEmo dataset (data/evo_emo.json)
-  data/raw/_manifest.json              url, sha256, bytes, date for everything fetched
-  data/raw/PROVENANCE.md               the same, as a table, with a licence column to fill in
-
-Downloads use urllib from the standard library. `datasets` and `huggingface_hub` are used when installed and
-skipped otherwise - every item has a plain-URL path, so this runs on a machine with only the standard
-library plus pyyaml.
-"""
 from __future__ import annotations
 
 import argparse

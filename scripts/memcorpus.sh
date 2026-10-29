@@ -56,12 +56,11 @@ train)
     cp $R/train_summary.json $R/train_summary_$arm.json
     echo "=== train $arm complete $(date)" ;;
 eval)
-    # sftmem_zero_shot uses the existing adapter; the others the memory-trained ones
-    declare -A adapter=([sftmem_zero_shot]=runs/full_1000/adapter_with_thoughts
-                        [sftmem_with_thoughts]=$R/adapter_with_thoughts
+    # zero-shot use of the brief (old adapter + memory) is already done: sft7b_multi_mem
+    declare -A adapter=([sftmem_with_thoughts]=$R/adapter_with_thoughts
                         [sftmem_wo_thoughts]=$R/adapter_wo_thoughts
                         [sftmem_no_memory]=$R/adapter_with_thoughts)
-    for arm in sftmem_zero_shot sftmem_with_thoughts sftmem_wo_thoughts sftmem_no_memory; do
+    for arm in sftmem_with_thoughts sftmem_wo_thoughts sftmem_no_memory; do
         [ -f ${adapter[$arm]}/adapter_config.json ] || { echo "skip $arm: no adapter ${adapter[$arm]}"; continue; }
         free_gpu
         run python src/evaluate.py --arm $arm --run-dir $R --adapter ${adapter[$arm]} --backend transformers

@@ -1,13 +1,4 @@
-"""Phase 7 - the arm runner (PLAN Sec. 14.4, 15).
 
-One arm is a set of component switches in configs/arms.yaml. This module resolves those switches into
-objects, rolls out dialogues, and writes them to runs/<run_id>/dialogues/<arm>.jsonl. It does NOT score
-anything: scoring is a separate pass with the judge resident alone (PLAN R2), run by metrics.py and
-counterfactual.py over the files this stage produced.
-
-  python src/evaluate.py --arm cellD_dec_gated --limit 10 --backend echo
-  python src/evaluate.py --list
-"""
 from __future__ import annotations
 
 import argparse
@@ -63,8 +54,7 @@ def load_profiles(spec: dict, limit: int | None) -> list[dict]:
 def run_session(pipeline, sim_view, profile: dict, session_id: str, session_index: int, gap_days: float,
                 n_supporter_turns: int, session_context: str = "", reactive: bool = False,
                 corrective: bool = False) -> dict:
-    """One dialogue. The supporter side is the arm under test; the seeker side is the simulator the arm
-    names (proactive, or the help-seeking reactive one for reactive_baseline)."""
+
     turns: list[dict] = []
     artifacts: list[dict] = []
     openers = cfg("corpus.openers", default=["Hey - how are things today?"])
@@ -106,16 +96,26 @@ def run_session(pipeline, sim_view, profile: dict, session_id: str, session_inde
 
 def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
             run_dir: Path | None = None, calibration_path: str | None = None,
-            adapter: str | None = None, supporter_base: str | None = None) -> dict:
+            adapter: str | None = None, supporter_base: str | None = None, steer: str | None = None,
+            steer_vector: str = "runs/steering/steering_vectors.pt", tag_suffix: str | None = None) -> dict:
     spec = resolve_arm(arm_name)
+    # --steer LAYER:COEF (src/steering.py). Each setting writes its own file, <arm>_L<layer>_c<coef>, but keeps the
+    # arm's session ids, so every setting (coef 0 = the unsteered control) meets the same people, gaps and turn counts.
+    # --tag NAME does the same for two adapters on one arm (src/preference.py: SFT vs DPO): own file, same session ids.
+    steer_kw, tag = {}, (f"{arm_name}_{tag_suffix}" if tag_suffix else arm_name)
+    if steer:
+        layer, coef = steer.split(":")
+        steer_kw = {"steer_vector": steer_vector, "steer_layer": int(layer), "steer_coef": float(coef)}
+        tag = f"{arm_name}_L{int(layer)}_c{float(coef):g}"
+        if spec.get("architecture") != "monolithic":
+            raise SystemExit("--steer is implemented for the monolithic listener only")
     if adapter:
-        # an adapter trained in this run, so a pipeline run needs no hand edit of configs/arms.yaml
+
         spec["adapter"] = adapter
     profiles = load_profiles(spec, limit)
     run_dir = run_dir or new_run_dir(arm_name)
-    out_path = run_dir / "dialogues" / f"{arm_name}.jsonl"
+    out_path = run_dir / "dialogues" / f"{tag}.jsonl"
     done = existing_ids(out_path, "session_id")
-    # resuming an advancing arm: later sessions continue from the profile the last written one used
     done_sessions = ({r["session_id"]: r for r in read_jsonl(out_path)} if spec.get("advance_profile") else {})
 
     calibration = None
@@ -132,15 +132,15 @@ def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
 
     role = "supporter" if spec["supporter"] != "base" else "generator"
     if spec.get("adapter"):
-        # The arm names its own adapter, so a training-corpus comparison needs no config edits.
         load_config("models")["roles"][role]["adapter"] = spec["adapter"]
         if supporter_base:
-            # the adapter's own base when it is not the resident model (scaling study, llm.TransformersBackend)
             load_config("models")["roles"][role]["adapter_base"] = supporter_base
     elif spec["supporter"] != "base":
         print(f"[warn] arm '{arm_name}' asks for supporter '{spec['supporter']}' but no adapter is "
               f"mapped in configs/arms.yaml: it will run on the UN-TUNED base model")
     llm = LLM(role, backend=backend, call_log=run_dir / "calls.jsonl")
+    if steer_kw and llm.backend_name != "transformers":
+        raise SystemExit("--steer needs --backend transformers (it hooks the model's layers)")
     written = 0
     try:
         sim_view = llm.view("simulator")
@@ -161,7 +161,7 @@ def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
                 # memory_writer: the base Analyzer keeps the need-state memory for the fine-tuned reply (Option C)
                 writer = (AgentPipeline(agent_views["generator"], views=agent_views, memory=memory, gate=False)
                           if spec.get("memory_writer") and isinstance(memory, NeedStateMemory) else None)
-                pipeline = MonolithicListener(llm, memory_writer=writer, **kwargs)
+                pipeline = MonolithicListener(llm, memory_writer=writer, steer=steer_kw, **kwargs)
             multi = spec.get("memory") != "none" or spec.get("multi_session")
             n_sessions = sample_session_count(pid) if multi else 1
             lo, hi = cfg("corpus.turns_per_session", default=[8, 12])
@@ -191,7 +191,7 @@ def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
                                       reactive=spec.get("simulator") == "reactive",
                                       corrective=spec.get("simulator") == "corrective")
                 prev = session
-                session["arm"] = arm_name
+                session["arm"] = tag
                 session["arm_spec"] = spec
                 session["in_distribution"] = bool(spec["eval_set_spec"].get("in_distribution", False))
                 new.append(session)
@@ -200,7 +200,7 @@ def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
                 if hasattr(memory, "update_from_session"):
                     memory.update_from_session(session)
                 if isinstance(memory, NeedStateMemory):
-                    memory.save(run_dir / "memory" / f"{pid}_{arm_name}.jsonl")
+                    memory.save(run_dir / "memory" / f"{pid}_{tag}.jsonl")
                 # What every kind of memory would hand the next session: the same view for all memory arms, so
                 # extra/memory_eval.py can score transition recall across them.
                 session["memory_brief_after"] = memory.render_brief()
@@ -220,7 +220,8 @@ def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
                "calibrated": calibration is not None, "memory": spec.get("memory"),
                "architecture": spec.get("architecture"),
                "in_distribution": bool(spec["eval_set_spec"].get("in_distribution", False))}
-    write_json(run_dir / f"arm_summary_{arm_name}.json", summary)
+    summary.update({"arm": tag, "steer": steer_kw or None})
+    write_json(run_dir / f"arm_summary_{tag}.json", summary)
     return summary
 
 
@@ -237,6 +238,9 @@ def main() -> None:
     ap.add_argument("--supporter-base", default=None,
                     help="base model of --adapter when it is not the resident 7B (scaling study); the 7B "
                          "keeps playing the seeker")
+    ap.add_argument("--steer", default=None, help="LAYER:COEF activation steering of the reply (src/steering.py)")
+    ap.add_argument("--steer-vector", default="runs/steering/steering_vectors.pt")
+    ap.add_argument("--tag", default=None, help="output name suffix, <arm>_<tag>; session ids stay the arm's")
     args = ap.parse_args()
 
     if args.list:
@@ -249,7 +253,7 @@ def main() -> None:
     run_dir = Path(args.run_dir) if args.run_dir else new_run_dir("eval")
     for name in names:
         s = run_arm(name, args.limit, args.backend, run_dir, args.calibration, args.adapter,
-                    args.supporter_base)
+                    args.supporter_base, args.steer, args.steer_vector, args.tag)
         print(f"{name}: {s['sessions_written']} sessions -> {s['dialogues_path']}")
     print(f"run dir: {run_dir}")
 

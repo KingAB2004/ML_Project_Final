@@ -52,7 +52,7 @@ PAPER = {
 }
 
 
-# --------------------------------------------------------------------------- Table 8
+
 def words(text: str) -> list[str]:
     return re.findall(r"[a-z0-9']+", text.lower())
 
@@ -72,8 +72,6 @@ def descriptions(which: str) -> list[str]:
 
 
 def sentence_bleu(hyp: list[str], refs: list[list[str]], n: int) -> float:
-    """BLEU-n of one hypothesis against many references: clipped n-gram precisions, uniform weights,
-    epsilon smoothing for empty orders, brevity penalty against the closest reference length."""
     if not hyp:
         return 0.0
     logs = []
@@ -100,7 +98,7 @@ def diversity(texts: list[str], seed: int = 0, n_hyp: int = 300, n_ref: int = 10
     toks = [words(t) for t in texts]
     hyps = rng.sample(range(len(toks)), min(n_hyp, len(toks)))
     b2, b4 = [], []
-    for i in hyps:          # self-BLEU: each description against a sample of the others
+    for i in hyps:         
         refs = [toks[j] for j in rng.sample([j for j in range(len(toks)) if j != i], min(n_ref, len(toks) - 1))]
         b2.append(sentence_bleu(toks[i], refs, 2))
         b4.append(sentence_bleu(toks[i], refs, 4))
@@ -113,7 +111,6 @@ def diversity(texts: list[str], seed: int = 0, n_hyp: int = 300, n_ref: int = 10
             "shannon_entropy_bits": -sum(c / total * math.log2(c / total) for c in unigrams.values())}
 
 
-# --------------------------------------------------------------------------- dialogue samples
 def sample_dialogues() -> None:
     rng = random.Random(0)
     ours = [json.loads(l) for l in open(ROOT / "data" / "corpus" / "sessions_annotated.jsonl")]
@@ -136,7 +133,6 @@ def sample_dialogues() -> None:
         print(f"{which}: {len(rows)} dialogues -> {RUN / 'dialogues' / f'{which}.jsonl'}")
 
 
-# --------------------------------------------------------------------------- tables
 def judge_row(which: str) -> dict | None:
     from metrics import aggregate
     d = RUN / "scores" / which

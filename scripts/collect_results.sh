@@ -33,7 +33,7 @@ if [ -d runs/scaling_eval ]; then
     mkdir -p "$D/test_eval"
     cp -r runs/scaling_eval/. "$D/test_eval/"
 fi
-# SOP evaluations (lab RTX 3060): baselines + 2 x 2 + alpha sweep, memory arms. The LLM call log is left out.
+# SOP evaluations (lab RTX 3060): baselines + 2 x 2, memory arms. The LLM call log is left out.
 # memory_calibration only once the lab's own (Ollama judge) run lands: a local run without --backend is echo.
 for run in baselines_1000 memory_1000; do
     [ -d runs/$run ] || continue
@@ -41,4 +41,12 @@ for run in baselines_1000 memory_1000; do
     (cd runs/$run && tar cf - --exclude=calls.jsonl --exclude=pipeline_state.json --exclude=memory_calibration .) |
         tar xf - -C "$D/$run"
 done
+# runs that came later; their memory_calibration folders are the real (Ollama judge) runs, so keep them
+for run in memory_v2 memeval sft7b_multi sft_agents corpus_extes steering preference psych psych_lab_judge judgecheck scaling_eval_104; do
+    [ -d runs/$run ] || continue
+    mkdir -p "$D/$run"
+    (cd runs/$run && tar cf - --exclude=calls.jsonl --exclude=pipeline_state.json .) | tar xf - -C "$D/$run"
+done
+[ -d runs/data_quality/escrank ] && cp -r runs/data_quality/escrank "$D/dataset/"
+mkdir -p "$D/summaries" && cp -r temp_results/[0-9]*/ "$D/summaries/"
 echo "collected into $D"

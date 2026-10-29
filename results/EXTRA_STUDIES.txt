@@ -1,0 +1,145 @@
+EXTRA STUDIES (done on top of the SOP)
+=====================================
+
+Everything here goes beyond what the SOP promises (that is in SOP_RESULTS_MAP.txt, same folder). Each entry says why
+it was added, what was done, the headline, and where the files and code are.
+
+Paths are relative to the repository root (COCCON_NEW/).
+  R/ = results/v3_full1000/   S/ = results/v3_full1000/summaries/   (S/ = the same files as temp_results/)
+Scores 0-1 (judge Mistral-Nemo-12B unless stated); IP = intrusiveness, PRI = resistance (higher = worse); Success
+higher = better. 100 test people, 2-4 linked sessions each. "Holm" = survives the correction in S/23.
+Status on 23 October 2026.
+
+
+---------------------------------------------------------------------------------------------------------------------
+ALTERNATIVE WAYS TO MAKE THE SUPPORTER LESS INTRUSIVE (compared with our gate + four agents)
+
+E1. Activation steering
+   Why:     controls intrusiveness inside the model at run time, with no training and no extra calls - the
+            cheapest alternative to our gate.
+   Done:    contrastive activation addition: a "gentle minus intrusive" direction from 400 training-split contexts
+            (the same context read under a gentle and an intrusive instruction), added to the residual stream of
+            cell A's one-call listener. Layer and strength chosen on 20 calibration people by a rule fixed before
+            the sweep (layer 12, strength 0.2); final run multi-session on the test people against an unsteered
+            control with the same people and session seeds.
+   Result:  IP -0.008 [-0.013, -0.003] (paired), Success and PRI unchanged, replies shorter (27.5 vs 31.8 words);
+            does not survive Holm. Layer 16 cut IP more but cost 0.06 Success, so the rule rejected it.
+   Where:   R/steering/  ·  S/15_activation_steering/  ·  code src/steering.py, scripts/steering.sh,
+            --steer in src/evaluate.py, hook in src/llm.py
+
+E2. Preference alignment (DPO)
+   Why:     puts "do not be intrusive" into the weights instead of a gate.
+   Done:    the fine-tuned listener wrote 4 replies to each of 1,200 training-split contexts; the base Qwen critic
+            (not the evaluation judge, so the model cannot learn to please its own judge) scored each on IP;
+            least vs most intrusive reply = a pair when they differ by >= 1 scale point and are within 1.5x in
+            length -> 460 pairs. DPO on the SFT adapter (beta 0.1, 1 epoch). Final run multi-session on the test
+            people against the SFT model, same people and session seeds.
+   Result:  IP -0.027 [-0.033, -0.021] (paired, Holm), the largest IP drop of any method; Success +0.009 and PRI
+            -0.001 (both n.s.); counterfactual PRI +0.005 -> -0.000; replies shorter (23 vs 28 words); no extra
+            calls. Held-out pair accuracy was only 0.52 (23 pairs), so the training signal was weak - the behaviour
+            changed anyway.
+   Where:   R/preference/ (pairs, candidates, training log; the adapter weights are not in git)
+            ·  S/18_preference_alignment_dpo/  ·  code src/preference.py, scripts/preference.sh, --tag in evaluate.py
+
+E3. Cost per turn
+   Why:     the methods differ in how many model calls they need; the SOP's recovery-vs-cost idea extended to all.
+   Done:    model calls per supporter turn counted from each pipeline's structure and logged revisions.
+   Result:  cell A 1.0, cell B 3.3, cell C 4.0, cell D 5.4, step 12 4.3, steering 1.0, DPO 1.0 calls per turn.
+            DPO and steering lower IP at no extra cost; the gate costs 2-4 extra calls per turn.
+   Where:   S/24_cost_per_turn/  ·  code scripts/cost_per_turn.py
+
+
+---------------------------------------------------------------------------------------------------------------------
+LLM PSYCHOLOGY PROBES (what making the supporter less intrusive does to its other behaviour)
+All judged on 10.10.10.104 (see E7 for why that matters).
+
+E4. Sycophancy
+   Why:     a supporter told not to be intrusive might simply agree with everything, including distorted or risky
+            beliefs.
+   Done:    48 hand-written seeker turns in 8 categories (catastrophizing, mind reading, overgeneralizing,
+            self-labeling, self-blame, all-or-nothing, feeling-as-fact, risky plans such as stopping medication);
+            every system replies once; the judge scores sycophancy (agrees with the distortion), balance (validates
+            the feeling, not the belief) and harshness, plus IP.
+   Result:  no system turns sycophantic: sycophancy 0.16-0.19 for every system (base 0.170, steered 0.174, SFT 0.179,
+            DPO 0.188, cell D 0.163, step 12 0.171), balance ~0.88-0.90, no harshness. The exception is risky
+            plans (e.g. skipping meals, stopping medication): SFT 0.32 and steered 0.24 go along with them more
+            than base 0.17. Lower intrusiveness did not buy more agreement with distorted beliefs.
+   Where:   R/psych/sycophancy/  ·  S/19_llm_psychology/  ·  data/psych/sycophancy_probes.jsonl,
+            prompts/metric_syco.md, code src/psych.py
+
+E5. Emotional intelligence (EmoBench)
+   Why:     does fine-tuning, steering or DPO change measured emotional understanding?
+   Done:    the English half of EmoBench (Sabour et al., ACL 2024; MIT): 200 scenarios asked for the emotion and its
+            cause, 200 for the most effective response; answered from letter probabilities.
+   Result:  base 0.637, steered 0.630, SFT 0.610, DPO 0.610 (CIs overlap): fine-tuning costs a little measured
+            emotional intelligence, steering and DPO change nothing further.
+   Where:   R/psych/emobench/  ·  S/19_*  ·  data/external/emobench/
+
+E6. Dependence and boundaries
+   Why:     AI-companion safety: does the supporter build reliance on itself, or point the person to the people in
+            their life and to outside help, and does that drift across sessions?
+   Done:    phrase counts over every generated supporter turn (the gate's fallback template, which says "I'm here",
+            excluded), and the judge on whole sessions of the first 15 test people of each arm (reliance, outward
+            support, autonomy).
+   Result:  reliance on the supporter is the same everywhere (~0.26-0.30, no drift from session 1 to 3+). What
+            differs is pointing outward: cell D 0.44 and need-state memory 0.40 vs cell A 0.60, with less autonomy
+            too (0.72, 0.69 vs 0.86) - the four-agent and memory systems keep the conversation on the supporter.
+            Steering, SFT and DPO stay close to cell A (outward 0.56-0.59). Mentions of friends, family or
+            professionals are rare in every arm (< 2 % of turns).
+   Where:   R/psych/dependence/  ·  S/19_*  ·  prompts/metric_dependence.md
+
+
+---------------------------------------------------------------------------------------------------------------------
+CHECKS ON THE EVALUATION ITSELF
+
+E7. Second judge and the judge's serving machine
+   Why:     the headline numbers come from one judge model; without human ratings, at least check they do not hang on
+            that judge.
+   Done:    (a) Llama-3.1-8B rescoring IP / PRI / Success on 9 key arms; (b) the same items judged by the same Mistral
+            weights served by Ollama 0.35 (lab) and 0.18 (10.10.10.104).
+   Result:  (a) every IP conclusion keeps its sign under Llama (gate, decomposition, steering, step 12) except the
+            need-state memory IP rise, which Llama does not reproduce; per-item agreement rho: IP 0.36, PRI 0.63,
+            Success 0.20 (Llama's Success sits near the floor, so it cannot check Success).
+            (b) the serving machine matters. Same items, same weights: session-level scales shift a lot (cell A
+            reliance 0.08 on the lab vs 0.27 on 10.10.10.104; base-model sycophancy 0.02 vs 0.17), and turn-level
+            IP shifts a little (cell A 0.068 lab vs 0.079 on 10.10.10.104, item rho 0.66; the lab against itself
+            two weeks apart: 0.071, rho 0.90). So all psychology probes were re-judged on 10.10.10.104, and the
+            one headline IP comparison that mixed machines (ExTES vs ours on our people) was re-judged on one
+            machine (S/16).
+   Where:   R/*/scores_judge2/  ·  S/21_judge_judge_agreement/  ·  S/25_judge_machine_check/
+            ·  code scripts/judge_agreement.py, scripts/judge_machine_check.py, --judge-role in src/metrics.py
+
+E8. Multiple-comparison correction
+   Why:     dozens of confidence intervals are reported; some would look significant by chance.
+   Done:    42 headline contrasts, bootstrap p over people (paired where arms share seeds), Holm at 0.05.
+   Result:  9 survive: gate with four agents (IP), decomposition (IP, twice), proactive vs reactive seeker (IP),
+            step 12 vs cell D (IP, PRI), the transformers-vs-Ollama backend check (IP), ExTES-trained vs ours
+            (Success on ExTES people), DPO vs SFT (IP).
+   Where:   S/23_multiple_comparisons/  ·  code scripts/multiple_comparisons.py
+
+E9. Backend check
+   Why:     step 12, steering and DPO had to run on transformers (Ollama cannot load adapters or hooks), cells A-D on
+            Ollama.
+   Done:    the untuned one-call listener on both backends (steering control vs cell A).
+   Result:  transformers raises IP by +0.017 [0.009, 0.025] (Holm). Comparisons across backends (step 12 vs cell D)
+            carry this confound; steering and DPO are compared with controls on their own backend.
+   Where:   S/23_*  ·  S/20_step12_finetuned_generator/
+
+E10. Qualitative examples
+   Why:     the report needs real cases, chosen so they illustrate the numbers rather than argue for them.
+   Done:    fixed selection rules: gate revisions and fallbacks, steered vs unsteered replies to the same seeker turn,
+            risky-plan replies, the turns that provoked the most resistance, need-state memory handing session 2 its
+            brief; plus a data note: Qwen drifts into Chinese in at most ~1 % of turns.
+   Where:   S/22_qualitative_examples/examples.md  ·  code scripts/qualitative_examples.py
+
+
+---------------------------------------------------------------------------------------------------------------------
+EXTRA ANALYSES SUPPORTING SOP ITEMS
+
+E11. Scaling study: Qwen2.5 0.5B and 3B besides the planned 7B (and a Qwen3-4B control in the PVI analysis).
+     R/training/, R/analyses/scaling/, S/02_*
+E12. Usable information in the thoughts (PVI) and LoRA geometry, to explain the annotation ablation.
+     R/analyses/pvi/, R/analyses/lora_geometry/, S/03_*, S/04_*
+E13. One person through every arm (p000394), for a worked example.  S/09_*
+E14. Measured gate violation rate (also an SOP item) and step 12's own calibration.  S/17_*
+E15. Terminal chat through the full pipeline, for demos: scripts/chat.py

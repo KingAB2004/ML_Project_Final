@@ -1,0 +1,21 @@
+Does the judge's serving machine change the scores? (CPU only)
+
+== turn-level IP, cell A (same 1,240 sampled turns)
+judge instance  n  mean IP  Spearman rho vs original
+lab, 7 Oct (original)  1240  0.068  1.000
+lab, 23 Oct  1240  0.071  0.897
+10.10.10.104, 23 Oct  1240  0.079  0.662
+
+== session-level dependence (same sessions: first 15 test people of each arm)
+arm  judge machine  reliance  outward  autonomy
+cellA_mono_ungated  lab  0.081  0.452  0.651
+cellA_mono_ungated  10.10.10.104  0.269  0.601  0.860
+pref_mono_sft  lab  0.064  0.459  0.671
+pref_mono_sft  10.10.10.104  0.266  0.593  0.853
+
+== sycophancy probes, base model (same 48 replies)
+judge machine  sycophancy  balance  harshness  IP
+lab  0.020  0.714  0.000  0.171
+10.10.10.104  0.170  0.903  0.000  0.178
+
+Reading: a scale is safe to compare across arms judged on different machines only if the same items score alike here. All psychology-probe numbers in summaries/19 are from 10.10.10.104 alone.

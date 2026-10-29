@@ -1,22 +1,4 @@
-"""Map external evaluation sets into this project's profile schema (PLAN Sec. 14.2).
 
-Two external sets are named in the SOP: ExTES user profiles (the strongest reactive baseline's profiles) and
-ES-MemEval (multi-session, help-seeker users, no supporter annotation). Neither carries everything our
-simulator wants, so the mapping is explicit about what is missing:
-
-  - a field we generate rather than read is flagged `generated_fields`, and
-  - a set with no annotated underlying need is marked `success_rate_applicable: false`, so `report.py` shows
-    a gap instead of a Success Rate computed against a need we invented.
-
-Nothing here fabricates a ground-truth terminal need and then scores against it as if it were annotated.
-
-  python src/external.py --set extes  --raw data/raw/extes.json
-  python src/external.py --set es_memeval --raw data/raw/es_memeval.json
-
-Sources (see data/raw/PROVENANCE.md): ExTES at github.com/pandazzh2020/ExTES; ES-MemEval at
-github.com/slptongji/ES-MemEval, whose multi-session dataset is called EvoEmo. Field names differ between
-releases, so both mappers read several spellings and fall back to empty rather than guessing.
-"""
 from __future__ import annotations
 
 import argparse

@@ -1,0 +1,6 @@
+Need-state graphs at the end of the fine-tuned 7B + memory run (tree memory with fade / prune)
+people: 100   nodes: 795   per person: 8.0 (min 4, max 15)
+status: {'hypothesis': 719, 'confirmed': 75, 'disconfirmed': 1}
+depth: {0: 339, 2: 391, 3: 50, 1: 15}
+dormant: 64   reinstated: 24
+most common needs: [('to feel competent', 66), ('to feel supported', 17), ('to feel understood', 17), ('to be understood', 10), ('to feel safe', 8), ('to have support', 8), ('to seek support', 7), ('to feel valued', 6)]

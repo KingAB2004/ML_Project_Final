@@ -1,0 +1,512 @@
+<title>Need-State Observatory</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a studio console. Top bar + tabs; the conversation view is three panes (person and playback,
+   transcript, live graph + inspector) that stack to one column on a phone. */
+:root {
+  --bg: #eef1f5;
+  --panel: #ffffff;
+  --sunk: #e4e8ef;
+  --ink: #18202c;
+  --ink-2: #4a5568;
+  --ink-3: #7b8696;
+  --line: #d3d9e2;
+  --accent: #2c4bb3;
+  --accent-soft: #dfe5fa;
+  --hyp: #c3841a;
+  --conf: #1d8a6b;
+  --deny: #c03a4a;
+  --res: #6a62b5;
+  --dorm: #9aa3b0;
+  --seeker: #f6efe2;
+  --seeker-ink: #4b3a1c;
+  --shadow: 0 1px 2px rgba(24, 32, 44, .06), 0 4px 16px rgba(24, 32, 44, .05);
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141c; --panel: #171e29; --sunk: #1f2836; --ink: #e6ebf2; --ink-2: #b0bccb; --ink-3: #7f8b9c;
+    --line: #2b3646; --accent: #8ea6ff; --accent-soft: #233158; --hyp: #e3a43c; --conf: #3cc196;
+    --deny: #f06676; --res: #a59cf0; --dorm: #5d6878; --seeker: #2b2518; --seeker-ink: #f0dfbd;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f141c; --panel: #171e29; --sunk: #1f2836; --ink: #e6ebf2; --ink-2: #b0bccb; --ink-3: #7f8b9c;
+  --line: #2b3646; --accent: #8ea6ff; --accent-soft: #233158; --hyp: #e3a43c; --conf: #3cc196;
+  --deny: #f06676; --res: #a59cf0; --dorm: #5d6878; --seeker: #2b2518; --seeker-ink: #f0dfbd;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* -- top bar ------------------------------------------------------------ */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.top-inner { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding-block: 10px; max-width: 1680px; margin: 0 auto; }
+.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.brand h1 { font: 700 20px/1.1 var(--display); letter-spacing: -.01em; margin: 0; }
+.brand small { color: var(--ink-3); font-size: 12px; }
+.tabs { display: flex; gap: 2px; background: var(--sunk); border-radius: 9px; padding: 3px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.tabs button { white-space: nowrap; flex: none; border: 0; background: transparent; padding: 6px 14px; border-radius: 7px; color: var(--ink-2); font-weight: 500; }
+.tabs button[aria-selected="true"] { background: var(--panel); color: var(--ink); box-shadow: var(--shadow); }
+.spacer { flex: 1; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 3px 10px; border-radius: 99px; border: 1px solid var(--line); color: var(--ink-2); white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dorm); display: inline-block; }
+.dot.on { background: var(--conf); box-shadow: 0 0 0 3px color-mix(in srgb, var(--conf) 25%, transparent); }
+
+main { max-width: 1680px; margin: 0 auto; padding-block: 16px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.view[hidden] { display: none; }
+
+/* -- shared panel pieces -------------------------------------------------- */
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); min-width: 0; }
+.panel-h { display: flex; align-items: center; gap: 10px; padding: 12px 14px 0; flex-wrap: wrap; }
+.panel-h h2, .panel-h h3 { font: 600 13px/1.2 var(--body); text-transform: uppercase; letter-spacing: .07em; color: var(--ink-2); margin: 0; }
+.panel-b { padding: 12px 14px 14px; }
+.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); font-weight: 600; }
+.muted { color: var(--ink-3); }
+.chip { display: inline-flex; align-items: center; gap: 4px; font: 500 11px/1 var(--mono); padding: 4px 7px; border-radius: 6px; background: var(--sunk); color: var(--ink-2); white-space: nowrap; }
+.chip.accent { background: var(--accent-soft); color: var(--accent); }
+.chip.hyp { color: var(--hyp); background: color-mix(in srgb, var(--hyp) 14%, transparent); }
+.chip.conf { color: var(--conf); background: color-mix(in srgb, var(--conf) 14%, transparent); }
+.chip.deny { color: var(--deny); background: color-mix(in srgb, var(--deny) 14%, transparent); }
+.chip.res { color: var(--res); background: color-mix(in srgb, var(--res) 16%, transparent); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; max-width: 100%; }
+.seg button { border: 0; background: transparent; padding: 5px 11px; color: var(--ink-2); font-size: 13px; white-space: nowrap; flex: none; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 6px 12px; font-weight: 500; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+select { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 6px 8px; width: 100%; min-width: 0; }
+.transport select { width: auto; }
+label.field { display: grid; gap: 4px; font-size: 12px; color: var(--ink-3); }
+
+/* -- conversation view ---------------------------------------------------- */
+.stage { display: grid; grid-template-columns: 290px minmax(0, 1fr) minmax(0, 1.25fr); gap: 14px; align-items: start; }
+.side { display: grid; gap: 14px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 70px); }
+.person h3 { font: 700 18px/1.2 var(--display); margin: 2px 0 6px; text-wrap: balance; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 13px; }
+.kv dt { color: var(--ink-3); }
+.kv dd { margin: 0; min-width: 0; }
+details.truth { margin-top: 10px; border: 1px dashed var(--line); border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+details.truth summary { cursor: pointer; color: var(--ink-2); font-weight: 500; }
+details.truth ol { margin: 6px 0 0; padding-left: 18px; }
+.sessions { display: grid; gap: 6px; }
+.sess { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 7px 9px; }
+.sess[aria-current="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.sess b { font: 600 13px var(--display); }
+.sess .bar { height: 5px; background: var(--sunk); border-radius: 3px; overflow: hidden; }
+.sess .bar i { display: block; height: 100%; background: var(--conf); }
+.transport { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.transport .btn { padding: 6px 10px; }
+.scrub { width: 100%; accent-color: var(--accent); }
+
+.chat { display: flex; flex-direction: column; height: calc(100vh - 110px); min-height: 560px; }
+.chat .panel-b { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+.divider { display: flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 12px; margin: 6px 0; }
+.divider::before, .divider::after { content: ""; height: 1px; background: var(--line); flex: 1; }
+.divider b { color: var(--ink-2); font-family: var(--display); }
+.msg { max-width: 88%; padding: 9px 12px; border-radius: 12px; position: relative; cursor: pointer; transition: opacity .25s, transform .25s; border: 1px solid transparent; }
+.msg.seeker { align-self: flex-start; background: var(--seeker); color: var(--seeker-ink); border-bottom-left-radius: 4px; }
+.msg.supporter { align-self: flex-end; background: var(--sunk); border-bottom-right-radius: 4px; }
+.msg.future { opacity: .18; }
+.msg.cursor { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.msg .who { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; opacity: .7; margin-bottom: 2px; display: flex; gap: 6px; align-items: center; }
+.msg .meta { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 7px; }
+.msg.fresh { animation: rise .35s ease-out; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.typing { align-self: flex-end; color: var(--ink-3); font-size: 13px; }
+.composer { display: flex; gap: 8px; padding: 10px 14px 14px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.composer input { flex: 1; min-width: 180px; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 8px 10px; }
+
+.right { display: grid; gap: 14px; min-width: 0; }
+.graph-wrap { position: relative; }
+#graph { width: 100%; height: 420px; display: block; }
+#graph text { fill: var(--ink); font: 12px var(--body); }
+#graph .col-label { fill: var(--ink-3); font: 600 10px var(--body); letter-spacing: .08em; text-transform: uppercase; }
+#graph .col-line { stroke: var(--line); stroke-dasharray: 2 5; }
+#graph .edge { fill: none; stroke: var(--line); stroke-width: 1.5; }
+#graph .edge.chain { stroke: var(--accent); stroke-width: 3; }
+#graph .node circle.body { stroke: var(--panel); stroke-width: 2; }
+#graph .node.dormant circle.body { fill-opacity: .15 !important; stroke-dasharray: 3 3; stroke-width: 1.5; }
+#graph .node .halo { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+#graph .node .pulse { fill: none; stroke-width: 2; }
+#graph .node.target circle.body { stroke: var(--ink); stroke-width: 2.5; }
+#graph .node text.lbl { paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
+#graph .node text.cf { fill: var(--panel); font: 600 9px var(--mono); paint-order: normal; stroke: none; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--panel); font-size: 12px; padding: 8px 10px; border-radius: 8px; max-width: 280px; z-index: 3; box-shadow: var(--shadow); }
+.tip b { font-family: var(--display); }
+.events { display: grid; gap: 4px; max-height: 120px; overflow-y: auto; font-size: 12px; }
+.events div { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: baseline; }
+.graph-empty { position: absolute; inset: 60px 20px auto; text-align: center; color: var(--ink-3); font-size: 13px; }
+
+.insp-tabs { display: flex; gap: 2px; flex-wrap: wrap; }
+.insp-tabs button { border: 0; background: transparent; padding: 5px 10px; border-radius: 6px; color: var(--ink-3); font-weight: 500; font-size: 13px; }
+.insp-tabs button[aria-selected="true"] { background: var(--sunk); color: var(--ink); }
+.flow { display: grid; gap: 10px; }
+.agent { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; position: relative; }
+.agent + .agent::before { content: ""; position: absolute; left: 22px; top: -11px; width: 2px; height: 10px; background: var(--line); }
+.agent h4 { margin: 0; font: 600 13px var(--display); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.agent h4 .role { font: 500 11px var(--mono); color: var(--ink-3); }
+.agent p { margin: 0; }
+.quote { border-left: 3px solid var(--line); padding-left: 8px; color: var(--ink-2); font-style: italic; font-size: 13px; }
+.needs { display: grid; gap: 4px; }
+.need { display: grid; grid-template-columns: 1fr 90px; gap: 8px; align-items: center; font-size: 13px; }
+.meter { height: 6px; background: var(--sunk); border-radius: 3px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--accent); }
+.ladder { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.rung { border: 1px solid var(--line); border-radius: 6px; padding: 5px 6px; font-size: 11px; line-height: 1.3; color: var(--ink-3); min-width: 0; }
+.rung b { display: block; font: 600 12px var(--mono); color: var(--ink-2); }
+.rung.allowed { background: var(--sunk); }
+.rung.req { border-color: var(--accent); color: var(--ink); }
+.rung.req b { color: var(--accent); }
+.rung.locked { opacity: .45; background: repeating-linear-gradient(135deg, transparent 0 5px, var(--sunk) 5px 7px); }
+.gauge { display: grid; gap: 4px; }
+.gauge svg { width: 100%; height: 34px; display: block; }
+.items { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.items div { text-align: center; font: 500 11px var(--mono); border-radius: 4px; padding: 3px 0; }
+pre.brief { white-space: pre-wrap; font: 12px/1.55 var(--mono); background: var(--sunk); border-radius: 8px; padding: 10px; margin: 0; max-height: 300px; overflow: auto; }
+.charts2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.mini svg { width: 100%; height: 150px; display: block; }
+svg text { fill: var(--ink-3); font: 10px var(--body); }
+svg .axis line, svg .axis path { stroke: var(--line); }
+svg .grid line { stroke: var(--line); stroke-opacity: .6; }
+
+/* -- results -------------------------------------------------------------- */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 14px; }
+.kpi { padding: 14px; }
+.kpi .v { font: 700 30px/1 var(--display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.kpi .l { color: var(--ink-2); font-size: 13px; margin-top: 4px; }
+.rgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.rgrid .wide { grid-column: 1 / -1; }
+.chart svg { width: 100%; display: block; }
+.note { font-size: 12px; color: var(--ink-3); margin: 8px 0 0; max-width: 80ch; }
+.finding { font: 500 15px/1.45 var(--body); margin: 0 0 8px; max-width: 75ch; }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); font-weight: 600; }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+tr.hl td { background: var(--accent-soft); }
+
+/* -- system --------------------------------------------------------------- */
+.sys { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 14px; }
+.pipe { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
+.pipe .box { border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--bg); position: relative; }
+.pipe .box h4 { margin: 0 0 4px; font: 700 15px var(--display); }
+.pipe .box p { margin: 0; font-size: 12.5px; color: var(--ink-2); }
+.pipe .box:not(:last-child)::after { content: "→"; position: absolute; right: -12px; top: 50%; transform: translateY(-50%); color: var(--ink-3); font-size: 14px; }
+.prose { max-width: 70ch; }
+.prose p, .prose li { color: var(--ink-2); }
+.prose h3 { font: 700 17px var(--display); margin: 16px 0 6px; }
+.prose code { font: 12px var(--mono); background: var(--sunk); padding: 1px 5px; border-radius: 4px; }
+
+@media (max-width: 1280px) {
+  .stage { grid-template-columns: 260px minmax(0, 1fr); }
+  .right { grid-column: 1 / -1; }
+  .chat { height: 70vh; }
+}
+@media (max-width: 860px) {
+  .stage, .rgrid, .sys, .charts2 { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; }
+  .pipe { grid-template-columns: minmax(0, 1fr); }
+  .pipe .box:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -15px; transform: none; }
+  .msg { max-width: 96%; }
+  .brand small { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* -- architecture diagrams: inline SVG coloured by the same tokens, so they follow the theme -------------- */
+.arch { display: grid; gap: 14px; }
+.arch-2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); }
+.arch-lead { margin: 0 0 12px; color: var(--ink-2); max-width: 90ch; }
+.arch-key { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; color: var(--ink-2); margin-left: auto; }
+.arch-key i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 5px;
+  background: color-mix(in srgb, var(--k) 14%, var(--panel)); border: 1.5px solid var(--k); }
+.diagram { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.diagram svg { display: block; width: 100%; min-width: 900px; height: auto; font-family: var(--body); }
+.diagram.narrow svg { min-width: 480px; }
+.k-data { --k: var(--accent); } .k-model { --k: var(--hyp); } .k-agent { --k: var(--res); } .k-memory { --k: var(--conf); }
+.k-gate { --k: var(--deny); } .k-eval { --k: var(--ink-3); }
+.k-hyp { --k: var(--hyp); } .k-conf { --k: var(--conf); } .k-deny { --k: var(--deny); } .k-res { --k: var(--res); } .k-dorm { --k: var(--dorm); }
+.ab rect { fill: color-mix(in srgb, var(--k) 9%, var(--panel)); stroke: var(--k); stroke-width: 1.4; }
+.ab.dashed rect { stroke-dasharray: 5 4; }
+.ab.best rect { stroke-width: 2.6; }
+.at { font-size: 13px; font-weight: 600; fill: var(--ink); }
+.as { font-size: 11.5px; fill: var(--ink-2); }
+.aq { font-size: 11.5px; font-style: italic; fill: var(--ink-3); }
+.ak { font-size: 11.5px; font-weight: 600; fill: var(--k); }
+.ah-h { font-size: 11px; font-weight: 600; letter-spacing: .08em; fill: var(--ink-3); }
+.al { font-size: 11px; fill: var(--ink-3); }
+.ae { fill: none; stroke: var(--ink-3); stroke-width: 1.3; }
+.ae.dash { stroke-dasharray: 4 4; }
+.ae.best { stroke: var(--accent); stroke-width: 2.4; }
+.amk { fill: var(--ink-3); } .amk.best { fill: var(--accent); }
+.aband { fill: var(--sunk); stroke: var(--line); }
+.agrid { stroke: var(--line); stroke-width: 1; }
+.aline { fill: none; stroke: var(--k); stroke-width: 2.2; }
+.brief-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.brief-grid div { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--sunk); }
+.brief-grid h4 { margin: 0 0 4px; font: 600 13px/1.3 var(--body); }
+.brief-grid p { margin: 0; color: var(--ink-2); font-size: 13px; }
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand"><h1>Need-State Observatory</h1><small>proactive emotional support · four agents · conformal gate · belief memory</small></div>
+    <div class="tabs" role="tablist" aria-label="Views">
+      <button role="tab" id="tab-conv" aria-selected="true" data-view="conv">Conversation</button>
+      <button role="tab" id="tab-results" aria-selected="false" data-view="results">Results</button>
+      <button role="tab" id="tab-arch" aria-selected="false" data-view="arch">Architecture</button>
+      <button role="tab" id="tab-system" aria-selected="false" data-view="system">How it works</button>
+    </div>
+    <span class="spacer"></span>
+    <span class="pill" id="live-pill" title="Live chat needs the demo server started with --live"><span class="dot" id="live-dot"></span><span id="live-text">Replay data</span></span>
+  </div>
+</header>
+
+<main>
+  <!-- CONVERSATION -->
+  <section class="view" id="view-conv">
+    <div class="stage">
+      <aside class="side">
+        <div class="panel">
+          <div class="panel-h"><h2>Source</h2><span class="spacer"></span>
+            <div class="seg" role="group" aria-label="Mode"><button id="mode-replay" aria-pressed="true">Replay</button><button id="mode-live" aria-pressed="false">Live</button></div>
+          </div>
+          <div class="panel-b" id="replay-controls" style="display:grid;gap:10px">
+            <label class="field">System<select id="sel-system"></select></label>
+            <label class="field">Test person<select id="sel-person"></select></label>
+            <p class="note" id="system-note" style="margin:0"></p>
+          </div>
+          <div class="panel-b" id="live-controls" hidden style="display:grid;gap:10px">
+            <p class="note" id="live-note" style="margin:0"></p>
+            <label class="field">Simulated seeker (optional)<select id="sel-live-person"><option value="">You play the seeker</option></select></label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn" id="live-reset">New conversation</button>
+              <label class="field" style="grid-auto-flow:column;align-items:center;gap:6px">Gap <input id="live-gap" type="number" min="1" max="120" value="7" style="width:62px;border:1px solid var(--line);border-radius:8px;padding:5px 6px;background:var(--panel)"> days</label>
+              <button class="btn" id="live-next">Next session</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel person" id="person-card">
+          <div class="panel-b">
+            <div class="eyebrow" id="p-eyebrow">Seeker</div>
+            <h3 id="p-title"></h3>
+            <dl class="kv" id="p-kv"></dl>
+            <details class="truth" id="p-truth">
+              <summary>Hidden ground truth</summary>
+              <p class="muted" style="margin:6px 0 0;font-size:12px">The simulated seeker acts from this; the system never sees it.</p>
+              <ol id="p-chain"></ol>
+            </details>
+          </div>
+        </div>
+
+        <div class="panel" id="sessions-panel">
+          <div class="panel-h"><h2>Sessions</h2><span class="muted" style="font-size:12px">judge Success per session</span></div>
+          <div class="panel-b sessions" id="sessions"></div>
+        </div>
+
+        <div class="panel" id="transport-panel">
+          <div class="panel-h"><h2>Playback</h2><span class="spacer"></span><span class="mono muted" id="pos" style="font-size:12px"></span></div>
+          <div class="panel-b" style="display:grid;gap:10px">
+            <input type="range" class="scrub" id="scrub" min="0" max="0" value="0" aria-label="Position in the conversation">
+            <div class="transport">
+              <button class="btn" id="b-first" title="Start" aria-label="Start">⏮</button>
+              <button class="btn" id="b-prev" title="Previous turn" aria-label="Previous turn">◀</button>
+              <button class="btn primary" id="b-play" style="min-width:76px">Play</button>
+              <button class="btn" id="b-next" title="Next turn" aria-label="Next turn">▶</button>
+              <button class="btn" id="b-last" title="End" aria-label="End">⏭</button>
+              <select id="speed" aria-label="Speed"><option value="2600">0.5×</option><option value="1400" selected>1×</option><option value="700">2×</option><option value="300">4×</option></select>
+            </div>
+            <p class="note" style="margin:0">Keys: space play, ← → step. Click any message to jump there.</p>
+          </div>
+        </div>
+      </aside>
+
+      <section class="panel chat">
+        <div class="panel-h"><h2>Conversation</h2><span class="spacer"></span><span class="chip" id="chat-chip"></span></div>
+        <div class="panel-b" id="chat" aria-live="polite"></div>
+        <form class="composer" id="composer" hidden>
+          <input id="msg" autocomplete="off" placeholder="Write as the seeker…" aria-label="Your message">
+          <button class="btn primary" id="send" type="submit">Send</button>
+          <button class="btn" id="auto" type="button" title="Let the simulated seeker write the next turn">Seeker replies</button>
+        </form>
+      </section>
+
+      <section class="right">
+        <div class="panel">
+          <div class="panel-h"><h2>Need-state graph</h2><span class="spacer"></span>
+            <div class="legend">
+              <span><i style="background:var(--hyp)"></i>hypothesis</span><span><i style="background:var(--conf)"></i>confirmed</span>
+              <span><i style="background:var(--deny)"></i>denied</span><span><i style="background:var(--res)"></i>resolved</span>
+              <span><i style="background:transparent;border:1.5px dashed var(--dorm)"></i>dormant</span>
+            </div>
+          </div>
+          <div class="panel-b graph-wrap">
+            <svg id="graph" role="img" aria-label="Need-state graph: feelings on the left, deeper needs to the right"></svg>
+            <div class="graph-empty" id="graph-empty" hidden>Nothing believed yet. The first Analyzer pass writes the surface feeling and its candidate needs.</div>
+            <div class="tip" id="tip" hidden></div>
+            <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-top:6px">
+              <span class="eyebrow">Best guess</span><span id="best" style="font-weight:500"></span>
+            </div>
+            <div class="eyebrow" style="margin:10px 0 4px">Belief changes at this turn</div>
+            <div class="events" id="events"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-h"><h2 id="insp-title">Turn inspector</h2><span class="spacer"></span>
+            <div class="insp-tabs" role="tablist" aria-label="Inspector">
+              <button role="tab" aria-selected="true" data-insp="pipeline">Pipeline</button>
+              <button role="tab" aria-selected="false" data-insp="brief">Memory brief</button>
+              <button role="tab" aria-selected="false" data-insp="writes">Memory writes</button>
+            </div>
+          </div>
+          <div class="panel-b" id="insp"></div>
+        </div>
+
+        <div class="charts2">
+          <div class="panel mini"><div class="panel-h"><h3>Intrusiveness by turn</h3></div><div class="panel-b"><svg id="ch-ip"></svg>
+            <div class="legend" style="margin-top:6px"><span><i style="background:var(--accent)"></i>Critic's predicted IP</span><span><i style="background:var(--deny)"></i>judge IP</span></div></div></div>
+          <div class="panel mini"><div class="panel-h"><h3>Beliefs held</h3></div><div class="panel-b"><svg id="ch-bel"></svg>
+            <div class="legend" style="margin-top:6px"><span><i style="background:var(--hyp)"></i>hypotheses</span><span><i style="background:var(--conf)"></i>confirmed</span><span><i style="background:var(--dorm)"></i>dormant</span></div></div></div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="view" id="view-results" hidden>
+    <div class="kpis" id="kpis"></div>
+    <div class="rgrid">
+      <div class="panel wide chart">
+        <div class="panel-h"><h2>Every system on the test people</h2><span class="spacer"></span>
+          <div class="seg" id="metric-seg" role="group" aria-label="Metric"></div></div>
+        <div class="panel-b"><p class="finding" id="metric-finding"></p><svg id="ch-arms"></svg>
+          <p class="note">Means with 95% bootstrap CIs over people. Judge: Mistral-Nemo-12B, a different model from the supporter and the simulated seeker. Source files are listed in the table below.</p></div>
+      </div>
+      <div class="panel chart">
+        <div class="panel-h"><h2>Intrusiveness against Success</h2></div>
+        <div class="panel-b"><p class="finding">Nothing moves Success much. Intrusiveness is where the systems differ: DPO and the gate lower it, decomposition and fine-tuning raise it.</p><svg id="ch-scatter"></svg>
+          <p class="note">Lower-right is better. Labels mark the systems discussed in the report.</p></div>
+      </div>
+      <div class="panel chart">
+        <div class="panel-h"><h2>Gate calibration</h2><span class="spacer"></span><div class="seg" id="cal-seg" role="group" aria-label="Generator"></div></div>
+        <div class="panel-b"><p class="finding" id="cal-finding"></p><svg id="ch-cal"></svg>
+          <div class="legend" style="margin-top:6px"><span><i style="background:var(--accent)"></i>share of drafts released</span><span><i style="background:var(--deny)"></i>risk upper bound</span><span><i style="background:var(--ink-3)"></i>alpha</span></div></div>
+      </div>
+      <div class="panel chart">
+        <div class="panel-h"><h2>What the Critic catches</h2></div>
+        <div class="panel-b"><p class="finding">At the calibrated threshold the gate stops 27% of untuned drafts and catches 38% of the intrusive ones. That is only a little better than stopping drafts at random (the diagonal).</p><svg id="ch-rec"></svg>
+          <div class="legend" style="margin-top:6px"><span><i style="background:var(--accent)"></i>untuned Generator</span><span><i style="background:var(--hyp)"></i>fine-tuned Generator</span></div></div>
+      </div>
+      <div class="panel chart">
+        <div class="panel-h"><h2>Which differences survive correction</h2><span class="spacer"></span><div class="seg" id="ct-seg" role="group" aria-label="Scale"></div></div>
+        <div class="panel-b"><p class="finding">9 of 42 headline contrasts survive Holm correction at 0.05. All 9 are about intrusiveness or Success; none is about PRI.</p><svg id="ch-ct"></svg>
+          <p class="note">Filled: survives Holm. Hollow: does not. Hover a row for the contrast and its p-values.</p></div>
+      </div>
+      <div class="panel chart">
+        <div class="panel-h"><h2>The corpus</h2></div>
+        <div class="panel-b"><p class="finding" id="corpus-finding"></p><svg id="ch-corpus"></svg></div>
+      </div>
+      <div class="panel wide">
+        <div class="panel-h"><h2>All numbers</h2></div>
+        <div class="panel-b tbl-wrap"><table id="arm-table"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="view arch" id="view-arch" hidden>
+    <div class="panel">
+      <div class="panel-h"><h2>The whole program</h2><span class="arch-key" id="arch-key-program"></span></div>
+      <div class="panel-b">
+        <p class="arch-lead">Four stages, each a set of scripts that read files and write files. The corpus trains the supporter; the supporter runs inside the four-agent pipeline with the gate and the memory; a separate judge scores every conversation afterwards.</p>
+        <div class="diagram" id="arch-program"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><h2>One supporter turn, in detail</h2><span class="arch-key" id="arch-key-turn"></span></div>
+      <div class="panel-b">
+        <p class="arch-lead">The four agents are views of one model; only the Generator is fine-tuned. Each agent narrows what the next may do: the Analyzer's confidence and the memory set the ladder's cap, the Strategist plans inside it, and the Critic and the gate check the draft before the seeker sees anything.</p>
+        <div class="diagram" id="arch-turn"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><h2>Need-state memory: architecture</h2><span class="arch-key" id="arch-key-mem"></span></div>
+      <div class="panel-b">
+        <p class="arch-lead">The memory (<code>src/memory.py</code>) is one object per person. Writes come only from the Analyzer's grounded claims, after the reply is chosen. Reads happen before the next turn: a short brief for the prompts, plus the denied and stale needs the Critic checks against. Every change is a row in an append-only log.</p>
+        <div class="diagram" id="arch-memory"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><h2>Need-state memory: the belief graph</h2><span class="arch-key" id="arch-key-status"></span></div>
+      <div class="panel-b">
+        <p class="arch-lead">Memory holds beliefs about needs, not facts. Each node is a need with a status, a confidence and the seeker's own words as evidence. Edges run from a need to the shallower need it explains; siblings are rival explanations. The example below shows every status at once.</p>
+        <div class="diagram" id="arch-graph"></div>
+      </div>
+    </div>
+    <div class="arch-2">
+      <div class="panel">
+        <div class="panel-h"><h2>How a belief changes</h2></div>
+        <div class="panel-b">
+          <p class="arch-lead">Only a claim with a quote enters. A denial is final: the guess is blocked and everything below it goes dormant.</p>
+          <div class="diagram narrow" id="arch-life"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><h2>Across sessions: decay</h2></div>
+        <div class="panel-b">
+          <p class="arch-lead">At the start of each session every belief except a denial fades by 0.5<sup>gap / half-life</sup>. A need that keeps coming back lasts longer. The dot marks day 34, when an unsupported hypothesis leaves the brief.</p>
+          <div class="diagram narrow" id="arch-decay"></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-h"><h2>What the agents see: the brief</h2></div>
+      <div class="panel-b" id="arch-brief"></div>
+    </div>
+  </section>
+
+  <!-- SYSTEM -->
+  <section class="view" id="view-system" hidden>
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-h"><h2>One supporter turn</h2></div>
+      <div class="panel-b pipe">
+        <div class="box"><h4>Analyzer</h4><p>Reads the raw turns plus the memory brief. Writes the surface feeling and candidate needs. Every claim carries quoted evidence spans and a confidence.</p></div>
+        <div class="box"><h4>Depth ladder</h4><p>Below 0.45 confidence the turn is capped at L1. L3, naming the terminal need, also needs that need confirmed in memory.</p></div>
+        <div class="box"><h4>Strategist</h4><p>Picks a plan and a rung within the cap, with a justification chain and the memory node it targets.</p></div>
+        <div class="box"><h4>Generator</h4><p>Writes the reply from the plan. In the full system this is the QLoRA fine-tuned Qwen2.5-7B.</p></div>
+        <div class="box"><h4>Critic + gate</h4><p>Predicts IP on 7 items and checks grounding. A draft is released only if its score is at most λ̂; otherwise it is revised up to twice, then replaced by a reflective fallback.</p></div>
+      </div>
+    </div>
+    <div class="sys">
+      <div class="panel"><div class="panel-b prose" id="sys-prose"></div></div>
+      <div class="panel"><div class="panel-h"><h2>The depth ladder</h2></div><div class="panel-b" id="sys-ladder"></div>
+        <div class="panel-h"><h2>IP items the Critic and judge score</h2></div><div class="panel-b"><ol id="sys-items" style="margin:0;padding-left:18px;color:var(--ink-2)"></ol></div></div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="app.js"></script>

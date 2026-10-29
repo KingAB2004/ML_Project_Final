@@ -1,8 +1,4 @@
-"""Shared plumbing: config, ids, seeds, file IO, spans, transcripts.
 
-Every stage in this project reads files and writes files (PLAN.md R1). This module owns the
-conventions those files follow so no stage has to invent its own.
-"""
 from __future__ import annotations
 
 import hashlib
@@ -30,7 +26,6 @@ RUNGS = ("L0", "L1", "L2", "L3")
 STATUSES = ("hypothesis", "confirmed", "disconfirmed", "resolved")
 
 
-# --------------------------------------------------------------------------- config
 
 _CONFIG_CACHE: dict[str, dict] = {}
 
@@ -68,8 +63,6 @@ def fill(template: str, **kwargs: Any) -> str:
     except KeyError as exc:  # pragma: no cover - surfaced in tests as a clear message
         raise KeyError(f"prompt placeholder {exc} was not supplied") from exc
 
-
-# --------------------------------------------------------------------------- ids and seeds
 
 
 def utc_stamp(fmt: str = "%Y%m%dT%H%M%SZ") -> str:
@@ -185,8 +178,6 @@ def require_fields(record: dict, fields: Sequence[str], where: str) -> None:
         raise ValueError(f"{where}: missing required field(s) {missing}")
 
 
-# --------------------------------------------------------------------------- spans
-
 
 @dataclass
 class Span:
@@ -218,8 +209,6 @@ def locate_span(haystack: str, quote: str) -> tuple[int, int] | None:
         return None
     return idx, idx + len(quote)
 
-
-# --------------------------------------------------------------------------- transcripts
 
 
 def render_transcript(turns: Sequence[dict], numbered: bool = False) -> str:
@@ -298,9 +287,6 @@ def fresh_turn(chat: Callable[..., str], prompt: str, turns: Sequence[dict], lab
 
 def word_count(text: str) -> int:
     return len(re.findall(r"\b\w+\b", text))
-
-
-# --------------------------------------------------------------------------- misc
 
 
 def retry(fn: Callable[[], Any], attempts: int = 3, delay: float = 1.0, label: str = "call") -> Any:

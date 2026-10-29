@@ -1,0 +1,24 @@
+Training corpus x test people: ours vs ExTES (SOP Section IV, ExTES as second corpus and strongest reactive
+baseline). CPU only.
+
+Untuned Qwen2.5-7B fine-tuned (QLoRA, reply-only targets) on our corpus or on ExTES sampled to 15k examples; one
+session per person, 100 people per cell, one-call listener, no gate, no memory. All four cells judged by Mistral-Nemo on
+10.10.10.104: the ours-on-our-people cell was first judged on the lab and is re-judged there (runs/scaling_eval_104),
+because the judge's serving machine shifts IP (summaries/25_judge_machine_check). By-person bootstrap 95% CIs;
+cells use different seeds, so differences are unpaired.
+
+corpus  people        sessions  IP     PRI    Success  counterfactual PRI
+ours    our people         100  0.105  0.276  0.390    +0.0102 [+0.0006, +0.0198]
+ExTES   our people         100  0.109  0.262  0.427    +0.0164 [+0.0082, +0.0248]
+ours    ExTES people       100  0.108  0.320  0.453    +0.0438 [+0.0344, +0.0533]
+ExTES   ExTES people       100  0.109  0.294  0.517    +0.0370 [+0.0282, +0.0460]
+
+ExTES-trained minus ours-trained, same people (b - a)
+   our people   ip       +0.004 [-0.011, +0.019]
+   our people   pri      -0.015 [-0.060, +0.029]
+   our people   success  +0.037 [-0.002, +0.073]
+   ExTES people ip       +0.001 [-0.013, +0.015]
+   ExTES people pri      -0.026 [-0.064, +0.010]
+   ExTES people success  +0.063 [+0.030, +0.098]
+
+The counterfactual PRI of the ours-on-our-people cell is the lab's (not re-run on 10.10.10.104).

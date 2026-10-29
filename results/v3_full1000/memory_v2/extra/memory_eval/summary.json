@@ -1,0 +1,461 @@
+{
+  "buckets": [
+    "session 1",
+    "<= 7 d",
+    "7-21 d",
+    "> 21 d"
+  ],
+  "denial_cues": [
+    "that's not it",
+    "that's not what",
+    "that's not really",
+    "that's not the",
+    "it's not that",
+    "it isn't that",
+    "not really",
+    "not exactly",
+    "i don't think that's",
+    "i don't think so",
+    "i wouldn't say",
+    "you're wrong",
+    "that isn't",
+    "no, it's",
+    "no, i",
+    "no it's",
+    "nah"
+  ],
+  "arms": {
+    "mem_dense": {
+      "sessions": 310,
+      "profiles": 100,
+      "memory": "dense",
+      "multi_session": true,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 100,
+          "n_profiles": 100,
+          "success": 0.36,
+          "ci": [
+            0.33666666666666667,
+            0.385
+          ]
+        },
+        "<= 7 d": {
+          "n_sessions": 90,
+          "n_profiles": 66,
+          "success": 0.3611111111111111,
+          "ci": [
+            0.3369175627240143,
+            0.3895582329317269
+          ]
+        },
+        "7-21 d": {
+          "n_sessions": 62,
+          "n_profiles": 47,
+          "success": 0.35752688172043007,
+          "ci": [
+            0.3333333333333333,
+            0.390625
+          ]
+        },
+        "> 21 d": {
+          "n_sessions": 58,
+          "n_profiles": 50,
+          "success": 0.36494252873563215,
+          "ci": [
+            0.33653846153846156,
+            0.39814814814814814
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 3151,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 0,
+        "by_status": {},
+        "disconfirmed": 0,
+        "reproposals_after_disconfirmation": 0
+      },
+      "transition_recall": {
+        "all": {
+          "n": 210,
+          "share": 0.8952380952380953,
+          "ci": [
+            0.8525345622119815,
+            0.933649289099526
+          ]
+        },
+        "displaced": {
+          "n": 38,
+          "share": 0.8421052631578947,
+          "ci": [
+            0.725,
+            0.9459459459459459
+          ]
+        },
+        "intensified": {
+          "n": 95,
+          "share": 0.9368421052631579,
+          "ci": [
+            0.8817204301075269,
+            0.9797979797979798
+          ]
+        },
+        "resolved": {
+          "n": 77,
+          "share": 0.8701298701298701,
+          "ci": [
+            0.7916666666666666,
+            0.9397590361445783
+          ]
+        }
+      },
+      "abstention": {
+        "ambiguous_profiles": {
+          "n": 9,
+          "share": 0.5555555555555556,
+          "ci": [
+            0.2222222222222222,
+            0.8888888888888888
+          ]
+        },
+        "clear_profiles": {
+          "n": 91,
+          "share": 0.2857142857142857,
+          "ci": [
+            0.1978021978021978,
+            0.38461538461538464
+          ]
+        }
+      }
+    },
+    "mem_needstate": {
+      "sessions": 310,
+      "profiles": 100,
+      "memory": "needstate",
+      "multi_session": true,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 100,
+          "n_profiles": 100,
+          "success": 0.365,
+          "ci": [
+            0.3416666666666666,
+            0.39
+          ]
+        },
+        "<= 7 d": {
+          "n_sessions": 114,
+          "n_profiles": 81,
+          "success": 0.3874269005847953,
+          "ci": [
+            0.36494252873563215,
+            0.41291291291291293
+          ]
+        },
+        "7-21 d": {
+          "n_sessions": 47,
+          "n_profiles": 42,
+          "success": 0.3581560283687943,
+          "ci": [
+            0.3296296296296296,
+            0.3949275362318841
+          ]
+        },
+        "> 21 d": {
+          "n_sessions": 49,
+          "n_profiles": 40,
+          "success": 0.35714285714285715,
+          "ci": [
+            0.326797385620915,
+            0.39215686274509803
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 3066,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 785,
+        "by_status": {
+          "confirmed": 140,
+          "disconfirmed": 3,
+          "hypothesis": 642
+        },
+        "disconfirmed": 3,
+        "reproposals_after_disconfirmation": 0
+      },
+      "transition_recall": {
+        "all": {
+          "n": 210,
+          "share": 0.7380952380952381,
+          "ci": [
+            0.6717171717171717,
+            0.8009708737864077
+          ]
+        },
+        "displaced": {
+          "n": 38,
+          "share": 0.7368421052631579,
+          "ci": [
+            0.5833333333333334,
+            0.868421052631579
+          ]
+        },
+        "intensified": {
+          "n": 95,
+          "share": 0.7052631578947368,
+          "ci": [
+            0.6060606060606061,
+            0.8041237113402062
+          ]
+        },
+        "resolved": {
+          "n": 77,
+          "share": 0.7792207792207793,
+          "ci": [
+            0.6794871794871795,
+            0.8717948717948718
+          ]
+        }
+      },
+      "abstention": {
+        "ambiguous_profiles": {
+          "n": 9,
+          "share": 0.2222222222222222,
+          "ci": [
+            0.0,
+            0.5555555555555556
+          ]
+        },
+        "clear_profiles": {
+          "n": 91,
+          "share": 0.38461538461538464,
+          "ci": [
+            0.2857142857142857,
+            0.4835164835164835
+          ]
+        }
+      }
+    },
+    "mem_none": {
+      "sessions": 310,
+      "profiles": 100,
+      "memory": "none",
+      "multi_session": true,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 100,
+          "n_profiles": 100,
+          "success": 0.37166666666666665,
+          "ci": [
+            0.3466666666666666,
+            0.4
+          ]
+        },
+        "<= 7 d": {
+          "n_sessions": 109,
+          "n_profiles": 76,
+          "success": 0.382262996941896,
+          "ci": [
+            0.3573717948717948,
+            0.40809968847352024
+          ]
+        },
+        "7-21 d": {
+          "n_sessions": 53,
+          "n_profiles": 44,
+          "success": 0.37735849056603776,
+          "ci": [
+            0.35256410256410253,
+            0.4093567251461988
+          ]
+        },
+        "> 21 d": {
+          "n_sessions": 48,
+          "n_profiles": 45,
+          "success": 0.37152777777777773,
+          "ci": [
+            0.3398692810457516,
+            0.40942028985507245
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 3111,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 0,
+        "by_status": {},
+        "disconfirmed": 0,
+        "reproposals_after_disconfirmation": 0
+      },
+      "transition_recall": {
+        "all": {
+          "n": 210,
+          "share": 0.8,
+          "ci": [
+            0.7438423645320197,
+            0.8571428571428571
+          ]
+        },
+        "displaced": {
+          "n": 38,
+          "share": 0.9736842105263158,
+          "ci": [
+            0.918918918918919,
+            1.0
+          ]
+        },
+        "intensified": {
+          "n": 95,
+          "share": 0.7473684210526316,
+          "ci": [
+            0.65625,
+            0.8387096774193549
+          ]
+        },
+        "resolved": {
+          "n": 77,
+          "share": 0.7792207792207793,
+          "ci": [
+            0.6666666666666666,
+            0.88
+          ]
+        }
+      },
+      "abstention": {
+        "ambiguous_profiles": {
+          "n": 9,
+          "share": 0.3333333333333333,
+          "ci": [
+            0.1111111111111111,
+            0.6666666666666666
+          ]
+        },
+        "clear_profiles": {
+          "n": 91,
+          "share": 0.37362637362637363,
+          "ci": [
+            0.27472527472527475,
+            0.4835164835164835
+          ]
+        }
+      }
+    },
+    "mem_summary": {
+      "sessions": 310,
+      "profiles": 100,
+      "memory": "summary",
+      "multi_session": true,
+      "success_by_gap": {
+        "session 1": {
+          "n_sessions": 100,
+          "n_profiles": 100,
+          "success": 0.3783333333333333,
+          "ci": [
+            0.355,
+            0.4033333333333334
+          ]
+        },
+        "<= 7 d": {
+          "n_sessions": 99,
+          "n_profiles": 73,
+          "success": 0.3838383838383838,
+          "ci": [
+            0.359375,
+            0.41077441077441074
+          ]
+        },
+        "7-21 d": {
+          "n_sessions": 53,
+          "n_profiles": 42,
+          "success": 0.3490566037735849,
+          "ci": [
+            0.33666666666666667,
+            0.3627450980392157
+          ]
+        },
+        "> 21 d": {
+          "n_sessions": 58,
+          "n_profiles": 50,
+          "success": 0.3477011494252873,
+          "ci": [
+            0.3275862068965517,
+            0.3684210526315789
+          ]
+        }
+      },
+      "denials_detected": 0,
+      "supporter_turns": 3083,
+      "denials_reproposed": 0,
+      "reproposal_turns": 0,
+      "reproposal_turns_cross_session": 0,
+      "recorded": {
+        "memory_nodes": 0,
+        "by_status": {},
+        "disconfirmed": 0,
+        "reproposals_after_disconfirmation": 0
+      },
+      "transition_recall": {
+        "all": {
+          "n": 210,
+          "share": 0.9714285714285714,
+          "ci": [
+            0.9471153846153846,
+            0.9906103286384976
+          ]
+        },
+        "displaced": {
+          "n": 38,
+          "share": 1.0,
+          "ci": [
+            1.0,
+            1.0
+          ]
+        },
+        "intensified": {
+          "n": 95,
+          "share": 0.9789473684210527,
+          "ci": [
+            0.946236559139785,
+            1.0
+          ]
+        },
+        "resolved": {
+          "n": 77,
+          "share": 0.948051948051948,
+          "ci": [
+            0.8961038961038961,
+            0.9875
+          ]
+        }
+      },
+      "abstention": {
+        "ambiguous_profiles": {
+          "n": 9,
+          "share": 0.3333333333333333,
+          "ci": [
+            0.1111111111111111,
+            0.6666666666666666
+          ]
+        },
+        "clear_profiles": {
+          "n": 91,
+          "share": 0.32967032967032966,
+          "ci": [
+            0.23076923076923078,
+            0.42857142857142855
+          ]
+        }
+      }
+    }
+  }
+}

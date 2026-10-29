@@ -1,8 +1,4 @@
-"""Scale rendering, score parsing, aggregation, and the judge-separation guard.
 
-Every psychological instrument in this project is scored through here, so the redaction rules and the
-"judge is a different model" rule (PLAN Sec. 11.4 controls 1 and 2) live in exactly one place.
-"""
 from __future__ import annotations
 
 import re

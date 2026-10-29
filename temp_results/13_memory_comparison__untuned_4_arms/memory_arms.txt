@@ -1,0 +1,29 @@
+Memory comparison: untuned Qwen2.5-7B, four agents, gate off, 100 test people, 2-4 sessions each,
+profiles advance between sessions, corrective seeker. Only the memory differs. Run: runs/memory_v2 (10.10.10.104).
+Judge: Mistral-Nemo-12B. Scores 0-1. 95% CI: bootstrap over people (2000 reps).
+NOTE: arms do not share random draws (gap, turn count, opener are seeded by session id, which includes the arm),
+so the comparison is unpaired. Session-1 differences between arms show the noise floor.
+
+SUCCESS                     all              session 1           sessions 2-4
+  mem_none           0.376 [0.360,0.393]     0.372 [0.348,0.398]     0.379 [0.361,0.397]
+  mem_summary        0.369 [0.356,0.383]     0.378 [0.355,0.402]     0.365 [0.352,0.381]
+  mem_dense          0.361 [0.345,0.378]     0.360 [0.337,0.385]     0.361 [0.342,0.383]
+  mem_needstate      0.371 [0.356,0.388]     0.365 [0.342,0.392]     0.374 [0.357,0.392]
+
+IP                          all              session 1           sessions 2-4
+  mem_none           0.098 [0.091,0.106]     0.110 [0.098,0.122]     0.093 [0.085,0.102]
+  mem_summary        0.103 [0.095,0.112]     0.107 [0.093,0.122]     0.101 [0.091,0.112]
+  mem_dense          0.116 [0.107,0.125]     0.116 [0.102,0.130]     0.116 [0.107,0.127]
+  mem_needstate      0.116 [0.107,0.126]     0.117 [0.102,0.133]     0.115 [0.105,0.126]
+
+PRI                         all              session 1           sessions 2-4
+  mem_none           0.257 [0.232,0.284]     0.260 [0.230,0.293]     0.256 [0.229,0.285]
+  mem_summary        0.245 [0.221,0.271]     0.258 [0.231,0.288]     0.239 [0.210,0.270]
+  mem_dense          0.250 [0.226,0.275]     0.251 [0.222,0.282]     0.250 [0.223,0.277]
+  mem_needstate      0.261 [0.237,0.286]     0.279 [0.246,0.312]     0.252 [0.224,0.282]
+
+Memory-specific metrics: memory_eval_report.md (success by gap, denials, transition recall, abstention),
+memory_calibration_report.md (need-state confidences), es_memeval_report.md (lab run, all memory types).
+CAVEAT: transition recall gives the no-memory arm 0.80 although its memory is a fixed 'no memory' line:
+the judge is not discriminating on this item, so transition recall is not usable as evidence as it stands.
+Denials: 0 detected in every arm (the corrective seeker almost never rejects a guess), so re-proposal is untestable here.

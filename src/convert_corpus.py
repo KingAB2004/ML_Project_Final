@@ -1,18 +1,4 @@
-"""Convert an external support corpus into our SFT format, so the same base model can be fine-tuned on
-each one and the arms become comparable (the shape of the baseline paper's Tables 3 and 4).
 
-Their comparison fine-tunes one base model on ESConv, ExTES, ESCoT, SoulChat and SMILE, then scores every
-resulting supporter on the same user profiles. This module supplies the "training dataset" half of that:
-each corpus is flattened into the same prompt/target files `train.py` already consumes.
-
-Those corpora carry no Analysis/Strategy annotation of our kind, so their targets are response-only - the
-equivalent of our `w/o thoughts` arm. That asymmetry is real and is printed in the report rather than
-hidden: a corpus without annotations cannot be trained with them.
-
-  python src/convert_corpus.py --set esconv --raw data/raw/esconv.json
-  python src/convert_corpus.py --set extes  --raw data/raw/extes.json
-  python src/convert_corpus.py --set smile  --raw data/raw/smile.json
-"""
 from __future__ import annotations
 
 import argparse
@@ -59,23 +45,7 @@ def turns_from_extes(record: dict) -> list[dict]:
     return out
 
 
-def turns_from_smile(record: dict) -> list[dict]:
-    """SMILE-style releases are usually a flat list of 'role: text' lines."""
-    out = []
-    lines = record.get("dialogue") if isinstance(record.get("dialogue"), list) else \
-        str(record.get("conversation", "")).splitlines()
-    for line in lines:
-        text = line if isinstance(line, str) else str(line)
-        if ":" not in text and "：" not in text:
-            continue
-        head, _, body = text.replace("：", ":").partition(":")
-        role = normalize_role(head)
-        if role and body.strip():
-            out.append({"turn_index": len(out), "role": role, "text": body.strip()})
-    return out
-
-
-PARSERS = {"esconv": turns_from_esconv, "extes": turns_from_extes, "smile": turns_from_smile}
+PARSERS = {"extes": turns_from_extes}
 
 
 def examples_from_turns(turns: list[dict], dialogue_id: str) -> list[dict]:
@@ -97,7 +67,7 @@ def examples_from_turns(turns: list[dict], dialogue_id: str) -> list[dict]:
 
 
 def convert(which: str, raw_path: Path, out_dir: Path = SFT_DIR,
-            val_fraction: float = 0.1) -> dict:
+            val_fraction: float = 0.1, max_examples: int | None = None) -> dict:
     if not raw_path.exists():
         raise SystemExit(f"{raw_path} not found - fetch it first (scripts/fetch_data.py)")
     payload = read_json(raw_path)
@@ -115,6 +85,19 @@ def convert(which: str, raw_path: Path, out_dir: Path = SFT_DIR,
     rng = rng_for(which, "convert_split")
     dialogue_ids = sorted({r["session_id"] for r in rows})
     rng.shuffle(dialogue_ids)
+    if max_examples:
+        # Size-matched comparison: whole dialogues, in the shuffled order, until max_examples is reached.
+        per_dialogue: dict[str, int] = {}
+        for r in rows:
+            per_dialogue[r["session_id"]] = per_dialogue.get(r["session_id"], 0) + 1
+        keep, total = [], 0
+        for d in dialogue_ids:
+            if total >= max_examples:
+                break
+            keep.append(d)
+            total += per_dialogue[d]
+        dialogue_ids, kept = keep, len(keep)
+        rows = [r for r in rows if r["session_id"] in set(keep)]
     n_val = max(1, int(len(dialogue_ids) * val_fraction)) if dialogue_ids else 0
     val_ids = set(dialogue_ids[:n_val])
     train = [r for r in rows if r["session_id"] not in val_ids]
@@ -134,8 +117,10 @@ def main() -> None:
     ap.add_argument("--set", required=True, choices=sorted(PARSERS))
     ap.add_argument("--raw", required=True)
     ap.add_argument("--out", default=str(SFT_DIR))
+    ap.add_argument("--max-examples", type=int, default=None,
+                    help="sample whole dialogues down to about this many examples (train + val)")
     args = ap.parse_args()
-    stats = convert(args.set, Path(args.raw), Path(args.out))
+    stats = convert(args.set, Path(args.raw), Path(args.out), max_examples=args.max_examples)
     print(f"{stats['set']}: {stats['dialogues_kept']} dialogues kept, {stats['dialogues_skipped']} too "
           f"short; {stats['train_examples']} train / {stats['val_examples']} val examples "
           f"-> arm `{stats['arm']}` (response-only targets: this corpus carries no Analysis/Strategy)")

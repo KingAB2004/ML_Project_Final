@@ -1,12 +1,6 @@
-# Every tunable knob in the project. Sec. 4.1 of PLAN.md. Nothing numeric belongs at a call site.
 seed: 20260928
 
 corpus:
-  # Sizing against the baseline: COCOON reports 3.5k dialogues at 18.82 average turns (their Table 1).
-  # Ours are sessions inside linked sequences, so: n_profiles_target x mean(sessions_per_profile) x the
-  # filter survival rate. Sized to the GPU budget (one RTX 3060): 1000 x 3 x ~0.65 ~= 2k sessions kept
-  # (~3k generated), each 16-24 turns - below COCOON's 3.5k. Raising it and rerunning costs only the new
-  # records; every stage resumes. (2000 profiles would give ~3.9k.)
   n_profiles_target: 1000
   sessions_per_profile: [2, 4]
   turns_per_session: [8, 12]
@@ -31,13 +25,11 @@ filter:
   crisis_terms: ["kill myself", "suicide", "end my life", "self-harm", "hurt myself", "overdose"]
 
 parallel:
-  # Concurrent LLM requests per stage (llm.pmap). Only the ollama and echo backends run in parallel;
-  # transformers/vllm always run serially. Ollama must accept as many: set OLLAMA_NUM_PARALLEL >= workers
-  # on the server, and leave room in VRAM for that many KV caches. 4 suits a 12 GB RTX 3060.
+
   workers: 4
 
 judge:
-  samples_per_item: 1             # greedy (temperature 0) answers repeat, so extra samples only tripled judge time; 1 also matches v1/v3
+  samples_per_item: 1             
   temperature: 0.0
   scale_min: 1
   scale_max: 7
@@ -49,7 +41,7 @@ agents:
 
 conformal:
   alpha: 0.10
-  tau: 0.20                        # IP_norm > tau is a violation. 0.5 left the gate inert: the judge rated 0/300 calibration turns above it (max 0.357, v3); 0.2 gives a 12.7% base violation rate
+  tau: 0.20                       
   delta: 0.10
   n_calibration_turns: 300
   lambda_grid_steps: 41

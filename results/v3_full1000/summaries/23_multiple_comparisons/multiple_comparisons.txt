@@ -1,0 +1,47 @@
+Which headline contrasts survive a correction for multiple comparisons? (CPU only)
+
+42 tests, Holm-corrected at 0.05. 'yes' = the difference survives the correction.
+
+SOP part | contrast | scale | paired | difference [95% CI] | p | Holm p | survives
+Enh. 2 / Outcome 2 (2 x 2) | gate, one call: B - A | ip | no | -0.007 [-0.013, -0.001] | 0.0198 | 0.5544 | no
+Enh. 2 / Outcome 2 (2 x 2) | gate, one call: B - A | pri | no | +0.003 [-0.021, +0.027] | 0.7936 | 1.0000 | no
+Enh. 2 / Outcome 2 (2 x 2) | gate, one call: B - A | success | no | -0.006 [-0.021, +0.008] | 0.3716 | 1.0000 | no
+Enh. 2 / Outcome 2 (2 x 2) | gate, four agents: D - C | ip | no | -0.015 [-0.023, -0.007] | 0.0001 | 0.0042 | yes
+Enh. 2 / Outcome 2 (2 x 2) | gate, four agents: D - C | pri | no | -0.010 [-0.037, +0.017] | 0.4860 | 1.0000 | no
+Enh. 2 / Outcome 2 (2 x 2) | gate, four agents: D - C | success | no | -0.010 [-0.026, +0.006] | 0.2488 | 1.0000 | no
+Enh. 2 / Outcome 2 (2 x 2) | decomposition, ungated: C - A | ip | no | +0.020 [+0.012, +0.028] | 0.0001 | 0.0042 | yes
+Enh. 2 / Outcome 2 (2 x 2) | decomposition, ungated: C - A | pri | no | +0.019 [-0.007, +0.046] | 0.1528 | 1.0000 | no
+Enh. 2 / Outcome 2 (2 x 2) | decomposition, ungated: C - A | success | no | -0.003 [-0.018, +0.013] | 0.7158 | 1.0000 | no
+Enh. 2 / Outcome 2 (2 x 2) | decomposition, gated: D - B | ip | no | +0.012 [+0.006, +0.018] | 0.0004 | 0.0140 | yes
+Enh. 2 / Outcome 2 (2 x 2) | decomposition, gated: D - B | pri | no | +0.007 [-0.018, +0.031] | 0.5996 | 1.0000 | no
+Enh. 2 / Outcome 2 (2 x 2) | decomposition, gated: D - B | success | no | -0.006 [-0.021, +0.009] | 0.4366 | 1.0000 | no
+Outcome 1 (reactive baseline) | proactive vs reactive seeker: base - reactive | ip | no | -0.024 [-0.036, -0.013] | 0.0001 | 0.0042 | yes
+Outcome 1 (reactive baseline) | proactive vs reactive seeker: base - reactive | pri | no | +0.002 [-0.029, +0.032] | 0.9186 | 1.0000 | no
+Outcome 1 (reactive baseline) | proactive vs reactive seeker: base - reactive | success | no | -0.032 [-0.055, -0.008] | 0.0098 | 0.2842 | no
+Enh. 4 / Outcome 4 (memory) | need-state - no memory | ip | no | +0.017 [+0.005, +0.030] | 0.0044 | 0.1320 | no
+Enh. 4 / Outcome 4 (memory) | need-state - no memory | pri | no | +0.004 [-0.033, +0.040] | 0.8480 | 1.0000 | no
+Enh. 4 / Outcome 4 (memory) | need-state - no memory | success | no | -0.005 [-0.028, +0.017] | 0.6500 | 1.0000 | no
+Enh. 4 / Outcome 4 (memory) | summary - no memory | ip | no | +0.004 [-0.007, +0.016] | 0.4684 | 1.0000 | no
+Enh. 4 / Outcome 4 (memory) | summary - no memory | pri | no | -0.012 [-0.049, +0.025] | 0.5376 | 1.0000 | no
+Enh. 4 / Outcome 4 (memory) | summary - no memory | success | no | -0.007 [-0.029, +0.014] | 0.5402 | 1.0000 | no
+Enh. 4 / Outcome 4 (memory) | dense - no memory | ip | no | +0.018 [+0.006, +0.029] | 0.0032 | 0.1024 | no
+Enh. 4 / Outcome 4 (memory) | dense - no memory | pri | no | -0.007 [-0.044, +0.029] | 0.7186 | 1.0000 | no
+Enh. 4 / Outcome 4 (memory) | dense - no memory | success | no | -0.016 [-0.039, +0.008] | 0.1912 | 1.0000 | no
+Enh. 2 (step 12) | fine-tuned Generator: step 12 - D (backends differ, see 20_step12) | ip | no | +0.024 [+0.016, +0.031] | 0.0001 | 0.0042 | yes
+Enh. 2 (step 12) | fine-tuned Generator: step 12 - D (backends differ, see 20_step12) | pri | no | +0.051 [+0.022, +0.079] | 0.0006 | 0.0204 | yes
+Enh. 2 (step 12) | fine-tuned Generator: step 12 - D (backends differ, see 20_step12) | success | no | +0.010 [-0.005, +0.026] | 0.1994 | 1.0000 | no
+Backend check | transformers vs Ollama, untuned one call: steering control - cell A | ip | no | +0.017 [+0.009, +0.025] | 0.0001 | 0.0042 | yes
+Backend check | transformers vs Ollama, untuned one call: steering control - cell A | pri | no | +0.019 [-0.009, +0.047] | 0.1770 | 1.0000 | no
+Backend check | transformers vs Ollama, untuned one call: steering control - cell A | success | no | +0.023 [+0.008, +0.038] | 0.0020 | 0.0660 | no
+Section IV (ExTES) | ExTES- vs ours-trained, our people | ip | no | +0.004 [-0.011, +0.019] | 0.5748 | 1.0000 | no
+Section IV (ExTES) | ExTES- vs ours-trained, our people | pri | no | -0.015 [-0.060, +0.031] | 0.5408 | 1.0000 | no
+Section IV (ExTES) | ExTES- vs ours-trained, our people | success | no | +0.037 [+0.000, +0.073] | 0.0542 | 1.0000 | no
+Section IV (ExTES) | ExTES- vs ours-trained, ExTES people | ip | no | +0.001 [-0.013, +0.015] | 0.8736 | 1.0000 | no
+Section IV (ExTES) | ExTES- vs ours-trained, ExTES people | pri | no | -0.026 [-0.064, +0.011] | 0.1646 | 1.0000 | no
+Section IV (ExTES) | ExTES- vs ours-trained, ExTES people | success | no | +0.063 [+0.030, +0.097] | 0.0002 | 0.0072 | yes
+Added: steering | steering: c0.2 - c0 | ip | yes | -0.008 [-0.013, -0.003] | 0.0042 | 0.1302 | no
+Added: steering | steering: c0.2 - c0 | pri | yes | +0.011 [-0.001, +0.022] | 0.0782 | 1.0000 | no
+Added: steering | steering: c0.2 - c0 | success | yes | -0.001 [-0.017, +0.016] | 0.9056 | 1.0000 | no
+Added: DPO | DPO - SFT | ip | yes | -0.027 [-0.033, -0.021] | 0.0001 | 0.0042 | yes
+Added: DPO | DPO - SFT | pri | yes | -0.001 [-0.012, +0.010] | 0.9244 | 1.0000 | no
+Added: DPO | DPO - SFT | success | yes | +0.009 [-0.004, +0.022] | 0.1790 | 1.0000 | no

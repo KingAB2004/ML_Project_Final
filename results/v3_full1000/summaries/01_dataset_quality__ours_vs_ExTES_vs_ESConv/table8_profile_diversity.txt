@@ -1,0 +1,9 @@
+Profile / user-description diversity (paper Table 8), same code for every dataset
+=================================================================================
+dataset  n     self-BLEU-2 (lower=more diverse)  self-BLEU-4  Distinct-2  entropy bits  
+-------  ----  --------------------------------  -----------  ----------  ------------  
+ours     1000  0.702                             0.398        0.256       8.68            
+extes    1000  0.724                             0.450        0.237       7.80             
+esconv   1000  0.498                             0.146        0.536       8.52            
+
+- Ours beats ExTES on all four measures; ESConv is more diverse than both on these measures.

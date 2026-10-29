@@ -126,9 +126,7 @@ def build_plan(scale: str, backend: str | None, run_dir: Path, arms: list[str], 
             plan.append(("train", [PY, str(SRC / "train.py"), "--arm", arm,
                                    "--out", str(run_dir)], run_dir / f"adapter_{arm}"))
         # The training-corpus comparison: flatten each external corpus, then fine-tune on it.
-        for which, raw in (("esconv", data / "raw" / "esconv.json"),
-                           ("extes", data / "raw" / "extes.json"),
-                           ("smile", data / "raw" / "smile.json")):
+        for which, raw in (("extes", data / "raw" / "extes.json"),):
             if not raw.exists():
                 continue
             plan.append(("sft", [PY, str(SRC / "convert_corpus.py"), "--set", which, "--raw", str(raw)],

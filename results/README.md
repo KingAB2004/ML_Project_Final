@@ -7,7 +7,7 @@ numbers, and why they came out as they did.
 |---|---|---|---|---|
 | [`v1/`](v1/README.md) | first baseline run (Phase A), 2 Oct 2026 | none (untuned base model) | evidence of the bugs only (broken dialogues, gate calibration, run log, two diagnostic plots) and the list of fixes; no results | superseded by v2 |
 | [`v2/`](v2/README.md) | 50-profile end-to-end run (Phases A, B, C), 3 Oct 2026 | 50 profiles, 140 sessions | all baselines, the 2 x 2 (decomposition x gate), conformal gate calibration, 7B QLoRA fine-tune and its test | complete |
-| [`v3_full1000/`](v3_full1000/README.md) | full-size run, 3-6 Oct 2026 | 1,000 profiles, 2,369 sessions | dataset statistics, fine-tuning curves (all 6 runs done), PVI (0.5B, 3B), LoRA geometry, test-profile scores (partial), PVI, LoRA geometry, scaling study | in progress; refresh with `scripts/collect_results.sh` |
+| [`v3_full1000/`](v3_full1000/README.md) | full-size run, 3-17 Oct 2026 | 1,000 profiles, 2,369 sessions | everything the SOP asks for, mapped item by item in the README's "Where each SOP item's results are" table, with written summaries in `summaries/` | in progress (step 12, ExTES, ESC-RANK running); refresh with `scripts/collect_results.sh` |
 
 ## v1 or v2: which to use
 

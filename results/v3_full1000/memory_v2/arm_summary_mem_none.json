@@ -1,0 +1,14 @@
+{
+  "arm": "mem_none",
+  "supporter": "base",
+  "adapter": null,
+  "supporter_base": null,
+  "sessions_written": 310,
+  "profiles": 100,
+  "dialogues_path": "runs/memory_v2/dialogues/mem_none.jsonl",
+  "gate": false,
+  "calibrated": false,
+  "memory": "none",
+  "architecture": "decomposed",
+  "in_distribution": true
+}
