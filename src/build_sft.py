@@ -10,7 +10,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from common import DATA, cfg, read_jsonl, render_transcript, write_jsonl
+from common import DATA, read_jsonl, render_transcript, write_jsonl
 from profiles import split_profiles
 
 ANNOTATED_PATH = DATA / "corpus" / "sessions_annotated.jsonl"
@@ -86,8 +86,7 @@ def gap_statement_for(session: dict) -> str:
     return gap_statement(session.get("gap_days_from_prev"), session.get("session_index"))
 
 
-def examples_from_session(session: dict, with_thoughts: bool = True,
-                          memory_block: str = "") -> list[dict]:
+def examples_from_session(session: dict, with_thoughts: bool = True) -> list[dict]:
     rows = []
     turns = session["turns"]
     gap = gap_statement_for(session)
@@ -103,9 +102,7 @@ def examples_from_session(session: dict, with_thoughts: bool = True,
             "profile_id": session["profile_id"],
             "turn_index": turn["turn_index"],
             "system": SUPPORTER_SYSTEM,
-            # memory-aware corpus: the brief this turn was generated under (sessions.py --memory)
-            "input": render_input(turns, turn["turn_index"], memory_block=turn.get("memory_block") or memory_block,
-                                  gap_statement=gap),
+            "input": render_input(turns, turn["turn_index"], gap_statement=gap),
             "target": render_target(turn.get("analysis", ""), turn.get("strategy", ""), turn["text"],
                                     with_thoughts),
             "ladder_rung": turn.get("ladder_rung", "L0"),

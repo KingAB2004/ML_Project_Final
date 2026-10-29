@@ -55,11 +55,6 @@ def score_pri_observational(judge: Judge, session: dict, profile: dict) -> list[
     return rows
 
 
-def score_session_scales(judge: Judge, session: dict, profile: dict,
-                         scales: Sequence[str] = ("aels", "crs", "rac", "basic", "success")) -> list[dict]:
-    return [judge.score_session(s, session, profile).to_dict() for s in scales]
-
-
 def ip_components(rows: Sequence[dict]) -> dict:
     """Item 3 - naming a need the seeker never acknowledged - is the sharpest premature-naming signal."""
     item3 = [float(r["items"].get("3", 0)) for r in rows if r.get("items")]

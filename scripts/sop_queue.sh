@@ -7,7 +7,7 @@
 #   1.  baselines + 2 x 2: gate calibration, base_instruct, reactive_baseline, cellA-D    (Outcomes 1-2)
 #   2b. memory baselines: none / summary / dense / event, then the memory metrics         (Outcome 4)
 #   3.  ES-MemEval question answering per memory type                                    (Outcome 4)
-#   (ExTES of scripts/base_queue.sh is not scheduled)
+#   (cell D on ExTES people is not scheduled here: scripts/queue_104.sh ran it)
 #   (setsid nohup ./scripts/sop_queue.sh > sop_queue.log 2>&1 &)
 cd "$(dirname "$0")/.."
 source ~/COCCON_NEW/coccon/bin/activate

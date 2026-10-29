@@ -26,7 +26,6 @@ import re
 import statistics
 import sys
 from collections import Counter
-from pathlib import Path
 
 from _shared import ROOT, read_jsonl, write_json, write_jsonl
 

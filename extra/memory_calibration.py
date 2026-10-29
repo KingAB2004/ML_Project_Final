@@ -24,7 +24,6 @@ The judge never sees the system's confidence or status, only the two texts.
 from __future__ import annotations
 
 import argparse
-import math
 import statistics
 
 import numpy as np

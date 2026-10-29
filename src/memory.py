@@ -16,7 +16,6 @@ State is a fold over an append-only transition log, so every belief change is ex
 """
 from __future__ import annotations
 
-import math
 import re
 from dataclasses import dataclass, field, asdict
 from pathlib import Path

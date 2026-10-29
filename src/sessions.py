@@ -17,15 +17,11 @@ from common import (
     rng_for,
     to_int,
 )
-from agents import AgentPipeline
 from dialogue import generate_session
 from llm import LLM, pmap
-from memory import NeedStateMemory
 
 PROFILES_PATH = DATA / "profiles" / "profiles.jsonl"
 SESSIONS_PATH = DATA / "corpus" / "sessions.jsonl"
-MEM_SESSIONS_PATH = DATA / "corpus_mem" / "sessions.jsonl"
-TRANSITIONS = ("resolved", "intensified", "displaced")
 
 
 def sample_gap_days(key: str) -> float:
@@ -113,71 +109,10 @@ def advance_profile(llm: LLM, profile: dict, prev_session: dict, gap_days: float
     return advanced
 
 
-def memory_writer(llm: LLM, profile_id: str) -> AgentPipeline:
-    """The need-state memory plus the base Analyzer that writes it, as in the decomposed evaluation arms."""
-    return AgentPipeline(llm, memory=NeedStateMemory(profile_id), gate=False,
-                         views={"analyzer": llm.view("analyzer")})
-
-
-def turn_brief(writer: AgentPipeline, session_id: str):
-    """memory_fn for generate_session: the brief as it stands before this turn, then the Analyzer's writes for
-    the seeker's latest turn - the same order as AgentPipeline.step, so training and evaluation briefs match."""
-    def fn(turns: list[dict]) -> str:
-        block = writer.memory.render_brief()
-        writer.observe(turns, session_id)
-        return block
-    return fn
-
-
-def replay(writer: AgentPipeline, session: dict) -> dict:
-    """Run a finished session through the memory (session 1, or a resumed one); records each turn's brief."""
-    fn = turn_brief(writer, session["session_id"])
-    for turn in session["turns"]:
-        if turn["role"] == "supporter" and turn.get("meta", {}).get("source") != "opener_pool":
-            turn["memory_block"] = fn([t for t in session["turns"] if t["turn_index"] < turn["turn_index"]])
-    return session
-
-
-def replay_corpus(src: Path, out: Path, backend: str | None = None, limit: int | None = None,
-                  profiles: set[str] | None = None, llm: LLM | None = None) -> dict:
-    """--replay: each profile's sessions in order through one memory; resumable per profile. `profiles` keeps
-    only those people (e.g. one split); a passed `llm` is used and left open."""
-    groups: dict[str, list[dict]] = {}
-    for s in read_jsonl(src):
-        if profiles is None or s["profile_id"] in profiles:
-            groups.setdefault(s["profile_id"], []).append(s)
-    done = {s["profile_id"] for s in read_jsonl(out)}
-    todo = [g for pid, g in list(groups.items())[: limit or len(groups)] if pid not in done]
-    own = llm is None
-    llm = llm or LLM("generator", backend=backend)
-
-    def one(group: list[dict]) -> list[dict]:
-        group.sort(key=lambda s: s["session_index"])
-        writer = memory_writer(llm, group[0]["profile_id"])
-        for s in group:
-            if s["session_index"] > 1:
-                writer.memory.decay(float(s.get("gap_days_from_prev") or 0.0), session_id=s["session_id"])
-            replay(writer, s)
-        writer.memory.save(out.parent / "memory" / f"{group[0]['profile_id']}.jsonl")
-        return group
-
-    written = 0
-    try:
-        for group in pmap(one, todo, llm):
-            for s in group:
-                append_jsonl(out, s)
-                written += 1
-    finally:
-        if own:
-            llm.release()
-    return {"written": written, "profiles": len(todo)}
-
-
 def build(limit: int | None = None, backend: str | None = None, profiles_path: Path = PROFILES_PATH,
-          sessions_path: Path = SESSIONS_PATH, memory: bool = False, source_path: Path | None = None) -> dict:
+          sessions_path: Path = SESSIONS_PATH) -> dict:
     profiles = {p["profile_id"]: p for p in read_jsonl(profiles_path)}
-    first_sessions = {s["profile_id"]: s for s in read_jsonl(source_path or sessions_path)
-                      if s["session_index"] == 1}
+    first_sessions = {s["profile_id"]: s for s in read_jsonl(sessions_path) if s["session_index"] == 1}
     existing = {s["session_id"]: s for s in read_jsonl(sessions_path)}
     lo, hi = cfg("corpus.turns_per_session", default=[8, 12])
     llm = LLM("generator", backend=backend)
@@ -188,21 +123,14 @@ def build(limit: int | None = None, backend: str | None = None, profiles_path: P
         pid = first["profile_id"]
         new: list[dict] = []
         total = sample_session_count(pid)
-        writer = memory_writer(llm, pid) if memory else None
-        if writer:
-            first = replay(writer, json.loads(json.dumps(existing.get(first["session_id"], first))))
-            if first["session_id"] not in existing:
-                new.append(first)
         prev, current = first, dict(first["profile_snapshot"])
         for index in range(2, total + 1):
             sid = f"{pid}-s{index}"
             gap = sample_gap_days(sid)
             transition = pick_transition(pid, index)
             current = advance_profile(llm, current, prev, gap, transition)
-            if writer:
-                writer.memory.decay(gap, session_id=sid)
             if sid in existing:
-                prev = replay(writer, existing[sid]) if writer else existing[sid]
+                prev = existing[sid]
                 continue
             context = (f"This conversation is a follow-up: it has been {gap:.0f} days "
                        f"({gap_phrase(gap)}) since the previous one. What has changed: "
@@ -210,14 +138,11 @@ def build(limit: int | None = None, backend: str | None = None, profiles_path: P
             n_turns = rng_for(sid, "turns").randint(int(lo), int(hi))
             session = generate_session(
                 current, sid, llm, sim, n_turns, session_context=context,
-                opener=f"Hey - it's been a little while. How have things been {gap_phrase(gap)}?",
-                memory_fn=turn_brief(writer, sid) if writer else None)
+                opener=f"Hey - it's been a little while. How have things been {gap_phrase(gap)}?")
             session.update({"session_index": index, "prev_session_id": prev["session_id"],
                             "gap_days_from_prev": gap, "profile_snapshot": current})
             new.append(session)
             prev = session
-        if writer:
-            writer.memory.save(sessions_path.parent / "memory" / f"{pid}.jsonl")
         return new
 
     firsts = [f for pid, f in list(first_sessions.items())[: limit or len(first_sessions)] if pid in profiles]
@@ -258,27 +183,16 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--backend", default=None)
     ap.add_argument("--profiles", default=str(PROFILES_PATH))
-    ap.add_argument("--sessions", default=None,
-                    help=f"output corpus (default {SESSIONS_PATH}, or {MEM_SESSIONS_PATH} with --memory)")
-    ap.add_argument("--memory", action="store_true",
-                    help="memory-aware corpus: regenerate sessions 2+ with the need-state brief (Option C)")
-    ap.add_argument("--source", default=str(SESSIONS_PATH), help="with --memory: where session 1 is read from")
-    ap.add_argument("--replay", action="store_true",
-                    help="add memory briefs to --source without regenerating (cheap Option C); writes --sessions")
+    ap.add_argument("--sessions", default=str(SESSIONS_PATH), help="output corpus")
     ap.add_argument("--check", action="store_true", help="only run the temporal integrity check")
     args = ap.parse_args()
-    sessions_path = Path(args.sessions or (MEM_SESSIONS_PATH if args.memory else SESSIONS_PATH))
-    if args.replay:
-        out = Path(args.sessions or DATA / "corpus_mem" / "sessions_annotated_replay.jsonl")
-        print(replay_corpus(Path(args.source), out, backend=args.backend, limit=args.limit))
-        return
+    sessions_path = Path(args.sessions)
     if args.check:
         problems = integrity_check(read_jsonl(sessions_path))
         print("\n".join(problems) if problems else "temporal integrity: ok")
         return
     stats = build(limit=args.limit, backend=args.backend, profiles_path=Path(args.profiles),
-                  sessions_path=sessions_path, memory=args.memory,
-                  source_path=Path(args.source) if args.memory else None)
+                  sessions_path=sessions_path)
     print(f"follow-up sessions written {stats['written']} across {stats['profiles_linked']} profiles")
 
 

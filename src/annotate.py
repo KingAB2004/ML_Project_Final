@@ -42,10 +42,6 @@ def annotate_session(llm: LLM, session: dict) -> list[dict]:
             continue
         prefix = [t for t in turns if t["turn_index"] <= turn["turn_index"]]
         history = render_transcript(prefix)
-        if turn.get("memory_block") and session.get("session_index", 1) > 1:
-            # Memory-aware corpus: the turn may draw on earlier sessions, which the annotator must see to
-            # explain it. Session 1's brief only restates this transcript, so its prompt stays as before.
-            history = f"What the supporter remembered from earlier sessions:\n{turn['memory_block']}\n\n{history}"
         out = llm.structured(
             fill(template, profile_block=profile_block(profile),
                  history=history, turn_text=turn["text"]),
@@ -124,7 +120,7 @@ def run(sessions_path: Path = FILTERED_PATH, out_path: Path = ANNOTATED_PATH,
     finally:
         llm.release()
     # Rewritten, not appended: a rerun replays from the LLM cache and must not duplicate every record.
-    # beside the output, so annotating a second corpus (data/corpus_mem) never overwrites the first one's records
+    # beside the output, so annotating a second corpus never overwrites the first one's records
     write_jsonl(out_path.with_name(ANNOTATIONS_PATH.name), all_records)
     write_jsonl(out_path, out_sessions)
     vocab = vocabulary_report(all_records)

@@ -1,0 +1,16 @@
+{
+  "extes": {
+    "name": "ExTES",
+    "url": "https://github.com/pandazzh2020/ExTES/raw/main/ExTES.zip",
+    "sha256": "778e7a7923b359fa4f833cb1007065897972b1ab3a32d507854a2dae2c118e56",
+    "bytes": 46467250,
+    "downloaded": "2026-10-04"
+  },
+  "memeval": {
+    "name": "ES-MemEval / EvoEmo",
+    "url": "https://raw.githubusercontent.com/slptongji/ES-MemEval/main/data/evo_emo.json",
+    "sha256": "f30698e87fddaeff51270a666c654da604f487a3456ec60d2b6ae08a6fecd420",
+    "bytes": 4482088,
+    "downloaded": "2026-10-04"
+  }
+}

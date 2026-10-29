@@ -18,8 +18,6 @@ ROOT = Path(__file__).resolve().parent.parent
 RES = ROOT / "results" / "v3_full1000"
 RUNS = ROOT / "runs"
 OUT = ROOT / "temp_results"
-SESSION_SCALES = ("success", "aels", "basic", "crs", "rac")
-TURN_SCALES = ("ip", "pri")
 COLORS = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100")          # dataviz reference slots 1-4
 
 # arm label -> (run dir, arm name)

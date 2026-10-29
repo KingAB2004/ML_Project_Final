@@ -149,19 +149,6 @@ def calibrate(scores: Sequence[float], ip_norms: Sequence[float], alpha: float |
     )
 
 
-def empirical_violation_rate(ip_norms: Sequence[float], released: Sequence[bool],
-                             tau: float | None = None) -> dict:
-    tau = float(cfg("conformal.tau", default=0.50) if tau is None else tau)
-    rel = [ip for ip, r in zip(ip_norms, released) if r]
-    if not rel:
-        return {"n_released": 0, "violation_rate": None, "tau": tau}
-    return {
-        "n_released": len(rel),
-        "violation_rate": sum(1 for ip in rel if float(ip) > tau) / len(rel),
-        "tau": tau,
-    }
-
-
 def sweep_alphas(scores: Sequence[float], ip_norms: Sequence[float],
                  alphas: Sequence[float] = (0.05, 0.10, 0.20), **kw) -> list[dict]:
     out = []

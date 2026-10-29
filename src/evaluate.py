@@ -11,7 +11,7 @@ from baselines.memory_event import EventMemory
 from baselines.memory_none import NoMemory
 from baselines.memory_summary import SummaryMemory
 from common import (DATA, append_jsonl, cfg, existing_ids, fresh_turn, load_config, new_run_dir, read_jsonl,
-                    render_transcript, rng_for, write_json)
+                    rng_for, write_json)
 from conformal import Calibration
 from dialogue import seeker_prompt, simulator_system
 from llm import LLM, pmap
@@ -158,7 +158,7 @@ def run_arm(arm_name: str, limit: int | None = None, backend: str | None = None,
             if pipeline_cls is AgentPipeline:
                 pipeline = AgentPipeline(agent_views["generator"], views=agent_views, **kwargs)
             else:
-                # memory_writer: the base Analyzer keeps the need-state memory for the fine-tuned reply (Option C)
+                # memory_writer: the base Analyzer keeps the need-state memory for the fine-tuned reply
                 writer = (AgentPipeline(agent_views["generator"], views=agent_views, memory=memory, gate=False)
                           if spec.get("memory_writer") and isinstance(memory, NeedStateMemory) else None)
                 pipeline = MonolithicListener(llm, memory_writer=writer, steer=steer_kw, **kwargs)

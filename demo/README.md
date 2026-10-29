@@ -31,6 +31,11 @@ from their CDNs.
 - **Results.** Every arm's Success / IP / PRI / counterfactual PRI / AELS with bootstrap CIs over
   people, computed from the score files. Also: IP against Success, gate calibration, recovery against cost,
   the 42 Holm-corrected contrasts, the corpus, and a table of every number with its source folder.
+- **Architecture.** Diagrams drawn from the code: the whole program (data, training, one supporter turn,
+  evaluation), one supporter turn in detail (agents, ladder, Critic, conformal gate, revise loop, memory
+  update), the need-state memory's own architecture (write path, operations, decay and the transition log,
+  read path), an example belief graph with every status, the lifecycle of a belief, decay across sessions,
+  and what the brief carries.
 - **How it works.** The pipeline, the ladder, the IP items, the memory rules, and the caveats.
 
 ## Where the graph comes from

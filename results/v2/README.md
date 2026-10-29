@@ -164,5 +164,5 @@ from contaminated dialogues and only 3 scored arms (see `../README.md`, "v1 or v
 | `runs/v3_50/adapter_with_thoughts/` | The fine-tuned LoRA adapter (checkpoints not copied) |
 | `data/`, `configs/`, `reports/` | Seeds, profiles, corpus, SFT files; the configs used; seed statistics |
 
-The phase scripts that produced this run are `scripts/phaseA50.sh`, `phaseB50.sh`, `phaseC50.sh` and
-`run_v3.sh` in the repository.
+The phase scripts that produced this run were `scripts/phaseA50.sh`, `phaseB50.sh`, `phaseC50.sh` and
+`run_v3.sh`. They are no longer in the repository; their logs are listed above.

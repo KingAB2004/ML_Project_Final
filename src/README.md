@@ -17,7 +17,7 @@ Files stay flat in `src/` (every module imports the others by bare name, and the
 | `seeds.py` | seed situations (EmpatheticDialogues), ESConv problem-type taxonomy | ran: 1,000 seeds |
 | `profiles.py` | seed to profile (feeling, 4 past events, hidden 3-level need chain, persona, triggers / blockers), validators, splits | ran: 1,000 profiles (720 train / 100 val / 100 test / 80 calibration) |
 | `dialogue.py` | one session: supporter and simulated seeker turn by turn | ran: every corpus session |
-| `sessions.py` | links 2-4 sessions per person with 1-56 day gaps and advances the person (resolved / intensified / displaced); `--check` integrity; `--memory` (Option C) and `--replay` | ran: 2,369 sessions. `--memory` not run; `--replay` used by `futurememory.py` |
+| `sessions.py` | links 2-4 sessions per person with 1-56 day gaps and advances the person (resolved / intensified / displaced); `--check` integrity | ran: 2,369 sessions |
 | `filter.py` | structure, need leaks, safety, active-listening filters | ran: 2,369 kept |
 | `annotate.py` | analysis + strategy + ladder rung for every supporter turn | ran: 21,429 turns |
 | `convert_corpus.py` | ExTES / ESConv into our session and SFT format | used for the data-quality samples (Table 2 / 8) |
@@ -29,7 +29,6 @@ Files stay flat in `src/` (every module imports the others by bare name, and the
 |---|---|---|
 | `build_sft.py` | sessions to SFT examples (input: gap line, memory brief, conversation so far; target: thoughts + reply), per split, both arms | ran: 18,821 train / 2,608 val per arm |
 | `train.py` | QLoRA (4-bit NF4, r 32, alpha 64), best checkpoint by validation loss | ran: Qwen2.5 0.5B / 3B / 7B, both arms. Qwen3-4B training now |
-| `futurememory.py` | Option B memory-aware SFT data: replay the corpus through the need-state memory, re-annotate sessions 2+ with the brief, build SFT | written and tested 7 Oct; not run (after 9 Oct) |
 
 ## 4. Agent pipeline and gate
 

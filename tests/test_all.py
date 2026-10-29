@@ -12,7 +12,6 @@ about a format.
 """
 from __future__ import annotations
 
-import json
 import shutil
 import sys
 import tempfile
@@ -32,7 +31,6 @@ import counterfactual                             # noqa: E402
 import convert_corpus                          # noqa: E402
 import dialogue                                   # noqa: E402
 import evaluate as evaluate_mod                   # noqa: E402
-import futurememory                               # noqa: E402
 import filter as filter_mod                       # noqa: E402
 import external                               # noqa: E402
 import grounding                                  # noqa: E402
@@ -706,27 +704,6 @@ def _() -> None:
 
 
 # --------------------------------------------------------------------------- build_sft
-
-
-@check("futurememory.option_b_adds_briefs_keeps_session1_thoughts_and_builds_sft")
-def _() -> None:
-    out, sft = TMP / "futuremem", TMP / "sft_futuremem"
-    src = TMP / "futuremem_src.jsonl"
-    common.write_jsonl(src, [fake_session(), fake_session("p000001-s2", 2, gap=20.0)])
-    split = build_sft.split_assignment(["p000001"])["p000001"]
-    futurememory.replay_step(src, out, {split}, llm=echo("generator"))
-    replayed = common.read_jsonl(out / "sessions_replay.jsonl")
-    assert len(replayed) == 2 and all(t.get("memory_block") for s in replayed for t in s["turns"]
-                                      if t["role"] == "supporter" and t["meta"].get("source") != "opener_pool")
-    futurememory.annotate_step(out, llm=echo("judge"))
-    done = common.read_jsonl(out / "sessions_annotated.jsonl")
-    s1 = next(s for s in done if s["session_index"] == 1)
-    assert s1["turns"][2]["analysis"] == "worn down, minimising", "session 1 keeps its thoughts"
-    assert all(s["turns"][2]["analysis"] for s in done), "a failed re-annotation keeps the old thoughts"
-    counts = futurememory.sft_step(out, sft)
-    rows = common.read_jsonl(sft / f"with_thoughts_{split}.jsonl")
-    assert counts["with_thoughts"][split] == len(rows) == 2
-    assert not any("[memory] none." in r["input"] for r in rows), "the brief replaces the empty memory line"
 
 
 @check("build_sft.target_sequence_roundtrips_in_both_arms")
@@ -1419,7 +1396,6 @@ def _() -> None:
         raise AssertionError("an unknown arm was accepted")
     handle = echo("generator")
     try:
-        kinds = {"needstate": memory_mod.NeedStateMemory, "none": type(None)}
         assert isinstance(evaluate_mod.make_memory("needstate", "p1", handle), memory_mod.NeedStateMemory)
         for kind in ("none", "summary", "dense", "event"):
             mem = evaluate_mod.make_memory(kind, "p1", handle)
@@ -1469,40 +1445,21 @@ def _() -> None:
     assert result.memory_writes == [], "the monolithic arm writes no inspectable analyzer state"
 
 
-@check("sessions.memory_corpus_trains_on_the_brief_the_generator_saw")
+@check("listener_mono.memory_writer_writes_the_memory")
 def _() -> None:
     from baselines.listener_mono import MonolithicListener
 
     need = {"text": "wants to matter beyond what they produce", "depth": 2, "confidence": 0.6,
             "evidence_spans": [span(1, "Work has been a lot")]}
-
-    def writer(handle):
-        w = sessions_mod.memory_writer(handle, "p000001")
-        w.analyze = lambda turns, sid, block: {"emotional_state": {}, "implicit_needs": [need]}
-        return w
-
     handle = echo("generator")
     try:
-        w = writer(handle)
-        session = dialogue.generate_session(fake_profile(), "p000001-s2", handle, handle, n_supporter_turns=4,
-                                            memory_fn=sessions_mod.turn_brief(w, "p000001-s2"))
-        plain = dialogue.generate_session(fake_profile(), "p000001-s1", handle, handle, n_supporter_turns=3)
-        replayed = sessions_mod.replay(writer(handle), json.loads(json.dumps(session)))
+        w = agents.AgentPipeline(handle, memory=memory_mod.NeedStateMemory("p000001"), gate=False,
+                                 views={"analyzer": handle.view("analyzer")})
+        w.analyze = lambda turns, sid, block: {"emotional_state": {}, "implicit_needs": [need]}
         mono = MonolithicListener(handle, memory=w.memory, gate=False, memory_writer=w)
         writes = mono.step(fake_turns(), session_id="p1-s3").memory_writes
     finally:
         handle.release()
-    sup = [t for t in session["turns"] if t["role"] == "supporter" and t["turn_index"]]
-    blocks = [t["memory_block"] for t in sup]
-    assert "first session" in blocks[0] and need["text"] in blocks[1], "brief before the turn, writes after"
-    assert all("memory_block" not in t for t in plain["turns"]), "without memory_fn generation is unchanged"
-    assert [t.get("memory_block") for t in replayed["turns"]] == [t.get("memory_block") for t in session["turns"]], \
-        "a replayed (resumed) session must rebuild the same briefs"
-    for t in sup:
-        t["analysis"], t["strategy"] = "worn down", "reflect"
-    inputs = [r["input"] for r in build_sft.examples_from_session(session)]
-    assert all(b in i and dialogue.MEMORY_NOTE.strip() not in i for b, i in zip(blocks, inputs)), \
-        "training input = the brief alone, without the generator-only note"
     assert writes and writes[0]["action"] in ("proposed", "blocked"), "memory_writer must write the memory"
 
 

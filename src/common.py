@@ -8,11 +8,10 @@ import random
 import re
 import subprocess
 import threading
-import time
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Iterable, Iterator, Sequence
+from typing import Any, Callable, Iterable, Sequence
 
 import yaml
 
@@ -21,9 +20,6 @@ PROMPTS = ROOT / "prompts"
 DATA = ROOT / "data"
 RUNS = ROOT / "runs"
 REPORTS = ROOT / "reports"
-
-RUNGS = ("L0", "L1", "L2", "L3")
-STATUSES = ("hypothesis", "confirmed", "disconfirmed", "resolved")
 
 
 
@@ -172,12 +168,6 @@ def existing_ids(path: str | Path, key: str) -> set[str]:
     return {rec[key] for rec in read_jsonl(path) if key in rec}
 
 
-def require_fields(record: dict, fields: Sequence[str], where: str) -> None:
-    missing = [f for f in fields if f not in record]
-    if missing:
-        raise ValueError(f"{where}: missing required field(s) {missing}")
-
-
 
 @dataclass
 class Span:
@@ -289,33 +279,11 @@ def word_count(text: str) -> int:
     return len(re.findall(r"\b\w+\b", text))
 
 
-def retry(fn: Callable[[], Any], attempts: int = 3, delay: float = 1.0, label: str = "call") -> Any:
-    last: Exception | None = None
-    for i in range(attempts):
-        try:
-            return fn()
-        except Exception as exc:  # pragma: no cover - network/model faults
-            last = exc
-            if i + 1 < attempts:
-                time.sleep(delay * (i + 1))
-    raise RuntimeError(f"{label} failed after {attempts} attempts: {last}")
-
-
-def chunks(items: Sequence[Any], size: int) -> Iterator[list]:
-    for i in range(0, len(items), size):
-        yield list(items[i : i + size])
-
-
 def normalize_scale(mean_score: float, lo: int = 1, hi: int = 7) -> float:
     """Map a 1-7 instrument mean onto [0,1]."""
     if hi == lo:
         return 0.0
     return max(0.0, min(1.0, (mean_score - lo) / (hi - lo)))
-
-
-def token_estimate(text: str) -> int:
-    """Cheap proxy used only for prompt-budget guards, never for billing."""
-    return max(1, len(text) // 4)
 
 
 def truncate_tokens(text: str, budget: int) -> str:

@@ -3,7 +3,7 @@
     python scripts/chat.py                    # fine-tuned 7B, one call, no memory      (sft_with_thoughts)
     python scripts/chat.py --memory           # + need-state memory, base Analyzer writes it (sft7b_multi_mem)
     python scripts/chat.py --agents           # Analyzer -> Strategist -> fine-tuned Generator -> Critic + gate
-                                              #   + need-state memory                     (step 12, not yet run)
+                                              #   + need-state memory                     (step 12)
     python scripts/chat.py --no-adapter ...   # same, on the untuned base
     python scripts/chat.py --adapter runs/full_1000/adapter_wo_thoughts
 

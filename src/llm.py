@@ -493,28 +493,6 @@ class LLM:
     def view(self, role: str) -> "RoleView":
         return RoleView(self, role)
 
-    def chat_batch(self, prompts: Sequence[str], system: str | None = None, **over: Any) -> list[str]:
-        """Batched where the backend supports it, sequential otherwise. Cache is honoured either way."""
-        pending: list[int] = []
-        results: list[str | None] = [None] * len(prompts)
-        for i, p in enumerate(prompts):
-            msgs = [{"role": "user", "content": p}]
-            path = self._cache_path(system, msgs, over)
-            if path.exists():
-                results[i] = read_json(path)["text"]
-            else:
-                pending.append(i)
-        if pending and hasattr(self.backend, "generate_batch"):
-            pairs = [(system, [{"role": "user", "content": prompts[i]}]) for i in pending]
-            for i, text in zip(pending, self.backend.generate_batch(pairs, **over)):
-                results[i] = text
-                write_json(self._cache_path(system, [{"role": "user", "content": prompts[i]}], over),
-                           {"text": text})
-        else:
-            for i in pending:
-                results[i] = self.chat(prompts[i], system=system, **over)
-        return [r or "" for r in results]
-
     def structured(self, prompt: str, required: Sequence[str] = (), system: str | None = None,
                    attempts: int = 3, **over: Any) -> dict:
         """Sample, parse, repair. Returns {'parse_failed': True, 'raw': ...} rather than raising.
@@ -609,10 +587,6 @@ def extract_json(text: str) -> dict | None:
                     return None
                 return obj if isinstance(obj, dict) else None
     return None
-
-
-def resident() -> "LLM | None":
-    return _RESIDENT
 
 
 def release_all() -> None:

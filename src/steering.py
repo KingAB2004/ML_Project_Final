@@ -34,7 +34,7 @@ from collections import Counter
 from pathlib import Path
 
 from build_sft import SUPPORTER_SYSTEM
-from common import DATA, ROOT, read_jsonl, write_json
+from common import DATA, ROOT, read_jsonl
 
 STYLES = {
     "gentle": ("In this reply, stay with exactly what they have said: reflect it back simply and leave them room. "

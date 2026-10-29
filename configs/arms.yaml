@@ -40,9 +40,10 @@ arms:
   mem_event:            {supporter: base, architecture: decomposed, gate: off, memory: event,     multi_session: true, advance_profile: true, simulator: corrective}
   
   mem_needstate:        {supporter: base, architecture: decomposed, gate: off, memory: needstate, multi_session: true, advance_profile: true, simulator: corrective}
-  sftmem_with_thoughts: {supporter: sftmem_with_thoughts, architecture: monolithic, gate: off, memory: needstate, memory_writer: true, multi_session: true, advance_profile: true, simulator: corrective}
-  sftmem_wo_thoughts:   {supporter: sftmem_wo_thoughts,   architecture: monolithic, gate: off, memory: needstate, memory_writer: true, multi_session: true, advance_profile: true, simulator: corrective}
-  sftmem_no_memory:     {supporter: sftmem_with_thoughts, architecture: monolithic, gate: off, memory: none,      multi_session: true, advance_profile: true, simulator: corrective}
+  # Fine-tuned 7B one-call listener across sessions, with and without the need-state memory (run with --adapter);
+  # with memory, the base Analyzer writes it (memory_writer).
+  sft7b_multi_mem:      {supporter: sft_with_thoughts, architecture: monolithic, gate: off, memory: needstate, memory_writer: true, multi_session: true, advance_profile: true, simulator: corrective}
+  sft7b_multi_nomem:    {supporter: sft_with_thoughts, architecture: monolithic, gate: off, memory: none,      multi_session: true, advance_profile: true, simulator: corrective}
 
   corpus_extes:         {supporter: corpus_extes,      architecture: monolithic, gate: off, memory: none}
   corpus_ours_extes_profiles:   {supporter: sft_wo_thoughts,   architecture: monolithic, gate: off, memory: none, eval_set: extes}
@@ -52,8 +53,6 @@ adapters:
   base: null
   sft_with_thoughts: null       # e.g. runs/<run_id>/adapter_with_thoughts
   sft_wo_thoughts: null
-  sftmem_with_thoughts: null    # Option C: runs/memcorpus/adapter_with_thoughts (scripts/memcorpus.sh passes --adapter)
-  sftmem_wo_thoughts: null
   corpus_extes: null
 
 eval_sets:

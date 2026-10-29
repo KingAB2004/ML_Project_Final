@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
 
 from build_sft import R_CLOSE, R_OPEN, SUPPORTER_SYSTEM, render_input

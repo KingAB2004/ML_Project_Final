@@ -29,7 +29,7 @@ import statistics
 from datetime import date
 
 from _shared import ROOT, cluster_bootstrap, fill, fmt, markdown_table, out_dir, pyplot, rate_items, \
-    read_extra_prompt, read_jsonl, run_path, write_json, write_jsonl
+    read_extra_prompt, run_path, write_json, write_jsonl
 from agents import AgentPipeline
 from common import cfg
 from evaluate import make_memory

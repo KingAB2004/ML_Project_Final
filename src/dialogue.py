@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Callable, Sequence
+from typing import Sequence
 
 from common import (
     DATA,
@@ -22,10 +22,6 @@ from llm import LLM, pmap
 
 PROFILES_PATH = DATA / "profiles" / "profiles.jsonl"
 SESSIONS_PATH = DATA / "corpus" / "sessions.jsonl"
-# Shown to the generator after the memory brief, never stored with it: training inputs carry the brief alone,
-# exactly as the evaluation arms render it.
-MEMORY_NOTE = ("\nThis is background from earlier conversations with this person. You may gently check in on "
-               "something from before, but treat beliefs as guesses, and never bring back anything they denied.\n")
 
 
 def as_list(value) -> list[str]:
@@ -84,7 +80,7 @@ def rung_schedule(turn_number: int, total_turns: int) -> str:
 
 def generate_session(profile: dict, session_id: str, gen: LLM, sim: LLM, n_supporter_turns: int,
                      session_context: str = "", memory_block: str = "", reactive: bool = False,
-                     opener: str | None = None, memory_fn: Callable[[list[dict]], str] | None = None) -> dict:
+                     opener: str | None = None) -> dict:
 
     rng = rng_for(session_id, "dialogue")
     openers = cfg("corpus.openers", default=["Hey - how are things with you today?"])
@@ -112,14 +108,12 @@ def generate_session(profile: dict, session_id: str, gen: LLM, sim: LLM, n_suppo
         phase = "listening" if i + 1 < stage_boundary else "suggestion"
         template = read_prompt("listen_stage.md" if phase == "listening" else "suggest_stage.md")
         rung = rung_schedule(i + 1, n_supporter_turns)
-        block = memory_fn(turns) if memory_fn else (memory_block or "[memory] none.")
-        sup_prompt = fill(template, permitted_rung=rung, memory_block=block + (MEMORY_NOTE if memory_fn else ""),
+        sup_prompt = fill(template, permitted_rung=rung, memory_block=memory_block or "[memory] none.",
                           history=render_transcript(turns))
         text = fresh_turn(gen.chat, sup_prompt, turns, "supporter")
         turns.append({"turn_index": len(turns), "role": "supporter", "text": text, "phase": phase,
                       "ladder_rung": rung, "analysis": None, "strategy": None,
-                      "meta": {"model": gen.spec["model"], "curriculum_rung": rung},
-                      **({"memory_block": block} if memory_fn else {})})
+                      "meta": {"model": gen.spec["model"], "curriculum_rung": rung}})
 
     return {
         "session_id": session_id,

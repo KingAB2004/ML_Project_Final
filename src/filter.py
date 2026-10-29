@@ -4,7 +4,7 @@ import argparse
 import re
 from pathlib import Path
 
-from common import DATA, cfg, read_jsonl, render_transcript, supporter_turns, user_turns, write_jsonl
+from common import DATA, cfg, read_jsonl, user_turns, write_jsonl
 from judge import Judge
 from llm import pmap
 from memory import _content_words
@@ -128,7 +128,7 @@ def run(sessions_path: Path = SESSIONS_PATH, out_path: Path = FILTERED_PATH,
 
     kept = prune_broken_tails(scored)
     write_jsonl(out_path, kept)
-    # a second corpus (data/corpus_mem) keeps its quarantine beside it instead of overwriting the first one's
+    # a second corpus keeps its quarantine beside it instead of overwriting the first one's
     first_corpus = Path(out_path).resolve() == FILTERED_PATH.resolve()
     write_jsonl(QUARANTINE_PATH if first_corpus else Path(out_path).with_name(QUARANTINE_PATH.name), quarantined)
     write_jsonl(out_path.with_name("sessions_rejected.jsonl"),
