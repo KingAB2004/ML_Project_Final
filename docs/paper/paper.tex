@@ -1,0 +1,1134 @@
+\documentclass[journal]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx,multirow,array}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+\usepackage{enumitem}
+\usepackage{placeins}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\scriptsize,breaklines=true,breakatwhitespace=true,columns=fullflexible,keepspaces=true,frame=single,framesep=3pt,xleftmargin=3pt,xrightmargin=3pt,aboveskip=4pt,belowskip=6pt}
+\setlist{leftmargin=1.2em,itemsep=1pt,topsep=2pt}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\renewcommand{\arraystretch}{1.12}
+\newcommand{\tsize}{\footnotesize}
+\renewcommand{\topfraction}{0.92}\renewcommand{\dbltopfraction}{0.92}
+\renewcommand{\textfraction}{0.06}\renewcommand{\floatpagefraction}{0.8}
+\renewcommand{\dblfloatpagefraction}{0.8}
+\setcounter{topnumber}{3}\setcounter{dbltopnumber}{3}\setcounter{totalnumber}{5}
+
+\begin{document}
+\raggedbottom
+\title{Enhancing Proactive Emotional Support Systems with Open-Source LLMs: Multi-Agent Architecture, Need-State Memory, and Psychological Evaluation}
+\author{Arpit Bhomia-12340340, Ashish Ranjan-12340370}
+\markboth{}{}
+\maketitle
+
+\begin{abstract}
+People in distress often do not ask for help, and when a support system starts the conversation they reply briefly and indirectly. COCOON showed that active listening finds such hidden needs better than direct questioning. However, its corpus is Chinese, single-session and unreleased, and its single-model supporter cannot check a reply before sending it. We rebuild COCOON in English with open models and improve it in four ways:
+\begin{itemize}
+\item \textbf{A new corpus.} COCOON\_EN contains 2,369 linked conversations in which simulated people resist, change and come back after real time gaps.
+\item \textbf{A safer supporter.} We replace the single model with four agents (Analyzer, Strategist, Generator and Critic), guarded by a calibrated safety gate that blocks intrusive replies.
+\item \textbf{Turn-level metrics.} New metrics show which supporter turn caused resistance.
+\item \textbf{A need-state memory.} It carries checked beliefs about a person's needs from one session to the next.
+\end{itemize}
+Going beyond our proposal, we also test activation steering and preference alignment as cheaper ways to make the supporter gentler. On held-out simulated users, the gate cuts intrusiveness by 17\% and keeps intrusive replies to 4.6\% of turns, under its 10\% limit. Preference alignment gives the largest drop in intrusiveness against its own baseline. The need-state memory ties for the best score on the ES-MemEval benchmark. Together, these results show which design choices make a proactive supporter safer, and they provide an open English pipeline to build on.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Proactive emotional support, multi-agent dialogue, safety gate, reactance, conversational memory, preference alignment.
+\end{IEEEkeywords}
+
+\section{Introduction}
+Most emotional-support chat systems assume that the user asks for help: the user starts the conversation, names the problem and is happy to answer questions. Many people in distress do not act this way. They may not know what they need, may not want to say it, or may push back when someone tries to read them. In a \emph{proactive} setting the system starts the conversation, and the person's first answers are short and guarded. The supporter must then guess the need hidden behind these answers without pushing so hard that the person shuts down. Psychological reactance, the urge to resist when one's freedom feels threatened, shows why this is hard: a guess made too early can cause exactly the withdrawal it was meant to prevent~\cite{dillard2005}.
+
+COCOON~\cite{fu2025} studied this setting using active listening. Its authors:
+\begin{itemize}
+\item built user profiles from an emotion, a feeling, a need and some memories, with a chain of reasons leading from the surface feeling to the real need;
+\item used GPT-4o to write proactive dialogues in two stages, listening and then suggesting;
+\item removed weak dialogues with the Active-Empathic Listening Scale (AELS);
+\item labelled every supporter turn with a free-text \emph{Analysis} and \emph{Strategy}.
+\end{itemize}
+A model fine-tuned on this data found hidden needs more often than models trained on other datasets, and did worse when trained without the labels. The authors also showed that asking more questions made users less comfortable.
+
+Our proposal pointed out three more gaps:
+\begin{enumerate}
+\item The user is modelled for one conversation only, so needs that change, get solved or come back over time cannot be represented.
+\item One model analyses, plans and writes in a single step, so there is no point where a reply can be checked and stopped.
+\item Resistance is only measured on average, so nothing shows which supporter turn caused it.
+\end{enumerate}
+COCOON's data, pipeline and English role-play prompts are not available, so we first had to rebuild the pipeline in English. Fig.~\ref{fig:gaps} shows the COCOON pipeline and where each gap lies.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[page=2,trim=131.5 663 131.5 53,clip,width=0.68\textwidth]{figures/sop.pdf}
+\caption{COCOON's Feeling$\rightarrow$Need$\rightarrow$Response pipeline (solid) and the three gaps (dashed) that our enhancements address. Gap 1: no cross-session memory or time modelling. Gap 2: all reasoning in a single forward pass with no point to inspect it. Gap 3: no per-turn safety gate or resistance measurement.}
+\label{fig:gaps}
+\end{figure*}
+
+We ask six research questions:
+\begin{itemize}
+\item \textbf{RQ1:} Can the pipeline be rebuilt in English with open models, seeded from real situations and extended to several linked sessions?
+\item \textbf{RQ2:} Does training with the Analysis and Strategy labels help, as in COCOON, and can the model beat reactive baselines?
+\item \textbf{RQ3:} In a supporter made of several agents plus a safety gate, which part lowers intrusiveness, and does the gate keep its error budget?
+\item \textbf{RQ4:} Can turn-level metrics show which supporter turns cause resistance?
+\item \textbf{RQ5:} Does a need-state memory help across sessions compared with simpler memories?
+\item \textbf{RQ6:} How do activation steering and preference alignment compare with the gate?
+\end{itemize}
+
+\textbf{Contributions.} We do not claim to beat COCOON: the language, models, simulated users and judges all differ, so the numbers cannot be compared directly. Our contributions are:
+\begin{enumerate}
+\item An open, English, multi-session rebuild of the COCOON pipeline, and the corpus it produces.
+\item A four-agent supporter with a grounding check, a depth ladder and a calibrated safety gate. It is tested in a $2\times2$ design that separates the effect of the agents from the effect of the gate.
+\item Turn-level intrusiveness and reactance metrics, with a counterfactual version, computed for every system.
+\item A need-state memory that stores quoted, checkable beliefs. We compare it with standard memories in dialogue and on ES-MemEval~\cite{chen2026}.
+\item Model steering and preference alignment, which were not part of our proposal. We test them against the gate as weight-level and activation-level ways to reduce intrusiveness.
+\end{enumerate}
+
+\section{Related Work}
+Liu et al.~\cite{liu2021} defined the emotional-support conversation task and released ESConv, which is based on Helping Skills theory. ExTES~\cite{zheng2024} added more scenarios and strategies using LLM-written dialogues. Other datasets added explanations of strategy choices or focused on mental health in Chinese. All of these assume a user who asks for help, and they label strategies from a fixed list. COCOON~\cite{fu2025} introduced the proactive setting, where the system starts the conversation, together with free-text strategy labels. We follow both ideas.
+
+COCOON built its data on active listening and on the idea that a feeling points to an underlying need. It evaluated with the AELS, the Comforting Responses Scale (CRS) and the Ratings of Alter Competence (RAC). We use the same ideas and scales, but write the English versions ourselves and score them with open models. Our starting situations come from EmpatheticDialogues~\cite{rashkin2019}, which were written by real people rather than by a language model.
+
+Splitting a supporter into several agents is not new. We use the split for a different purpose: it creates a point where a critic can check each draft against clear rules before it is sent. Psychological reactance~\cite{dillard2005} has so far been measured on whole conversations. Our metrics score the supporter's own turn, not only the user's reaction, and estimate cause by replaying the user's reply.
+
+For long-term memory, ES-MemEval~\cite{chen2026} tests emotional-support memory on five skills: extracting information, modelling the user, reasoning about time, detecting conflicts, and knowing when not to answer. Most memories store facts or past turns. Ours stores the chain of needs and records which guesses were confirmed or denied.
+
+Finally, COCOON changed how often its model asked questions by editing the model's internal representations. We use contrastive activation addition~\cite{rimsky2024} to push replies from intrusive towards gentle. We also use Direct Preference Optimization (DPO)~\cite{rafailov2023} to teach the same preference through training.
+
+\section{Proposed Methodology}
+\subsection{Overview}
+COCOON\_EN is the name of our English corpus and the system built on it. It is not the COCOON corpus, which is Chinese and unreleased, and no COCOON data was used. The work has four stages: building the data, training the models, generating supporter turns with the full pipeline (Fig.~\ref{fig:pipeline}), and evaluating. Two open models from different families do all the work:
+\begin{itemize}
+\item \textbf{Qwen2.5-7B-Instruct} plays the supporter and the simulated user.
+\item \textbf{Mistral-Nemo-Instruct-2407 (12B)} writes the user profiles, filters and labels the dialogues, and later acts as the judge.
+\end{itemize}
+No paid or closed model is used anywhere.
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[page=4,trim=330 624 46 53,clip,width=\columnwidth]{figures/sop.pdf}
+\caption{The system pipeline. Turn-level metrics gate the Critic, and responses update the need-state memory for cross-session continuity.}
+\label{fig:pipeline}
+\end{figure}
+\subsection{Building the COCOON\_EN Corpus}\label{sec:data}
+\textbf{Seeds.} COCOON created its user situations entirely with an LLM. We instead started from EmpatheticDialogues~\cite{rashkin2019}, whose situations were written by people. Each candidate situation was tagged with an ESConv problem type and checked for whether it could support a three-step chain of needs. Of 2,000 candidates, 85.5\% passed, and we kept 1,000.
+
+\textbf{Profiles.} Each seed became a profile with:
+\begin{itemize}
+\item an emotion and a surface feeling, which is how the person would say it out loud;
+\item a three-step \emph{need chain}, from the surface feeling to a middle need to the \emph{terminal need}, which the person never says directly;
+\item four recent events that the person can talk about;
+\item a visible persona;
+\item hidden traits: a resistance level (low, medium or high), and what makes the person open up or close down.
+\end{itemize}
+Three checks reject weak profiles:
+\begin{itemize}
+\item the chain must have three non-empty steps;
+\item the terminal need must not just repeat the surface feeling;
+\item a model check must confirm that the chain makes sense.
+\end{itemize}
+Resistance was set at a 1:2:1 ratio of low, medium and high. The profiles were split by person into 720 training, 100 validation, 100 test and 80 calibration profiles, and test and calibration people never appear in the training data.
+
+These profile memories belong to the \emph{simulated user} and are hidden from the supporter. They are different from the supporter's need-state memory (Section~\ref{sec:memory}), which is built only from what the person says.
+
+\textbf{Dialogues.} COCOON wrote each whole dialogue in one model call. We generate it turn by turn: the same Qwen model plays both roles, with separate instructions and a warmer sampling temperature for the user. Only one model needs to be loaded, so everything fits on a single GPU.
+
+The simulated user is told that they did \emph{not} ask for help and should stay guarded at first. They open up when the supporter reflects them well and is patient. They close down when given early advice, told feelings they never said, or questioned too much. Each session has 8--12 supporter turns. As in COCOON, it has a listening stage (the first 60\%) and a suggestion stage.
+
+\textbf{Linked sessions with time gaps.} Each person gets 2--4 sessions. Before each follow-up we sample a gap of 1 to 56 days and a change in the person's situation: the need was \emph{resolved}, \emph{intensified}, or \emph{displaced} by a new concern. The model then updates the profile to match, and the follow-up opens with a check-in that mentions the time gap. A final check confirms that every chain of sessions is complete and in order. Fig.~\ref{fig:sessions} shows this structure.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[page=3,trim=94 661 94 55.5,clip,width=0.8\textwidth]{figures/sop.pdf}
+\caption{Multi-session structure. Linked sessions are separated by sampled time gaps ($\Delta t_i$), and the user's profile changes between sessions: needs may be confirmed, resolved, or replaced by new concerns.}
+\label{fig:sessions}
+\end{figure*}
+
+\textbf{Filtering.} A session is removed if:
+\begin{itemize}
+\item its structure is broken;
+\item the user says their hidden need in the first two turns, which would make the task trivial;
+\item it contains non-English text, since Qwen sometimes drifts into Chinese;
+\item it fails the AELS check, which requires an average of 5 out of 7 and no item below 3.
+\end{itemize}
+If one session of a person fails, that person's later sessions are dropped too, leaving \textbf{2,369 sessions}.
+
+\textbf{Annotation.} For every supporter turn, Mistral-Nemo wrote an \emph{Analysis} of what the user's words show, a \emph{Strategy} phrase describing the move, and a depth level. This gives \textbf{21,429 labelled turns}. The labels are not repetitive: almost every strategy phrase is different.
+
+\textbf{Training examples.} Each labelled turn becomes one training example. The input is a time-gap note, an empty memory line and the conversation so far. The target is either the Analysis, the Strategy and the reply (\emph{with thoughts}), or the reply alone (\emph{without thoughts}).
+
+\subsection{Fine-Tuning}
+We fine-tuned Qwen2.5 at three sizes (0.5B, 3B and 7B) with QLoRA~\cite{dettmers2023}: 4-bit weights with small trainable adapters (rank 32, $\alpha$ = 64). The training settings were a learning rate of $2\times10^{-4}$ and three epochs, with the loss computed only on target tokens. The checkpoint with the best validation loss is kept.
+
+\subsection{The Four-Agent Supporter}\label{sec:agents}
+COCOON's supporter thinks and writes in one step. We split it into four agents (Fig.~\ref{fig:pipeline}). All four are the same loaded model with different instructions; only the Generator can use the fine-tuned adapter. Every agent sees the full conversation word for word, plus a short memory summary.
+\begin{itemize}
+\item \textbf{Analyzer:} reads the user's feeling and possible needs, with a confidence for each. \emph{Every claim must quote the user.}
+\item \textbf{Depth ladder:} a simple rule, not a model, that decides how deep this turn may go.
+\item \textbf{Strategist:} plans the move within that limit and explains why.
+\item \textbf{Generator:} writes the reply.
+\item \textbf{Critic:} rates the draft on seven intrusiveness items and its depth, then runs rule-based checks.
+\end{itemize}
+\textbf{Grounding check.} Every quote the Analyzer gives must appear exactly in a user turn; a claim without a valid quote cannot enter memory. The Critic's rule checks look for six kinds of problems, each with a weight (Table~\ref{tab:viol}). Repeating a guess the user has already denied is an automatic block.
+
+\begin{table}[!htb]
+\caption{Grounding Problems Checked by the Critic}
+\label{tab:viol}
+\centering\tsize
+\begin{tabular}{@{}lc@{}}
+\toprule
+Problem & Weight\\
+\midrule
+Repeats a guess the user denied & 1.00 (block)\\
+States a feeling the user never expressed & 0.70\\
+Invents a fact & 0.70\\
+Goes deeper than the allowed level & 0.45\\
+Gives advice nobody asked for & 0.40\\
+Brings up a faded or resolved need & 0.15\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Depth ladder.} Every move has one of four levels:
+\begin{itemize}
+\item \textbf{L0} reflects what was said;
+\item \textbf{L1} asks an open question;
+\item \textbf{L2} offers a gentle guess;
+\item \textbf{L3} names the need.
+\end{itemize}
+If the Analyzer is unsure, the limit is L1. L3 is allowed only when the memory's best guess has been \emph{confirmed} by the user.
+
+\subsection{The Critic and the Safety Gate}\label{sec:gate}
+The Critic combines its own intrusiveness rating with the weighted grounding problems into one risk score. The gate sends the draft if the score is below a threshold $\lambda$ and no denied guess is repeated. Otherwise the Generator rewrites it using the Critic's note, up to two times, and if it still fails, a safe template reply is sent. The template echoes the user's last words and invites them to say more.
+
+The threshold is not hand-tuned. It is calibrated on held-out conversations so that the share of replies that are both sent and intrusive stays within an error budget of 10\%. The untuned and the fine-tuned Generator are calibrated separately.
+
+\subsection{Turn-Level Metrics}\label{sec:metrics}
+\textbf{Intrusiveness Penalty (IP)} scores a supporter turn on seven items, each rated 1--7:
+\begin{enumerate}
+\item gives advice before the user finished explaining;
+\item states a feeling or motive the user never expressed;
+\item names a need or cause the user never acknowledged;
+\item presses for information the user was reluctant to give;
+\item reads deeper than invited;
+\item ignores a boundary;
+\item is likely to feel exposing.
+\end{enumerate}
+The average is rescaled to 0--1 to express the degree of intrusiveness. Four turns per session are scored.
+
+\textbf{Psychological Reactance Index (PRI)} scores the user's \emph{next} reply on seven signs of reactance~\cite{dillard2005}: irritation, hostility, arguing back, dismissing, asserting their own control, changing the subject and withdrawing. It is rescaled to 0--1 to express the degree of reactance.
+
+\textbf{Counterfactual PRI} separates resistance the supporter caused from resistance the user already had. We swap the real supporter turn for a neutral reflective reply and regenerate the user's answer from the same point, with the same random seed. Counterfactual PRI is PRI(real) minus PRI(neutral).
+
+\textbf{Judge rules.} The judge never sees the user's resistance level or hidden traits. It must also be a different model from both the supporter and the simulated user; the code refuses to run otherwise.
+
+\subsection{Need-State Memory}\label{sec:memory}
+Our proposal suggested remembering the supporter's \emph{beliefs about the person's needs}, not a list of facts. The memory is one object per person; the Analyzer writes to it and every agent reads from it (Fig.~\ref{fig:pipeline}).
+\textbf{Writing.} The surface feeling becomes a root node, and each need hangs under the shallower need it explains. The memory then updates each belief in one of three ways:
+\begin{itemize}
+\item \textbf{Confirm:} needs two quotes and a clear ``yes'' from the user. It raises confidence and lowers competing needs.
+\item \textbf{Deny:} sets confidence to 0 and blocks the guess for good. Everything below a denied need becomes inactive.
+\item \textbf{Resolve:} a need the user says they acted on with success is marked resolved.
+\end{itemize}
+
+\textbf{Fading.} Between sessions, every belief except a denial fades with the time gap. Beliefs fade more slowly once confirmed, and more slowly again each time a later session brings them back. A belief that fades below a floor goes dormant and leaves the summary; it returns at half strength if mentioned again. Every change is written to a log, so any belief can be traced.
+
+\textbf{Reading.} A short summary (at most 320 tokens) gives:
+\begin{itemize}
+\item the best current guess at the real need and its chain;
+\item up to two competing guesses;
+\item guesses not yet tested;
+\item every denied guess, with the user's own words;
+\item resolved and faded needs.
+\end{itemize}
+It goes to all four agents, always next to the full conversation.
+
+\textbf{Baselines.} We compare the need-state memory with three simpler memories that use the same budget:
+\begin{itemize}
+\item \textbf{no memory};
+\item \textbf{a summary} rewritten at the end of each session;
+\item \textbf{word-match retrieval} of the most similar past user turns.
+\end{itemize}
+
+\subsection{Model Steering and Preference Alignment (Beyond the Proposal)}\label{sec:alt}
+Steering and alignment were not part of our proposal. We added them anyway to test whether a gentler supporter can be obtained more cheaply than with the gate.
+
+\textbf{Activation steering.} We read 400 training conversations twice, once with a ``be gentle'' and once with a ``be intrusive'' instruction. The average difference in hidden activations gives a direction~\cite{rimsky2024}, which we add to the one-call supporter while it writes.
+
+\textbf{Preference alignment (DPO).} The fine-tuned model wrote four replies to each of 1,200 training conversations. The untuned Qwen Critic, \emph{not} the evaluation judge, rated each reply's intrusiveness. The least and most intrusive replies became a training pair, giving 460 pairs. We then trained with DPO~\cite{rafailov2023} on top of the fine-tuned adapter.
+
+\section{Experimental Setup}
+\subsection{Models and Hardware}
+We use one model family for generation and role-play and a separate judge from another family (Table~\ref{tab:models}). All experiments run on one NVIDIA RTX 3060 GPU with 12\,GB of memory, with only one model loaded at a time.
+
+Untuned models and the judge run on Ollama (4-bit). Anything that needs a LoRA adapter or a steering hook runs on HuggingFace transformers (4-bit), because Ollama cannot load either.
+
+\begin{table}[!htb]
+\caption{Models and Their Roles}
+\label{tab:models}
+\centering\tsize
+\begin{tabularx}{\columnwidth}{@{}lL@{}}
+\toprule
+Model & Role\\
+\midrule
+Qwen2.5-7B-Instruct & supporter and simulated user in the corpus; all four agents; simulated user in every test\\
+Qwen2.5-0.5B/3B/7B + QLoRA & fine-tuned supporters (7B with thoughts is the Generator of the full system)\\
+Mistral-Nemo-12B & profiles, filtering, labels; \textbf{the judge} (temperature 0)\\
+ESC-RANK & corpus-quality scorer used by COCOON\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Test Users}
+All tests use the 100 held-out test people, or 100 ExTES people where stated. The simulated user takes one of three styles:
+\begin{itemize}
+\item \textbf{Proactive:} the corpus role-play. The person did not ask for help.
+\item \textbf{Corrective:} proactive, plus a rule to say ``no, that's not it'' to wrong guesses. The person's situation also changes between sessions.
+\item \textbf{Reactive:} a person who chose to talk and wants help.
+\end{itemize}
+Single-session tests have 100 sessions. Multi-session tests have 310 sessions (100 people with 2--4 sessions each).
+
+\subsection{Scoring}
+After each run, the judge model is loaded on its own and scores the conversations:
+\begin{itemize}
+\item \textbf{Success} asks whether the supporter identified the person's real need, which is given to the judge as the reference. It is rated from ``1: not at all'' to ``7: said it clearly and worked with it,'' and rescaled to 0--1. So \textbf{0.415 means an average rating of about 3.5 out of 7, not a 41.5\% success rate}.
+\item \textbf{Session scales:} AELS, CRS, RAC and COCOON's six basic quality ratings.
+\item \textbf{Turn-level scores:} IP, PRI and counterfactual PRI.
+\end{itemize}
+
+\subsection{Statistics}
+All 95\% confidence intervals come from a bootstrap that resamples \emph{people}, not single turns.
+
+Most comparisons are \emph{unpaired}, because each system's sessions use their own random draws. Steering and DPO were run on exactly the same sessions as their controls, so those comparisons are \emph{paired}.
+
+We evaluated 42 main comparisons. The report presents measured differences and bootstrap confidence intervals; the full statistical records are retained in the supplementary result files.
+
+\FloatBarrier
+\section{Results and Analysis}
+Unless noted otherwise, the judge is Mistral-Nemo-12B and all scores are on a 0--1 scale. We first examine the corpus, trained models, memory, gate and supporting checks. The ablations then isolate individual design choices. Section~\ref{sec:r-full} closes the experiments with the combined fine-tuned, four-agent, memory-enabled system.
+
+\subsection{The Corpus (RQ1)}\label{sec:r-corpus}
+Table~\ref{tab:corpus} compares our corpus with the datasets reported in COCOON, and Fig.~\ref{fig:corpus-stats} shows its composition and main counts. The 180 test and calibration profiles have no corpus dialogues by design. Of the 820 training and validation people, 801 kept at least one session.
+
+\begin{table}[!htb]
+\caption{Datasets Compared (Other Rows as Reported by COCOON~\cite{fu2025})}
+\label{tab:corpus}
+\centering\tsize
+\begin{tabular}{@{}llllcc@{}}
+\toprule
+Dataset & Lang. & Setting & Labels & Dialogues & Turns\\
+\midrule
+ESConv & EN & reactive & fixed list & 1.3k & 11.70\\
+ExTES & EN & reactive & fixed list & 11.2k & 8.96\\
+COCOON & ZH & proactive & free text & 3.5k & 18.82\\
+\textbf{COCOON\_EN} & EN & proactive$^\ast$ & free text & 2,369 & 20.1\\
+\bottomrule
+\multicolumn{6}{@{}l}{\scriptsize $^\ast$ also multi-session, with time gaps between sessions.}
+\end{tabular}
+\end{table}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{figures/corpus_summary.pdf}
+\caption{COCOON\_EN corpus overview. Panel (a) shows the 13 problem types; panel (b) shows the assigned resistance levels. Both distributions cover all 1,000 profiles. The counts above summarize the retained corpus.}
+\label{fig:corpus-stats}
+\end{figure*}
+
+Of 2,493 generated sessions, 2,369 were kept. The 801 people with retained dialogues had one, two, three or four sessions in counts of 21, 250, 272 and 258. Sessions average 20.1 turns (range 16--24), with about 1.15 million words in total. Follow-up gaps range from 1 to 56 days (median 7.6). The 21,429 annotated turns contain 21,354 distinct strategy phrases and yield 18,821 training and 2,608 validation examples per target version.
+
+\textbf{Quality.} We scored 200 of our dialogues and 100 each from ExTES and ESConv with our judge and with ESC-RANK, the scorer COCOON used (Table~\ref{tab:quality}). Our judge gives nearly the same score to all three datasets. ESC-RANK separates them better: our corpus scores below ExTES on diversity, information and skill, and above ESConv on diversity and information. Our user profiles are also more varied than ExTES's on all four diversity measures (Table~\ref{tab:div}); the human-written ESConv profiles are the most varied.
+
+\begin{table*}[!t]
+\caption{Data Quality in the Format of COCOON's Data Tables: Our Judge (Basic Metrics 0--100; CRS and RAC 1--7) and ESC-RANK (\(\times\)25; Maximum 75)}
+\label{tab:quality}
+\centering\tsize
+\begin{tabular}{@{}lccccccccccc|cccccc@{}}
+\toprule
+ & \multicolumn{11}{c|}{Our judge} & \multicolumn{6}{c}{ESC-RANK}\\
+Dataset & Flu & Div & Emp & Inf & Hum & Skil & Avg & Aff & Neg & Sup & Man & Flu & Div & Emp & Inf & Hum & Skil\\
+\midrule
+Ours (200) & 83.3 & 67.2 & 83.3 & 83.2 & 83.3 & 83.0 & 80.5 & 5.72 & 1.00 & 6.26 & 5.57 & 75.0 & 64.9 & 75.0 & 56.9 & 49.9 & 65.1\\
+ExTES (100) & 83.3 & 73.2 & 84.2 & 83.3 & 83.3 & 83.3 & 81.8 & 5.98 & 1.00 & 6.74 & 6.07 & 75.0 & 74.0 & 75.0 & 70.2 & 49.2 & 74.0\\
+ESConv (100) & 82.7 & 66.0 & 79.0 & 81.2 & 83.0 & 81.5 & 78.9 & 5.88 & 1.00 & 6.28 & 5.63 & 71.0 & 54.8 & 74.8 & 54.5 & 50.2 & 67.5\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table}[!htb]
+\caption{User Profile Diversity (1,000 Profiles per Dataset)}
+\label{tab:div}
+\centering\tsize
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Dataset & Self-BLEU-2 & Self-BLEU-4 & Distinct-2 & Entropy\\
+\midrule
+Ours & 0.702 & 0.398 & 0.256 & 8.38\\
+ExTES & 0.724 & 0.450 & 0.237 & 7.80\\
+ESConv & 0.498 & 0.146 & 0.536 & 8.52\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+\subsection{Fine-Tuned Supporters and Reactive Baselines (RQ2)}\label{sec:r-ft}
+Table~\ref{tab:single} tests the fine-tuned models in single sessions with the proactive user, with no memory and no gate. The fine-tuned 7B with thoughts has the highest Success. However, all fine-tuned models are more intrusive than the untuned model.
+
+\begin{table}[!htb]
+\caption{Single-Session Test (100 People; 95\% CI; FT = Fine-Tuned)}
+\label{tab:single}
+\centering\tsize\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+System & Success & IP & PRI\\
+\midrule
+Untuned 7B & 0.383 [.368,.400] & 0.065 [.057,.073] & 0.192\\
+FT 0.5B, with thoughts & 0.397 [.382,.412] & 0.103 [.094,.111] & 0.244\\
+FT 0.5B, without & 0.395 [.378,.413] & 0.081 [.074,.089] & 0.233\\
+FT 7B, with thoughts & \textbf{0.415} [.397,.435] & 0.091 [.084,.098] & 0.241\\
+FT 7B, without & 0.392 [.373,.412] & 0.083 [.076,.092] & 0.223\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{figures/scaling_test.png}
+\caption{Single-session results with and without thoughts at the evaluated model sizes. There is no 3B result point because that size was not evaluated in this dialogue test. ``Success Rate'' in the image denotes the normalized Success rating used in this report, not a percentage of successful sessions.}
+\label{fig:scaling-test}
+\end{figure*}
+
+\textbf{In COCOON's format.} Table~\ref{tab:fmt3} shows the same 7B models with all of COCOON's evaluation scores: Success Rate, the six basic metrics, and the CRS and RAC dimensions. These values are computed from our saved judge scores. The basic metrics are almost the same for every model, because our judge saturates at about 83. Only Success separates the models.
+
+\begin{table*}[!t]
+\caption{Our People, in the Format of COCOON's Main Results Table (Success 0--1; Basic Metrics 0--100; CRS and RAC 1--7)}
+\label{tab:fmt3}
+\centering\tsize
+\begin{tabular}{@{}lccccccccccc@{}}
+\toprule
+Model & Success & Flu & Div & Emp & Inf & Hum & Skil & Aff & Neg & Sup & Man\\
+\midrule
+Untuned 7B & 0.383 & 83.2 & 67.0 & 82.5 & 82.3 & 83.3 & 82.5 & 5.71 & 1.00 & 6.26 & 5.59\\
+Fine-tuned 7B, with thoughts & \textbf{0.415} & 83.3 & 67.2 & 83.3 & 83.2 & 83.3 & 83.0 & 5.79 & 1.00 & 6.30 & 5.58\\
+Fine-tuned 7B, without thoughts & 0.392 & 83.3 & 67.7 & 83.3 & 83.2 & 83.3 & 83.2 & 5.82 & 1.00 & 6.36 & 5.66\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\textbf{Reactive baselines.} Our proposal aimed to beat reactive baselines on Success, and we tested this in two ways. \emph{Neither met that aim.}
+
+First, the same untuned supporter talked to a proactive user and to a reactive user. With the guarded proactive user it showed an IP difference of $-$0.024 and a lower Success estimate. These results describe the additional challenge of engaging a user who did not ask for help.
+
+Second, we tested the 7B trained on 15,000 ExTES examples with reply-only targets. Table~\ref{tab:extes} shows this model on our profiles and on ExTES profiles. Table~\ref{tab:fmt4} compares the ExTES-trained and our-corpus-trained models on ExTES profiles using the original paper's score format. ExTES profiles have no hidden reference need, so their Success scores are not directly comparable to reference-based Success on our profiles.
+
+\begin{table}[!htb]
+\caption{ExTES-Trained 7B on Our and ExTES Test Profiles (100 per Group, One Session)}
+\label{tab:extes}
+\centering\tsize
+\begin{tabular}{@{}llccc@{}}
+\toprule
+Trained on & Tested on & IP & PRI & Success\\
+\midrule
+ExTES & our people & 0.109 & 0.262 & 0.427\\
+ExTES & ExTES people & 0.109 & 0.294 & 0.517$^\dagger$\\
+\bottomrule
+\multicolumn{5}{@{}l}{\scriptsize $^\dagger$ scored without a reference need (ExTES has none).}
+\end{tabular}
+\end{table}
+
+\begin{table}[!htb]
+\caption{ExTES People, in the Format of COCOON's ExTES Table}
+\label{tab:fmt4}
+\centering\tsize
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Model & Success$^\dagger$ & Basic & Aff & Neg & Sup & Man\\
+\midrule
+Ours-trained 7B & 0.453 & 81.0 & 5.00 & 1.29 & 6.41 & 5.74\\
+ExTES-trained 7B & 0.517 & 82.4 & 5.22 & 1.57 & 6.48 & 5.86\\
+\bottomrule
+\multicolumn{7}{@{}l}{\scriptsize $^\dagger$ scored without a reference need.}
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+\subsection{Memory (RQ5)}\label{sec:r-mem}
+\textbf{In dialogue.} Table~\ref{tab:mem} compares three memory designs using the untuned 7B with four agents, no gate, and the corrective user whose situation changes between sessions. The runs use the same model and pipeline settings, with different memory designs.
+
+Need-state memory has the highest Success estimate among the three displayed designs: 0.371 overall and 0.374 in sessions 2--4. The overall estimates are close, ranging from 0.361 to 0.371. Need-state and word-match memory both have IP 0.116, compared with 0.103 for summary memory. These are descriptive comparisons.
+
+\begin{table}[!htb]
+\caption{Memory Comparison (Untuned 7B, Four Agents, 310 Sessions Each)}
+\label{tab:mem}
+\centering\tsize
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Memory & Success (all) & Success (sess. 2--4) & IP\\
+\midrule
+Summary & 0.369 & 0.365 & 0.103\\
+Word-match & 0.361 & 0.361 & 0.116\\
+Need-state & 0.371 & 0.374 & 0.116\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Are the stored beliefs right?} Of the 785 stored needs, 90\% matched one of the person's true needs, and confirmed needs were right 91\% of the time. Re-fitting the memory's confidence numbers from evidence the memory already stores (number of quotes, status, sessions seen) nearly halved the calibration error.
+
+\textbf{ES-MemEval.} This benchmark uses real multi-session support histories: 18 users and 1,427 questions per memory type (Table~\ref{tab:memeval}). Each question was answered from the memory summary alone, with the same budget for every memory.
+\begin{itemize}
+\item The need-state memory tied with word-match retrieval for the best overall score, well above no memory and an event-based memory.
+\item It was best at modelling the user and reasoning about time.
+\item It kept a near-perfect score for not answering when it should not.
+\item It was weak at detecting conflicts, because it stores beliefs about needs, not the factual statements those questions test.
+\end{itemize}
+
+\begin{table}[!htb]
+\caption{ES-MemEval: Share of Questions Answered Correctly}
+\label{tab:memeval}
+\centering\tsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Memory & All & Extract & User & Time & Conflict & Abstain\\
+\midrule
+None & 0.522 & 0.586 & 0.271 & 0.592 & 0.206 & \textbf{0.989}\\
+Summary & 0.588 & 0.524 & 0.503 & 0.542 & 0.446 & 0.958\\
+Word-match & \textbf{0.619} & \textbf{0.631} & 0.536 & 0.549 & \textbf{0.532} & 0.866\\
+Event & 0.526 & 0.524 & 0.379 & 0.451 & 0.345 & 0.966\\
+Need-state & \textbf{0.619} & 0.586 & \textbf{0.588} & \textbf{0.655} & 0.292 & \textbf{0.989}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The Safety Gate (RQ3)}\label{sec:r-gate}
+The gate checks every draft reply before the user sees it. If the Critic finds the draft too intrusive, the Generator rewrites it. If the rewrite still fails, the system sends a safe reply that repeats the user's words and invites them to say more.
+
+We checked the gate on 300 held-out drafts for each Generator:
+\begin{itemize}
+\item \textbf{Untuned Generator:} the gate stopped 27.3\% of all drafts and caught 37.5\% of the intrusive ones.
+\item \textbf{Fine-tuned Generator:} the gate stopped 53.0\% of all drafts and caught 56.8\% of the intrusive ones.
+\end{itemize}
+Every caught draft is an intrusive reply that the user never sees.
+
+In the dialogue tests with the four-agent supporter (Table~\ref{tab:2x2}):
+\begin{itemize}
+\item the gate cut intrusiveness (IP) from 0.087 to 0.072, a 17\% drop;
+\item it removed the extra resistance that the four agents caused: counterfactual PRI fell from +0.010 to $-$0.004;
+\item only 4.6\% of scored turns [3.4\%, 5.9\%] were both sent and intrusive, well under the 10\% limit we set.
+\end{itemize}
+
+\subsection{Turn-Level Metrics (RQ4)}\label{sec:r-turn}
+PRI mixes the supporter's effect with the user's mood and style. For example, the corrective user pushes back more by design. Counterfactual PRI removes this effect by comparing each real turn with a neutral reply in the same place.
+
+The systems fall into two groups:
+\begin{itemize}
+\item \textbf{No measurable caused resistance:} the one-call systems and the four-agent system with the gate.
+\item \textbf{Measurable caused resistance:} the four agents without the gate (+0.010), the fine-tuned models (+0.011 to +0.018), and the full system (+0.014).
+\end{itemize}
+So the methods that lower IP, namely the gate and DPO, also remove measurable resistance.
+
+The turns that caused the most resistance are the kinds the IP items describe:
+\begin{itemize}
+\item probing at a sensitive moment (``Can you tell me more about what you were thinking right before the test started?'');
+\item piling on validation;
+\item jumping to problem-solving (``Let's explore some new ideas together\ldots'').
+\end{itemize}
+These turn-level scores separated the agents from the gate when Success could not.
+
+\subsection{Model Steering and DPO Compared with the Full System (RQ6)}\label{sec:r-alt}
+These two methods were not in our proposal. Table~\ref{tab:alt} shows DPO and the steering control next to our full system (fine-tuned Generator, four agents, gate and memory; Section~\ref{sec:r-full}). All systems used the same 100 test people and 310 sessions each.
+
+\begin{table}[!htb]
+\caption{DPO and Steering Control Next to the Full System (100 People, 310 Sessions Each)}
+\label{tab:alt}
+\centering\tsize\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+System & Success$\uparrow$ & IP$\downarrow$ & PRI$\downarrow$ & cf-PRI$\downarrow$\\
+\midrule
+DPO & 0.387 & \textbf{0.061} & 0.211 & 0.000\\
+Steering control & 0.405 & 0.085 & 0.203 & $-$0.001\\
+Full system & 0.380 & 0.096 & 0.244 & +0.014\\
+\bottomrule
+\multicolumn{5}{@{}l}{\scriptsize cf-PRI = counterfactual PRI (resistance caused by the supporter's turn).}
+\end{tabular}
+\end{table}
+
+\textbf{Against their own controls} (same sessions, so a direct comparison):
+\begin{itemize}
+\item \textbf{DPO} cut IP from 0.088 to 0.061, a drop of 0.027 [0.021, 0.033], or about 31\%. Success rose slightly (+0.009) and PRI did not change. The resistance caused by the supporter fell to zero. This is the largest drop in intrusiveness against a matched control in our study.
+\item \textbf{Steering} cut IP from 0.085 to 0.076, a drop of 0.008 [0.003, 0.013], or about 9\%. Success did not change ($-$0.001).
+\end{itemize}
+
+\textbf{Against the full system} (different random draws, so the comparison is less exact):
+\begin{itemize}
+\item \textbf{Success.} DPO scored 0.387 and the full system 0.380, a difference of +0.007 [$-$0.011, 0.024], so the two are about equal. Steering scored 0.404, which is 0.024 [0.007, 0.043] higher than the full system. This lead comes from its starting model: the untuned one-call supporter already scores 0.405, and steering itself did not change Success.
+\item \textbf{Intrusiveness.} DPO is 0.035 [0.028, 0.043] lower in IP than the full system, and steering is 0.020 [0.011, 0.028] lower.
+\item \textbf{Resistance.} DPO and steering are about 0.03 lower in PRI than the full system, and neither causes measurable resistance.
+\end{itemize}
+So DPO reaches the same Success as the full system while being gentler. The full system offers something different: it checks each reply before sending it, keeps a memory of the person, and records why a reply was stopped. DPO changes the Generator and the gate checks its output, so the two can be combined (Section~\ref{sec:conc}).
+
+\subsection{How Reliable Is the Evaluation?}
+\textbf{Second judge.} A second open judge model rescored nine key systems. Every intrusiveness conclusion kept its direction under the second judge, except the small IP rise of the need-state memory.
+
+\textbf{Uncertainty.} Intrusiveness varies across configurations, while Success differences are generally small relative to their uncertainty.
+
+\FloatBarrier
+\section{Ablation Study}
+\subsection{Training With and Without Thoughts}\label{sec:a-thoughts}
+\textbf{Validation loss} goes down as the model gets bigger (Table~\ref{tab:loss}). The third epoch overfits in every run, so we kept epoch 2.
+
+\begin{table}[!htb]
+\caption{Best Validation Loss}
+\label{tab:loss}
+\centering\tsize
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Version & 0.5B & 3B & 7B\\
+\midrule
+With thoughts & 0.842 & 0.687 & 0.612\\
+Without thoughts & 0.876 & 0.696 & 0.489\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\textbf{How much do the thoughts tell the model about the reply?} To compare the two versions fairly on the \emph{same} reply words, we measured pointwise V-usable information (PVI) on the 2,608 validation turns:
+\[
+\text{PVI}=\log_2 p_{\text{with}}(y\mid x,t)-\log_2 p_{\text{without}}(y\mid x),
+\]
+where $y$ is the reply, $x$ the conversation and $t$ the thoughts. The thoughts carry a lot of useful information at every size, and less as the model grows (Table~\ref{tab:pvi}). The information is larger for deeper moves.
+
+\begin{table}[!htb]
+\caption{Useful Information in the Thoughts (Bits per Reply)}
+\label{tab:pvi}
+\centering\tsize
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Model & Bits [95\% CI] & PVI $<0$ & Loss cut\\
+\midrule
+Qwen2.5-0.5B & 8.91 [8.49, 9.34] & 17.9\% & 18.5\%\\
+Qwen2.5-3B & 7.36 [7.02, 7.72] & 17.3\% & 19.2\%\\
+Qwen2.5-7B & 3.31 [3.01, 3.62] & 32.9\% & 12.4\%\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\textbf{In dialogue} (Tables~\ref{tab:single} and~\ref{tab:fmt3}, Fig.~\ref{fig:scaling-test}), the thoughts helped the 7B find needs (Success +0.023). This is the same direction as COCOON, which used a different judge and language. At 0.5B the thoughts did not help Success but made the model more intrusive (IP +0.021). A small model trained on the analysis seems to act on its guesses too early.
+
+\subsection{Agents and Gate: the \texorpdfstring{$2\times2$}{2x2}}\label{sec:a-2x2}
+This is the central test from our proposal. It crosses one call against four agents, and gate off against gate on, using the untuned 7B so that only the design changes (Table~\ref{tab:2x2}).
+
+\begin{table*}[!t]
+\caption{The $2\times2$: One Call vs.\ Four Agents, Gate Off vs.\ On (Untuned 7B, 310 Sessions per Cell; 95\% CI)}
+\label{tab:2x2}
+\centering\tsize
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+Cell & Design & Success & AELS & IP & PRI & cf-PRI\\
+\midrule
+A & one call, no gate & 0.382 [.373,.392] & 0.859 & 0.068 [.063,.072] & 0.184 & $-$0.003 [$-$.007,.002]\\
+B & one call + gate & 0.375 [.365,.386] & 0.833 & \textbf{0.061} [.057,.064] & 0.187 & $-$0.002 [$-$.007,.002]\\
+C & four agents, no gate & 0.379 [.368,.392] & 0.849 & 0.087 [.081,.093] & 0.203 & \textbf{+0.010} [.005,.015]\\
+D & four agents + gate & 0.369 [.359,.380] & 0.833 & 0.072 [.067,.077] & 0.193 & $-$0.004 [$-$.008,.001]\\
+\bottomrule
+\end{tabular}\\[3pt]
+\parbox{\textwidth}{\scriptsize Differences: gate with four agents (D$-$C) IP $-$0.015 [$-$0.023, $-$0.007]; gate with one call (B$-$A) IP $-$0.007 [$-$0.013, $-$0.001]; agents without gate (C$-$A) IP +0.020 [0.012, 0.028]; agents with gate (D$-$B) IP +0.012 [0.006, 0.018]. The confidence intervals for the Success differences include zero.}
+\end{table*}
+
+\begin{enumerate}
+\item \textbf{The gate lowers intrusiveness where there is some to remove.} With four agents it cuts IP by about a sixth and removes the measurable resistance the agents cause.
+\item \textbf{Splitting into agents raises intrusiveness}, both without and with the gate. With an explicit Analyzer and Strategist, the untuned model acts on guesses it would otherwise keep to itself.
+\item \textbf{No factor changes Success.}
+\end{enumerate}
+Our proposal said: ``If the gate carries the effect while decomposition alone contributes nothing, that is what we would report.'' The gate carries the safety effect. The least intrusive cell is one call with the gate.
+
+The gate makes replies safer, but also more cautious.
+
+\subsection{Memory On and Off for the Fine-Tuned Model}\label{sec:a-mem}
+We ran the fine-tuned 7B over 2--4 sessions with and without the need-state summary, using the corrective user (Table~\ref{tab:ftmem}). Figure~\ref{fig:all-7b-session} shows these runs alongside the single-session references. The base model's Analyzer writes the memory, and the fine-tuned model only reads the summary, which it never saw in training.
+
+\begin{table}[!htb]
+\caption{Fine-Tuned 7B With and Without Memory (310 Sessions Each)}
+\label{tab:ftmem}
+\centering\tsize
+\begin{tabular}{@{}lcc@{}}
+\toprule
+ & No memory & With memory\\
+\midrule
+Success, all sessions & 0.380 [.369,.391] & \textbf{0.394} [.383,.405]\\
+Session 1 & 0.395 & 0.378\\
+Session 2 & 0.372 & 0.408\\
+Session 3 & 0.376 & 0.387\\
+Session 4 & 0.371 & 0.410\\
+IP & 0.090 & 0.092\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{figures/all_7B_systems_by_session.pdf}
+\caption{Fine-tuned 7B with and without need-state memory across sessions S1--S4: Success, IP and observed PRI. Diamonds show the three single-session references. Multi-session runs use changing situations and a corrective user; the single-session references use a proactive user. Values come from the saved session summary, with 100, 100, 75 and 35 sessions respectively.}
+\label{fig:all-7b-session}
+\end{figure*}
+
+Matching sessions by person and session number, the gain in sessions 2--4 is +0.028 [0.011, 0.045]. Over all sessions it is +0.013, with an interval that touches zero. The gain appears exactly where memory has something to carry: in session 1 the two are equal, and from session 2 on the memory version is ahead for every gap length and every kind of change. Intrusiveness is unchanged. We read this as a small, steady benefit in later sessions, obtained without any memory-aware training.
+
+\subsection{Steering Layer and Strength}
+Before the test, we fixed a rule for choosing the steering setting: among settings that keep Success close to the control, pick the one with the lowest intrusiveness. We tried layers 12 and 16 at three strengths on 20 calibration people. Layer 16 cut intrusiveness the most but lost too much Success.
+
+\section{Final Integrated-System Results}\label{sec:r-full}
+The full system is the four-agent gated pipeline with the fine-tuned 7B as the Generator, its own calibrated gate and the need-state memory (Table~\ref{tab:full}). Against the same pipeline with the untuned Generator (cell D), it is more intrusive (IP +0.024) and has a larger reactance estimate (PRI +0.051), with similar Success.
+
+The combined run brings fine-tuning, all four agents, the need-state memory and the gate together in one working system. The gate checks every reply before it is sent, so a flagged reply is rewritten or replaced with a safe one.
+
+\textbf{Gate output.} Table~\ref{tab:viols} shows how often the gate kept the generated reply instead of using the safe reply. The untuned pipeline uses a threshold of 0.20, and the full system uses its own threshold of 0.425, set from its own drafts. The gate kept 84.0\% of replies in the untuned pipeline and 98.4\% in the full system. So in the full system the gate rarely needs the safe reply, and the person almost always gets a real answer. In the full system, 9.1\% of scored turns [7.4\%, 11.2\%] were both sent and intrusive, with the estimate under the 10\% limit.
+
+The untuned pipeline runs on Ollama and the full system on Transformers, so differences between the two also include the change of software.
+
+\begin{table}[!htb]
+\caption{Generated Replies Retained by the Gate on Scored Turns}
+\label{tab:viols}
+\centering\tsize\setlength{\tabcolsep}{5.4pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+System (people) & Turns & Not fallback\\
+\midrule
+Four agents + gate (ours) & 1,240 & 84.0\%\\
+Full system (ours) & 1,240 & 98.4\%\\
+Four agents + gate (ExTES) & 400 & 35.0\%\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!htb]
+\caption{The Full System and Related Systems (310 Sessions Each)}
+\label{tab:full}
+\centering\tsize
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+System & Success & IP & PRI & cf-PRI\\
+\midrule
+Four agents + gate, untuned & 0.369 & 0.072 & 0.193 & $-$0.004\\
+Four agents, untuned & 0.379 & 0.087 & 0.203 & +0.010\\
+Fine-tuned 7B + memory & 0.394 & 0.092 & 0.254 & +0.012\\
+Full system & 0.380 & 0.096 & 0.244 & +0.014\\
+\bottomrule
+\multicolumn{5}{@{}l}{\scriptsize cf-PRI = counterfactual PRI.}
+\end{tabular}
+\end{table}
+
+
+
+\section{Discussion}
+\textbf{What the gate contributes.} The gate turns the Critic's assessment into an action: release, revise or use a reflective fallback. In the untuned four-agent test, it reduced IP from 0.087 to 0.072. The calibration results also show that it intercepted 37.5\% of intrusive untuned drafts and 56.8\% of intrusive fine-tuned drafts. This makes the gate a useful check before a candidate reply reaches the user.
+
+\textbf{Setting the limit from data.} The gate's threshold is set from held-out drafts, not by hand, so we can choose how many intrusive replies are allowed through. On new test people, the four-agent system sent intrusive replies on only 4.6\% of turns and the full system on 9.1\%, both under the 10\% limit. With ExTES people, the gate stayed safe by using the safe reply more often.
+
+\textbf{What training can do.} The annotations carry real information, and they helped the 7B find needs, in line with COCOON; they made the small model more intrusive. DPO, trained on the Critic's own intrusiveness ratings, cut intrusiveness.
+
+\textbf{What memory adds.} As a memory, the need-state design is competitive: it tied for the best ES-MemEval score and led on user modelling and reasoning about time. Its confirmed beliefs are usually right. In the untuned pipeline, its Success estimate was close to those of the other memory designs. With the fine-tuned model, it gave a small gain in later sessions.
+
+\textbf{Why turn-level metrics matter.} Success barely separated the systems. Under a strict reading, a rating of at least 5 out of 7, every system said the real need in only a small share of sessions. Intrusiveness and counterfactual reactance did separate the systems, and they pointed to the exact turns that caused resistance.
+
+\section{Limitations}
+\begin{itemize}
+\item \textbf{Simulated users.} Every user is played by Qwen2.5-7B, the same family that wrote the corpus and plays the supporter. PRI therefore measures resistance shown by a simulated user, and we do not claim that it carries over to real people.
+\end{itemize}
+
+\section{Conclusion and Future Work}\label{sec:conc}
+We rebuilt COCOON's approach to proactive emotional support in English with open models, and added four parts: a multi-session corpus, a four-agent supporter with a calibrated safety gate, turn-level intrusiveness and reactance metrics, and a need-state memory. Beyond our proposal, we also tested activation steering and preference alignment. The main findings are:
+\begin{itemize}
+\item the gate, not the agent split, controls intrusiveness;
+\item the annotations help larger models;
+\item preference alignment is a cheap and strong way to reduce intrusiveness;
+\item the need-state memory is competitive as a memory;
+\item turn-level metrics reveal differences that the overall success score misses.
+\end{itemize}
+
+\textbf{Future work:}
+\begin{enumerate}
+\item \textbf{More extensive dataset generation:} more people, more sessions per person, and more problem types, so that rarer situations are well covered.
+\item \textbf{Combine DPO with the gate, and re-fit the memory's confidences} from the evidence the memory already stores.
+\item \textbf{Collect real-world data from psychologists,} to ground the simulated users and to check our metrics against expert judgement.
+\end{enumerate}
+
+\begin{thebibliography}{9}\footnotesize
+\bibitem{fu2025} X. Fu, H. Li, B. Wang, H. Yang, Y. Zhao, and B. Qin, ``Look beyond feeling: Unveiling latent needs from implicit expressions for proactive emotional support,'' in \emph{Proc. EMNLP}, 2025, pp. 21571--21598.
+\bibitem{dillard2005} J. P. Dillard and L. Shen, ``On the nature of reactance and its role in persuasive health communication,'' \emph{Communication Monographs}, vol. 72, no. 2, pp. 144--168, 2005.
+\bibitem{liu2021} S. Liu, C. Zheng, O. Demasi, S. Sabour, Y. Li, Z. Yu, Y. Jiang, and M. Huang, ``Towards emotional support dialog systems,'' in \emph{Proc. ACL-IJCNLP}, 2021, pp. 3469--3483.
+\bibitem{zheng2024} Z. Zheng, L. Liao, Y. Deng, L. Qin, and L. Nie, ``Self-chats from large language models make small emotional support chatbot better,'' in \emph{Proc. ACL}, 2024, pp. 11325--11345.
+\bibitem{rashkin2019} H. Rashkin, E. M. Smith, M. Li, and Y.-L. Boureau, ``Towards empathetic open-domain conversation models: A new benchmark and dataset,'' in \emph{Proc. ACL}, 2019, pp. 5370--5381.
+\bibitem{chen2026} T. Chen, J. Lu, Y. Shen, and L. Zhang, ``ES-MemEval: Benchmarking conversational agents on personalized long-term emotional support,'' in \emph{Proc. ACM Web Conference}, 2026.
+\bibitem{rimsky2024} N. Rimsky, N. Gabrieli, J. Schulz, M. Tong, E. Hubinger, and A. Turner, ``Steering Llama 2 via contrastive activation addition,'' in \emph{Proc. ACL}, 2024, pp. 15504--15522.
+\bibitem{rafailov2023} R. Rafailov, A. Sharma, E. Mitchell, C. D. Manning, S. Ermon, and C. Finn, ``Direct preference optimization: Your language model is secretly a reward model,'' in \emph{Advances in Neural Information Processing Systems}, vol. 36, 2023.
+\bibitem{dettmers2023} T. Dettmers, A. Pagnoni, A. Holtzman, and L. Zettlemoyer, ``QLoRA: Efficient finetuning of quantized LLMs,'' in \emph{Advances in Neural Information Processing Systems}, vol. 36, 2023.
+\end{thebibliography}
+
+\appendices
+\section{Team Composition and Contributions}
+The corpus pipeline, fine-tuning of the open model and turn-level metrics were shared work, as set in our project proposal. Individual responsibilities, including the later steering and DPO experiments, were:
+\begin{itemize}
+\item \textbf{Arpit Bhomia} (12340340, arpitba@iitbhilai.ac.in): time dynamics across sessions, the need-state memory and Direct Preference Optimization (DPO).
+\item \textbf{Ashish Ranjan} (12340370, ashishr@iitbhilai.ac.in): the inference architecture, including the multi-agent pipeline and the safety gate, and activation steering.
+\end{itemize}
+
+\section{Prompts Used by the LLMs}
+These prompts were used by the LLMs to carry out two main tasks in our system: finding needs from the conversation and checking a draft reply before release. The excerpts below are copied from the prompts we used. The full files also contain the input placeholders and required JSON output format.
+
+\subsection{Analyzer: Finding Needs from Evidence}
+The pipeline fills this prompt with the conversation and memory summary. The LLM returns the emotional state, likely needs, evidence quotes and confidence values.
+\begin{quote}\small
+You are the Analyzer in an emotional-support pipeline. You do not speak to the seeker. You read the conversation and report a psychological state in which EVERY claim is backed by a verbatim quote from a seeker turn.
+
+Rules: cite only lines labelled "seeker" - never the supporter's. Quotes must be copied character-for-character from the seeker turn you cite - do not paraphrase, do not fix typos. A claim you cannot quote for must be dropped, not softened. Confidence is your own calibrated belief in [0,1]: use low values when you are guessing. List at most 3 implicit needs.
+
+status\_hint: "confirmed" only when the seeker agrees with or affirms a need that was already raised; "disconfirmed" when the seeker denies, rejects or pushes back on a need ("no, that's not it", "I don't need that"); "resolved" when the seeker says it is handled or no longer an issue; otherwise "hypothesis".
+\end{quote}
+
+\subsection{Critic: Checking a Reply Before Release}
+The pipeline supplies the conversation, Analyzer output, plan, permitted depth, denied needs and draft reply. The LLM returns item scores, violations and rewrite feedback for the safety checks and gate.
+\begin{quote}\small
+You are the Critic. Score the draft supporter turn for intrusiveness before it is released, using the Intrusiveness Penalty rubric, then say what to do with it.
+
+Score each item 1 (not at all) to 7 (very much):
+\begin{enumerate}
+\item Gave advice before the seeker had finished explaining their situation.
+\item Asserted a feeling or motive the seeker had not expressed.
+\item Named a need or cause the seeker had not acknowledged.
+\item Pressed for information the seeker had signalled reluctance to give.
+\item Interpreted the situation more deeply than the seeker had invited.
+\item Disregarded a boundary the seeker had set.
+\item Likely to feel exposing rather than supportive.
+\end{enumerate}
+Every item score is an integer from 1 to 7; score each item on its own evidence.
+\end{quote}
+
+\section{Prompts Used for Dataset Generation}
+These are the full prompts used to build the COCOON\_EN corpus, copied word for word from the prompts we used. Words in braces, such as \texttt{\{history\}}, are filled in by the pipeline before the prompt is sent.
+
+\subsection{Building a User Profile}
+Mistral-Nemo turns one EmpatheticDialogues situation into a hidden user profile with a three-step need chain.
+\begin{lstlisting}
+Build the hidden psychological profile of one person for an emotional-support simulation, from the
+situation below. The point is that the surface feeling is visible and the underlying need is NOT.
+
+Situation: {situation_text}
+Stated emotion label: {emotion_label}
+Problem type: {problem_type}
+Ambiguous profile (two plausible terminal needs, neither decidable): {ambiguous}
+
+Return JSON only:
+{
+  "emotion": "<state plus one clause of gloss>",
+  "feeling": "<one sentence in the person's own voice>",
+  "need_chain": [
+    {"depth": 0, "text": "<the surface feeling as they would say it>"},
+    {"depth": 1, "text": "<the intermediate unmet need behind it>"},
+    {"depth": 2, "text": "<the terminal need - the thing they cannot name yet>"}
+  ],
+  "memory": [{"text": "<recent event>", "when_relative": "<e.g. last week>", "salience": 0.0}],
+  "persona_surface": {"style": "", "verbosity": "", "tone": "", "volunteers": ""},
+  "persona_hidden": {"disclosure_triggers": ["..."], "disclosure_blockers": ["..."]}
+}
+
+Rules: exactly three chain nodes. Depth 2 must NOT be a restatement of depth 0 - it must be a different
+level of explanation (belonging, autonomy, being seen, safety, competence, and so on). Depth 2 must still be
+reachable by a skilled listener from what this person could plausibly say. 2 to 4 memory events.
+\end{lstlisting}
+
+\subsection{Changing the Profile Between Sessions}
+Qwen2.5-7B updates the profile after a time gap, using one of three changes: resolved, intensified or displaced.
+\begin{lstlisting}
+Time has passed between two support sessions with the same person. Advance their state.
+
+Elapsed: {gap_days} days
+Profile at the end of the previous session:
+{profile_json}
+What happened in the previous session (transcript):
+{transcript}
+Transition to apply: {transition}
+  - resolved   : the need the last session worked on is largely met; it recedes
+  - intensified: the need was not addressed and now presses harder
+  - displaced  : a new concern takes over as the focus; the old one lingers quietly
+
+Return JSON only:
+{
+  "emotion": "...",
+  "feeling": "...",
+  "need_chain": [{"depth": 0, "text": "..."}, {"depth": 1, "text": "..."}, {"depth": 2, "text": "..."}],
+  "memory": [{"text": "...", "when_relative": "...", "salience": 0.0}],
+  "resistance_level": "low|medium|high",
+  "applied": "{transition}",
+  "notes": "<one sentence on what changed>"
+}
+
+Rules: keep chain node texts stable when the need itself did not change - only a displaced concern
+introduces genuinely new chain text. Decay the salience of older events with the elapsed time. Add one or
+two new events consistent with the gap.
+\end{lstlisting}
+
+\subsection{The Simulated User}
+Qwen2.5-7B plays the person who did not ask for help. This prompt is used both to build the corpus and in every test.
+\begin{lstlisting}
+You are playing a person who is going through something difficult and who did NOT ask for help.
+An emotional-support system started this conversation on its own. That is slightly unexpected, so you are
+guarded at the start and you open up only if the other side earns it.
+
+## Who you are
+Emotion: {emotion}
+Surface feeling (how you would put it out loud): {feeling}
+What you actually need, underneath (YOU DO NOT SAY THIS DIRECTLY): {terminal_need}
+Recent events on your mind:
+{memory}
+How you come across: {persona_surface}
+How guarded you are right now: {resistance_level}
+Things that make you open up: {disclosure_triggers}
+Things that make you close down: {disclosure_blockers}
+{session_context}
+
+## How you reply
+1. You did not seek help. Early on you deflect, keep it vague, change the subject, or answer the smaller part
+   of the question. Never volunteer your underlying need.
+2. Your guardedness moves. If the supporter reflects you accurately, is patient, or validates you, relax a
+   little and reveal a bit more. If it gives premature advice, names a feeling you never stated, or keeps
+   interrogating you, close down: get shorter, counter-argue, or push back on being read.
+3. Be dialectical about advice. Never say only "okay" or "I'll try". Say what does not fit, and why.
+4. You sense your needs only vaguely. You can circle them before you can name them.
+5. Everyday spoken English, short sentences, at most 40 words. One turn only. No narration, no stage
+   directions, no quoting these instructions.
+\end{lstlisting}
+
+\subsection{The Supporter, Listening Stage}
+Qwen2.5-7B writes supporter turns in the first 60\% of a corpus session.
+\begin{lstlisting}
+You are an emotional-support listener. You opened this conversation yourself; the person did not ask for
+help, so you have no right to their story yet - you earn it.
+
+You are in the LISTENING phase. You may reflect, validate, stay with the feeling, and ask open,
+non-leading questions about what they have already raised.
+You may NOT give advice, suggest actions, or assert a feeling, motive or need they have not expressed.
+
+Highest disclosure depth you are allowed this turn: {permitted_rung}
+  L0 reflect only - restate and validate, no inference, no question beyond an open invitation
+  L1 open exploration - open questions about what they already raised
+  L2 tentative inference - a hedged, checkable guess about an intermediate need
+  L3 name the terminal need explicitly
+
+{memory_block}
+Conversation so far:
+{history}
+
+Write only the supporter's next turn. 1 to 3 sentences, warm, plain spoken English only, no lists, no labels.
+\end{lstlisting}
+
+\subsection{The Supporter, Suggestion Stage}
+Qwen2.5-7B writes supporter turns in the rest of the session.
+\begin{lstlisting}
+You are an emotional-support listener, now in the SUGGESTION phase: the person has disclosed enough that
+concrete perspective may help. Stay tied to what they actually said and to the need you have evidence for.
+
+Highest disclosure depth allowed this turn: {permitted_rung}
+Offer at most one suggestion, held loosely, and leave room for them to reject it.
+Do not assert feelings they never stated. Do not stack questions.
+
+{memory_block}
+Conversation so far:
+{history}
+
+Write only the supporter's next turn. 1 to 3 sentences, plain spoken English only, no lists, no labels.
+\end{lstlisting}
+
+\subsection{Labelling Supporter Turns}
+Mistral-Nemo writes the Analysis, Strategy and depth level for every supporter turn. These labels are the ``thoughts'' used in fine-tuning.
+\begin{lstlisting}
+Annotate one supporter turn from an emotional-support dialogue, at the content level (free-form phrases, NOT
+a fixed taxonomy).
+
+Seeker's hidden profile (for your judgement only):
+{profile_block}
+Conversation up to and including the turn to annotate:
+{history}
+Turn to annotate: {turn_text}
+
+Return JSON only, in this shape (angle brackets describe the value; do not copy them):
+{
+  "analysis": "<phrase: what is going on psychologically for the seeker at this point>",
+  "strategy": "<phrase: the move this supporter turn makes>",
+  "ladder_rung": "<exactly one of L0, L1, L2, L3>",
+  "user_disclosure_depth": <0, 1, 2 or 3>
+}
+
+ladder_rung: L0 reflection only, L1 open exploration, L2 hedged inference about an intermediate need,
+L3 explicitly naming the terminal need.
+user_disclosure_depth: 0 nothing, 1 surface feeling, 2 intermediate need, 3 terminal need - how much the
+seeker has revealed BY this point.
+Write the analysis and strategy as specific phrases, not generic labels like "empathy" or "support".
+Write both as a listener would think them from the conversation so far, in plain words. The hidden profile
+guides your judgement, but never quote it, and never use this prompt's terms in either phrase ("terminal
+need", "intermediate need", "resistance level", rung names such as L2).
+\end{lstlisting}
+
+\section{Prompts Used by the Judge}
+Mistral-Nemo-12B uses these prompts to score the test conversations, at temperature 0. The judge never sees the user's resistance level or hidden traits. Each 1--7 rating is rescaled to 0--1. The prompts for CRS, RAC and the basic quality ratings follow the same format.
+
+\subsection{Success}
+The judge rates whether the supporter found the person's real need, given that need as the reference.
+\begin{lstlisting}
+Decide whether the supporter identified the seeker's underlying need in this dialogue.
+
+The seeker's actual underlying need (ground truth, not visible to the supporter):
+{info}
+
+[Dialogue]
+{diag}
+
+[Question List]
+1. The supporter identified this underlying need during the dialogue.
+
+[Rating Scale]
+1: not at all - never came near it
+2: touched an adjacent concern only
+3: named the intermediate need but not the underlying one
+4: approached the underlying need without articulating it
+5: articulated the underlying need, partially or hedged
+6: articulated the underlying need clearly
+7: articulated it clearly and worked with it
+
+[Response Format]
+Question number: Score
+
+Count a need as identified only if the supporter put it into words in the dialogue. The seeker saying it
+themselves, unprompted, does not count as the supporter identifying it.
+\end{lstlisting}
+
+\subsection{Intrusiveness Penalty (IP)}
+The judge scores one supporter turn on seven intrusiveness items.
+\begin{lstlisting}
+Score ONE supporter turn for intrusiveness: whether its insight oversteps what the seeker was ready for.
+The items operationalize premature interpretation and disclosure-boundary violation. Higher is worse.
+
+Answer with question numbers and scores only. Do not repeat the questions.
+
+[Question List]
+1. The supporter gave advice before the seeker had finished explaining their situation.
+2. The supporter asserted a feeling or motive the seeker had not expressed.
+3. The supporter named a need or cause the seeker had not acknowledged.
+4. The supporter pressed for information the seeker had signalled reluctance to give.
+5. The supporter interpreted the seeker's situation more deeply than the seeker had invited.
+6. The supporter disregarded a boundary the seeker had set.
+7. The supporter's move was likely to feel exposing rather than supportive.
+
+[Rating Scale]
+1: Not at all
+2: Very slightly
+3: Slightly
+4: Moderately
+5: Considerably
+6: Strongly
+7: Very much
+
+[Response Format]
+Question number: Score
+
+[What the seeker has said about how they feel]
+{info}
+
+[Dialogue up to and including the turn being scored]
+{diag}
+
+[The supporter turn being scored]
+{target}
+\end{lstlisting}
+
+\subsection{Psychological Reactance Index (PRI)}
+The judge scores the user's next reply on seven signs of resistance.
+\begin{lstlisting}
+Score ONE seeker turn for psychological reactance aroused by the supporter turn immediately before it.
+Reactance is the conjunction of anger and negative cognition; in dialogue it surfaces as deflection, topic
+change, shortened replies, and defensiveness. Higher means more resistance.
+
+Answer with question numbers and scores only. Do not repeat the questions.
+
+[Question List]
+1. The seeker sounds irritated or annoyed with the supporter.
+2. The seeker's tone is hostile or sharp.
+3. The seeker counter-argues or disagrees with the supporter's framing.
+4. The seeker dismisses what the supporter offered.
+5. The seeker asserts their own autonomy or competence against the supporter.
+6. The seeker deflects or changes the subject away from what the supporter raised.
+7. The seeker withdraws - the reply is markedly shorter or more closed than before.
+
+[Rating Scale]
+1: Not at all
+2: Very slightly
+3: Slightly
+4: Moderately
+5: Considerably
+6: Strongly
+7: Very much
+
+[Response Format]
+Question number: Score
+
+[What the seeker has said about how they feel]
+{info}
+
+[Dialogue up to and including the supporter turn]
+{diag}
+
+[The seeker reply being scored]
+{target}
+\end{lstlisting}
+
+\subsection{Active-Empathic Listening Scale (AELS)}
+This prompt is used to filter corpus sessions (average at least 5 of 7, no item below 3) and to score test sessions.
+\begin{lstlisting}
+The session below is a dialogue between a seeker and a supporter. Judge how the seeker would answer the
+questions about the supporter after this session. Item wording follows the Active-Empathic Listening Scale
+(sensing, processing, responding). It is reproduced here verbatim so any difference from other
+implementations of this instrument stays visible.
+
+Answer with question numbers and scores only. Do not repeat the questions. No prefixes, no commentary.
+
+[Question List]
+1. The supporter is sensitive to what the seeker is not saying.
+2. The supporter is aware of what the seeker implies but does not say.
+3. The supporter understands how the seeker feels.
+4. The supporter listens for more than just the spoken words.
+5. The supporter assures the seeker that their words will be remembered.
+6. The supporter summarizes points of agreement and disagreement when appropriate.
+7. The supporter keeps track of the points the seeker makes.
+8. The supporter shows they are listening through verbal acknowledgement.
+9. The supporter shows they are receptive to the seeker's ideas.
+10. The supporter asks questions that show understanding of the seeker's position.
+
+[Rating Scale]
+1: Strongly Disagree
+2: Disagree
+3: Somewhat Disagree
+4: Neither Agree Nor Disagree
+5: Somewhat Agree
+6: Agree
+7: Strongly Agree
+
+[Response Format]
+Question number: Score
+
+[The feeling and need of the seeker]
+{info}
+
+[Dialogue]
+{diag}
+\end{lstlisting}
+
+\end{document}
